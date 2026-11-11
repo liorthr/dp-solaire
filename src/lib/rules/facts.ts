@@ -48,7 +48,8 @@ export function buildFacts(ctx: FactsContext): Facts {
   const photoFacade = p.photos.find((x) => x.kind === "facade");
   const qualityIssues = p.photos.flatMap((ph) => (ph.quality?.issues ?? []).map((i) => `${ph.kind === "facade" ? "Photo façade" : ph.kind === "proche" ? "Photo proche" : "Photo lointaine"} : ${i.message}`));
 
-  const worstSouthDev = p.pv.roofPlanes.reduce((m, rp) => Math.max(m, Math.abs(((rp.azimuthDeg - 180 + 540) % 360) - 180)), 0);
+  const equipped = p.pv.roofPlanes.filter((rp) => p.pv.layouts.some((l) => l.roofPlaneId === rp.id && l.panels.length));
+  const worstSouthDev = equipped.reduce((m, rp) => Math.max(m, Math.abs(((rp.azimuthDeg - 180 + 540) % 360) - 180)), 0);
 
   const clientComplete = Boolean(client && client.lastName && client.firstName && (client.email || client.phone));
 

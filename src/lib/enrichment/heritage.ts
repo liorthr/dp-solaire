@@ -2,7 +2,7 @@
 // Règles : docs/regulation/04-patrimoine-abf.md
 import type { HeritageAnalysis, Servitude } from "@/lib/types";
 import type { Feature, Geometry } from "geojson";
-import { booleanPointInPolygon, circle, point, pointToPolygonDistance } from "@turf/turf";
+import { area, booleanPointInPolygon, circle, point, pointToPolygonDistance } from "@turf/turf";
 import { fixMojibake } from "@/lib/providers/core";
 
 export const ABORDS_RADIUS_M = 500;
@@ -48,6 +48,9 @@ export function analyzeHeritage(
 
   const monuments = (generators ?? [])
     .filter((g) => String(g.properties.suptype).toLowerCase() === "ac1")
+    // les PDA sont publiés comme générateurs « égaux au périmètre » : ce ne sont pas des monuments
+    .filter((g) => !/perim[eè]tre.?d[ée]limit/i.test(fixMojibake(String(g.properties.nomgen ?? g.properties.nomsuplitt ?? ""))))
+    .filter((g) => g.geometry.type === "Point" || area(g as Feature<Geometry>) < 30_000)
     .map((g) => ({ name: genName(g), distanceM: distanceToGenerator(lon, lat, g) }))
     .filter((m) => Number.isFinite(m.distanceM))
     .sort((a, b) => a.distanceM - b.distanceM)

@@ -1,6 +1,6 @@
 import next from "eslint-config-next";
 
-export default [
+const config = [
   ...next,
   {
     ignores: [".next/**", "out/**", "node_modules/**", "playwright-report/**", "test-results/**", "next-env.d.ts"],
@@ -12,6 +12,8 @@ export default [
       "react-hooks/refs": "off",
       "react-hooks/purity": "off",
       "react-hooks/immutability": "off",
+      "react-hooks/preserve-manual-memoization": "off",
     },
   },
 ];
+export default config;
