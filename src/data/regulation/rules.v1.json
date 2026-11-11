@@ -1,0 +1,264 @@
+{
+  "ruleset": "dp-pv-toiture",
+  "version": "2026.11.1",
+  "published_at": "2026-11-11",
+  "regimes": [
+    {
+      "code": "REGIME_MH_INSCRIT_PC",
+      "outcome": "PC",
+      "when": { "fact": "answers.buildingIsListedMH", "op": "eq", "value": true },
+      "message": "Le bâtiment est inscrit au titre des monuments historiques : les travaux relèvent d'un permis de construire (R*421-16), pas d'une déclaration préalable.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700",
+      "source_label": "Notice cerfa 51434, §2.2 5) : R. 421-16",
+      "verification": "VERIFIE",
+      "valid_from": "2026-10-19",
+      "valid_to": null
+    },
+    {
+      "code": "REGIME_SOL_PC_3MWC",
+      "outcome": "PC",
+      "when": { "all": [{ "fact": "pv.isGround", "op": "eq", "value": true }, { "fact": "pv.powerKwc", "op": "gte", "value": 3000 }] },
+      "message": "Installation au sol ou ombrière d'au moins 3 MWc : permis de construire (R. 421-1).",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700",
+      "source_label": "Notice cerfa 51434, §2.1 19)",
+      "verification": "VERIFIE",
+      "valid_from": "2024-12-01",
+      "valid_to": null
+    },
+    {
+      "code": "REGIME_SOL_PROTEGE_PC",
+      "outcome": "PC",
+      "when": { "all": [{ "fact": "pv.isGround", "op": "eq", "value": true }, { "fact": "pv.powerKwc", "op": "gte", "value": 3 }, { "fact": "heritage.protected", "op": "eq", "value": true }] },
+      "message": "Installation au sol d'au moins 3 kWc en secteur protégé (SPR, abords MH, site classé…) : permis de construire (R. 421-1).",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700",
+      "source_label": "Notice cerfa 51434, §2.1 19)",
+      "verification": "VERIFIE",
+      "valid_from": "2024-12-01",
+      "valid_to": null
+    },
+    {
+      "code": "REGIME_SOL_DISPENSE",
+      "outcome": "AUCUNE",
+      "when": { "all": [{ "fact": "pv.isGround", "op": "eq", "value": true }, { "fact": "pv.powerKwc", "op": "lt", "value": 3 }, { "fact": "pv.groundHeightM", "op": "lte", "value": 1.8 }, { "fact": "heritage.protected", "op": "eq", "value": false }] },
+      "message": "Installation au sol de moins de 3 kWc et d'au plus 1,80 m de haut, hors secteur protégé : aucune formalité d'urbanisme (R. 421-2 c). Le PLU reste applicable.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700",
+      "source_label": "Notice cerfa 51434, §2.1 19)",
+      "verification": "VERIFIE",
+      "valid_from": "2024-12-01",
+      "valid_to": null
+    },
+    {
+      "code": "REGIME_SOL_HORS_V1",
+      "outcome": "HORS_PERIMETRE",
+      "when": { "fact": "pv.isGround", "op": "eq", "value": true },
+      "message": "Installations au sol et ombrières : régime de déclaration préalable (R. 421-9 h) identifié, mais la génération des plans spécifiques arrive en V1.5. Aucun dossier n'est généré pour éviter un dossier incomplet.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700",
+      "source_label": "Notice cerfa 51434, §2.1 19)",
+      "verification": "VERIFIE",
+      "valid_from": "2024-12-01",
+      "valid_to": null
+    },
+    {
+      "code": "REGIME_TOITURE_DP",
+      "outcome": "DP",
+      "when": { "fact": "pv.isGround", "op": "eq", "value": false },
+      "message": "Pose de panneaux sur la toiture d'une construction existante : travaux modifiant l'aspect extérieur, soumis à déclaration préalable (R*421-17 a).",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578",
+      "source_label": "Service-public F17578 (vérifiée le 22/10/2026) et notice 51434 §2.2 5)",
+      "verification": "VERIFIE",
+      "valid_from": "2026-10-19",
+      "valid_to": null
+    }
+  ],
+  "pieces": [
+    { "code": "DP1", "cerfaCode": "DPC1", "label": "Plan de situation du terrain", "file": "DP1_plan_de_situation", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "Obligatoire dans tous les cas", "article": "R. 431-36 a)" },
+    { "code": "DP2", "cerfaCode": "DPC2", "label": "Plan de masse", "file": "DP2_plan_de_masse", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "Exigé si le volume est modifié ; fourni par défaut car attendu par la plupart des services instructeurs (À_VÉRIFIER, Q4)", "article": "R. 431-36 b)" },
+    { "code": "DP3", "cerfaCode": "DPC3", "label": "Plan en coupe", "file": "DP3_plan_en_coupe", "required": { "fact": "answers.modifiesVolume", "op": "eq", "value": true }, "optional": true, "why": "Exigé si le profil du terrain est modifié ; fourni en complément (profil de toiture)", "article": "R. 431-10 b)" },
+    { "code": "DP4", "cerfaCode": "DPC4", "label": "Plan des façades et des toitures", "file": "DP4_plan_des_facades_et_toitures", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "La toiture est modifiée", "article": "R. 431-10 a)" },
+    { "code": "DP5", "cerfaCode": "DPC5", "label": "Représentation de l'aspect extérieur", "file": "DP5_aspect_exterieur", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "L'aspect extérieur est modifié", "article": "R. 431-36 c)" },
+    { "code": "DP6", "cerfaCode": "DPC6", "label": "Document graphique d'insertion", "file": "DP6_insertion_paysagere", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Projet visible depuis l'espace public ou en secteur protégé", "article": "R. 431-10 c)" },
+    { "code": "DP7", "cerfaCode": "DPC7", "label": "Photographie de l'environnement proche", "file": "DP7_photo_environnement_proche", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Idem DP6", "article": "R. 431-10 d)" },
+    { "code": "DP8", "cerfaCode": "DPC8", "label": "Photographie du paysage lointain", "file": "DP8_photo_paysage_lointain", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Idem DP6", "article": "R. 431-10 d)" },
+    { "code": "DP11", "cerfaCode": "DPC11", "label": "Notice des matériaux et modalités d'exécution", "file": "DP11_notice_materiaux", "required": { "fact": "heritage.protected", "op": "eq", "value": true }, "why": "Recommandée en secteur protégé (À_VÉRIFIER, Q5) ; aide l'ABF à se prononcer", "article": "R. 431-14" }
+  ],
+  "deadlines": [
+    { "code": "DELAI_DROIT_COMMUN", "months": 1, "when": { "fact": "const.true", "op": "eq", "value": true }, "label": "Délai de droit commun : 1 mois", "source_url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006819920", "verification": "VERIFIE" },
+    { "code": "DELAI_MAJORATION_SECTEUR_PROTEGE", "months": 1, "when": { "fact": "heritage.protected", "op": "eq", "value": true }, "label": "Secteur protégé (ABF) : délai porté à 2 mois en général, notifié dans le mois suivant le dépôt", "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578", "verification": "VERIFIE" }
+  ],
+  "copies": [
+    { "when": { "fact": "heritage.protected", "op": "eq", "value": true }, "copies": 3, "extraSituationPlans": 2, "label": "Secteur protégé : 3 exemplaires + 2 plans de situation supplémentaires", "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578" },
+    { "when": { "fact": "const.true", "op": "eq", "value": true }, "copies": 2, "extraSituationPlans": 0, "label": "Cas général : 2 exemplaires", "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578" }
+  ],
+  "rules": [
+    {
+      "code": "PIECES_MANQUANTES", "version": 1, "category": "completude", "title": "Toutes les pièces requises sont présentes",
+      "condition": { "fact": "pieces.missingCount", "op": "gt", "value": 0 },
+      "severity": "bloquant", "weight": 40,
+      "message": "Pièces manquantes : {{pieces.missingList}}.",
+      "suggestion": "Complétez les étapes correspondantes (photos, insertion, plans) puis régénérez le dossier.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 §3.5", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "ADRESSE_ABSENTE", "version": 1, "category": "completude", "title": "Adresse du terrain identifiée",
+      "condition": { "fact": "address.ok", "op": "eq", "value": false },
+      "severity": "bloquant", "weight": 30,
+      "message": "L'adresse du terrain n'est pas identifiée.", "suggestion": "Saisissez l'adresse et choisissez une proposition de la liste.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/cerfa_16702.do", "source_label": "Cerfa 16702*03, cadre 3", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "PARCELLE_ABSENTE", "version": 1, "category": "completude", "title": "Références cadastrales connues",
+      "condition": { "fact": "parcels.count", "op": "eq", "value": 0 },
+      "severity": "bloquant", "weight": 30,
+      "message": "Aucune parcelle cadastrale n'est associée au projet.", "suggestion": "Sur la carte, cliquez sur la maison pour rattacher la parcelle, ou saisissez section et numéro.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/cerfa_16702.do", "source_label": "Cerfa 16702*03, cadre 3.2", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "MANDAT_NON_SIGNE", "version": 1, "category": "completude", "title": "Mandat de dépôt signé par le client",
+      "condition": { "fact": "mandate.signed", "op": "eq", "value": false },
+      "severity": "bloquant", "weight": 20,
+      "message": "Le mandat autorisant l'installateur à déposer pour le compte du client n'est pas signé.", "suggestion": "Faites signer le mandat au client (étape « Client »).",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578", "source_label": "F17578 §3 : dépôt par le propriétaire ou son mandataire", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "CLIENT_INCOMPLET", "version": 1, "category": "completude", "title": "Identité du déclarant complète",
+      "condition": { "fact": "client.complete", "op": "eq", "value": false },
+      "severity": "bloquant", "weight": 20,
+      "message": "Nom, prénom et coordonnées du maître d'ouvrage sont requis au cerfa.", "suggestion": "Complétez la fiche client.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/cerfa_16702.do", "source_label": "Cerfa 16702*03, cadres 1 et 2", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "COHERENCE_PUISSANCE", "version": 1, "category": "coherence", "title": "Puissance cohérente avec les panneaux",
+      "condition": { "fact": "pv.powerMismatchPct", "op": "gt", "value": 3 },
+      "severity": "alerte", "weight": 10,
+      "message": "Puissance déclarée {{pv.powerKwc}} kWc mais {{pv.panelCount}} panneaux × {{pv.panelWc}} Wc = {{pv.computedKwc}} kWc.", "suggestion": "Corrigez la puissance ou le nombre de panneaux : la même valeur figurera sur toutes les pièces.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 : sincérité des déclarations", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "COHERENCE_CALEPINAGE", "version": 1, "category": "coherence", "title": "Calepinage = nombre de panneaux déclaré",
+      "condition": { "fact": "layout.mismatch", "op": "eq", "value": true },
+      "severity": "bloquant", "weight": 15,
+      "message": "{{layout.placed}} panneaux placés sur les plans pour {{pv.panelCount}} déclarés.", "suggestion": "Ajustez le calepinage (étape Plans) ou le nombre de panneaux.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Cohérence DP2/DP4/DP5", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "CALEPINAGE_DEBORDE", "version": 1, "category": "coherence", "title": "Les panneaux tiennent sur le pan",
+      "condition": { "fact": "layout.capacityShortfall", "op": "gt", "value": 0 },
+      "severity": "bloquant", "weight": 15,
+      "message": "Il manque la place pour {{layout.capacityShortfall}} panneau(x) sur les pans choisis en respectant les marges.", "suggestion": "Ajoutez un pan, passez en paysage/portrait, ou réduisez le nombre de panneaux.",
+      "source_url": "https://www.photovoltaique.info/fr/", "source_label": "Règle de calepinage interne (marges de sécurité)", "verification": "A_VERIFIER", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "PHOTO_FACADE_MANQUANTE", "version": 1, "category": "plans", "title": "Photo de la façade avec la toiture",
+      "condition": { "fact": "photos.facade", "op": "eq", "value": false },
+      "severity": "bloquant", "weight": 20,
+      "message": "La photo de la façade avec la toiture est nécessaire pour l'insertion (DP5/DP6).", "suggestion": "Prenez la photo face à la maison, toiture entière visible, en plein jour.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 : DP5, DP6", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "PHOTO_QUALITE", "version": 1, "category": "plans", "title": "Qualité des photos (résolution, netteté, luminosité)",
+      "condition": { "fact": "photos.qualityIssues", "op": "gt", "value": 0 },
+      "severity": "alerte", "weight": 8,
+      "message": "{{photos.qualityList}}", "suggestion": "Reprenez les photos signalées : en plein jour, appareil stable, au moins 2 Mpx.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 : photographies originales", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "INSERTION_NON_FAITE", "version": 1, "category": "plans", "title": "Insertion visuelle positionnée",
+      "condition": { "fact": "insertion.done", "op": "eq", "value": false },
+      "severity": "bloquant", "weight": 15,
+      "message": "Le champ de panneaux n'est pas positionné sur la photo (DP5/DP6).", "suggestion": "Étape Insertion : placez les 4 coins du champ de panneaux sur la photo.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 : DP5, DP6", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "BATI_NON_IDENTIFIE", "version": 1, "category": "plans", "title": "Emprise du bâtiment connue",
+      "condition": { "fact": "building.found", "op": "eq", "value": false },
+      "severity": "alerte", "weight": 10,
+      "message": "Aucune emprise de bâtiment n'a été trouvée dans la BD TOPO : les plans DP2/DP4 utilisent des dimensions saisies.", "suggestion": "Sur la carte, cliquez sur la maison ou dessinez l'emprise.",
+      "source_url": "https://geoservices.ign.fr/bdtopo", "source_label": "IGN BD TOPO", "verification": "VERIFIE", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "ABF_SECTEUR", "version": 1, "category": "contexte", "title": "Secteur protégé : consultation de l'ABF",
+      "condition": { "fact": "heritage.protected", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 15,
+      "message": "Projet situé en secteur protégé ({{heritage.label}}) : l'ABF sera consulté et le délai d'instruction est en général porté à 2 mois. 3 exemplaires (+2 plans de situation) en dépôt papier.", "suggestion": "Privilégiez des panneaux full black à cadre noir, un champ rectangulaire aligné sur les ouvertures, en surimposition faible ou intégration ; évitez le pan visible depuis le monument. Joignez une notice matériaux (DP11). Un rendez-vous préalable avec l'UDAP est conseillé.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578", "source_label": "F17578 (secteur protégé) ; conseils matériaux : pratique UDAP (À_VÉRIFIER)", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "ABF_DIVERGENCE", "version": 1, "category": "contexte", "title": "Cohérence des sources patrimoniales",
+      "condition": { "fact": "heritage.divergence", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 10,
+      "message": "{{heritage.divergenceText}}", "suggestion": "Confirmez auprès de la mairie ou de l'UDAP puis indiquez la réponse (Contexte > Patrimoine).",
+      "source_url": "https://www.geoportail-urbanisme.gouv.fr/", "source_label": "Géoportail de l'Urbanisme (SUP AC1)", "verification": "A_VERIFIER", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "ABF_PANNEAUX_NON_NOIRS", "version": 1, "category": "contexte", "title": "Aspect des panneaux en secteur protégé",
+      "condition": { "all": [{ "fact": "heritage.protected", "op": "eq", "value": true }, { "fact": "pv.fullBlack", "op": "eq", "value": false }] },
+      "severity": "alerte", "weight": 10,
+      "message": "Panneaux non « full black » en secteur protégé : risque d'avis défavorable ou de prescriptions.", "suggestion": "Choisissez un module full black à cadre noir dans le catalogue.",
+      "source_url": "https://www.culture.gouv.fr/Thematiques/Monuments-Sites/Monuments-historiques-sites-patrimoniaux/Themes-environnementaux/L-installation-de-panneaux-photovoltaiques-en-abords-de-monuments-historiques-et-dans-les-sites-patrimoniaux-remarquables", "source_label": "Ministère de la Culture : PV en abords MH et SPR", "verification": "A_VERIFIER", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "PLU_ZONE_INCONNUE", "version": 1, "category": "contexte", "title": "Document d'urbanisme identifié",
+      "condition": { "all": [{ "fact": "plu.hasZone", "op": "eq", "value": false }, { "fact": "plu.rnu", "op": "eq", "value": false }] },
+      "severity": "alerte", "weight": 8,
+      "message": "Aucun zonage n'a été trouvé sur le Géoportail de l'Urbanisme pour ce terrain.", "suggestion": "Vérifiez auprès de la mairie le document applicable (PLU, carte communale) et ses règles sur les panneaux solaires.",
+      "source_url": "https://www.geoportail-urbanisme.gouv.fr/", "source_label": "Géoportail de l'Urbanisme", "verification": "VERIFIE", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "PLU_ZONE_N_A", "version": 1, "category": "contexte", "title": "Zone naturelle ou agricole",
+      "condition": { "fact": "plu.typezone", "op": "in", "value": ["N", "A"] },
+      "severity": "alerte", "weight": 12,
+      "message": "Le terrain est en zone {{plu.libelle}} ({{plu.libelong}}) du {{plu.docName}} : la constructibilité y est limitée et le règlement encadre souvent les panneaux solaires.", "suggestion": "Lisez le règlement de la zone (lien ci-dessous) : article sur l'aspect extérieur et les énergies renouvelables.",
+      "source_url": "https://www.geoportail-urbanisme.gouv.fr/", "source_label": "Géoportail de l'Urbanisme : zonage", "verification": "VERIFIE", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "PLU_ZONE_N_SOLAIRE_INTEGRATION", "version": 1, "category": "contexte", "title": "PLUi Nièvre et Somme, zone N : intégration exigée",
+      "communes": ["80011"],
+      "condition": { "all": [{ "fact": "commune.insee", "op": "eq", "value": "80011" }, { "fact": "plu.typezone", "op": "eq", "value": "N" }] },
+      "severity": "alerte", "weight": 12,
+      "message": "Règlement de la zone N (p. 65) : « les ouvrages de production d'électricité à partir de l'énergie solaire […] à condition qu'ils soient installés sur des bâtiments et qu'ils soient intégrés de façon harmonieuse à la construction ».", "suggestion": "Prévoyez une pose intégrée ou en surimposition faible, panneaux sombres, champ régulier ; décrivez l'intégration dans la notice. Portée de la règle pour un particulier : à confirmer avec le service instructeur.",
+      "source_url": "https://data.geopf.fr/annexes/gpu/documents/DU_200071223_A/a67897885e7840ee712216b9b94003e9/200071223_reglement_20251001_A.pdf", "source_label": "PLUi Nièvre et Somme, règlement, p. 65 (lu le 11/11/2026)", "verification": "A_VERIFIER", "valid_from": "2025-10-01", "valid_to": null
+    },
+    {
+      "code": "RISQUE_PPR", "version": 1, "category": "contexte", "title": "Plan de prévention des risques",
+      "condition": { "fact": "sup.pm1", "op": "eq", "value": true },
+      "severity": "info", "weight": 3,
+      "message": "Le terrain est couvert par un plan de prévention des risques (servitude PM1) : {{sup.pm1Name}}.", "suggestion": "Sans incidence en général pour une pose en toiture ; vérifiez le règlement du PPR si des équipements sont posés au sol (onduleur, batterie).",
+      "source_url": "https://www.georisques.gouv.fr/", "source_label": "GPU (SUP PM1) / Géorisques", "verification": "VERIFIE", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "LOTISSEMENT", "version": 1, "category": "contexte", "title": "Lotissement : cahier des charges",
+      "condition": { "fact": "answers.inLotissement", "op": "eq", "value": "oui" },
+      "severity": "alerte", "weight": 6,
+      "message": "Le terrain est dans un lotissement : le règlement ou le cahier des charges peut encadrer l'aspect des toitures.", "suggestion": "Vérifiez le cahier des charges du lotissement et, si besoin, l'accord de l'association syndicale.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/cerfa_16702.do", "source_label": "Cerfa 16702*03, cadre 3.3", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "COPROPRIETE", "version": 1, "category": "contexte", "title": "Copropriété : autorisation de l'assemblée générale",
+      "condition": { "fact": "answers.copropriete", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 8,
+      "message": "Bâtiment en copropriété : les travaux sur les parties communes (toiture) requièrent en principe une autorisation de l'assemblée générale.", "suggestion": "Joignez le procès-verbal d'AG au dossier client (non transmis à la mairie).",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578", "source_label": "F17578 : syndic et copropriétaire (À_VÉRIFIER : règle de majorité)", "verification": "A_VERIFIER", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "ORIENTATION_NORD", "version": 1, "category": "technique", "title": "Orientation du pan",
+      "condition": { "fact": "roof.worstSouthDeviation", "op": "gt", "value": 100 },
+      "severity": "info", "weight": 0,
+      "message": "Un pan est orienté vers le nord (écart au sud > 100°) : productible réduit.", "suggestion": "Information commerciale, sans incidence réglementaire.",
+      "source_url": "https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en", "source_label": "PVGIS", "verification": "VERIFIE", "valid_from": "2026-11-11", "valid_to": null
+    },
+    {
+      "code": "MAIRIE_SANS_EMAIL", "version": 1, "category": "depot", "title": "Canal de dépôt identifié",
+      "condition": { "fact": "mairie.hasEmail", "op": "eq", "value": false },
+      "severity": "info", "weight": 0,
+      "message": "Aucune adresse email de la mairie n'a été identifiée.", "suggestion": "Utilisez le téléservice de la commune (ou AD'AU), ou l'envoi en recommandé avec accusé de réception : le courrier type est prêt.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578", "source_label": "F17578 §5 : modes de transmission", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "DEPOT_ELECTRONIQUE_PM", "version": 1, "category": "depot", "title": "Dépôt électronique obligatoire (personne morale, > 3 500 hab.)",
+      "condition": { "all": [{ "fact": "filing.byLegalEntity", "op": "eq", "value": true }, { "fact": "filing.paper", "op": "eq", "value": true }] },
+      "severity": "alerte", "weight": 10,
+      "message": "Depuis le 01/01/2025, une personne morale doit déposer par voie électronique dans les communes de plus de 3 500 habitants, à peine d'irrecevabilité.", "suggestion": "Choisissez le téléservice de la commune, ou faites déposer le client (personne physique) lui-même.",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434, p. 5 (seuil de population et notion de déclarant : À_VÉRIFIER, Q6)", "verification": "A_VERIFIER", "valid_from": "2025-01-01", "valid_to": null
+    }
+  ]
+}
