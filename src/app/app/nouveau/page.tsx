@@ -124,7 +124,7 @@ function Wizard() {
             {address && (
               <p className="rounded-lg bg-brand-50 p-2 text-sm">
                 <strong>{address.label}</strong> : commune INSEE {address.insee}
-                {address.type === "manual" ? <span className="block text-xs text-amber-800">Adresse manuelle : vous désignerez la maison sur la carte.</span> : address.type !== "housenumber" && <span className="block text-xs text-amber-800">Adresse sans numéro : vous préciserez la maison sur la carte (onglet Plans).</span>}
+                {address.type === "gps" ? <span className="block text-xs text-emerald-800">Position GPS : le projet sera rattaché au bâtiment le plus proche du point.</span> : address.type === "manual" ? <span className="block text-xs text-amber-800">Adresse manuelle : vous désignerez la maison sur la carte.</span> : address.type !== "housenumber" && <span className="block text-xs text-amber-800">Adresse sans numéro : vous préciserez la maison sur la carte (onglet Plans).</span>}
               </p>
             )}
             <fieldset className="space-y-2 text-sm">

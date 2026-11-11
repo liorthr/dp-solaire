@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { MapPin } from "lucide-react";
+import { Crosshair, MapPin } from "lucide-react";
 import type { AddressResult } from "@/lib/types";
-import { searchAddress, searchCommunes, type Commune } from "@/lib/providers/ban";
+import { addressFromCoords, searchAddress, searchCommunes, type Commune } from "@/lib/providers/ban";
+import { parseCoords } from "@/lib/geo/coords";
 import { Button, Input, Select } from "./ui";
 
 export function AddressAutocomplete({ value, onSelect }: { value?: AddressResult; onSelect: (a: AddressResult) => void }) {
@@ -79,6 +80,7 @@ export function AddressAutocomplete({ value, onSelect }: { value?: AddressResult
           Adresse introuvable ? Saisie manuelle
         </button>
       )}
+      <GpsPicker onDone={(a) => { setManual(false); setError(""); choose(a); }} />
       {manual && <ManualAddress street={q} onDone={(a) => { setManual(false); choose(a); }} />}
       {open && results.length > 0 && (
         <ul id="address-list" role="listbox" className="absolute z-[600] mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-stone-200 bg-white shadow-lg">
@@ -151,6 +153,57 @@ function ManualAddress({ street, onDone }: { street: string; onDone: (a: Address
         Utiliser cette adresse
       </Button>
       <p className="text-xs text-stone-600">Position provisoire au centre de la commune : vous désignerez la maison sur la carte (onglet Plans) pour lancer l&apos;analyse cadastre/PLU au bon endroit.</p>
+    </div>
+  );
+}
+
+/** position GPS du téléphone (sur le chantier) ou coordonnées collées (Google Maps, Géoportail…) */
+function GpsPicker({ onDone }: { onDone: (a: AddressResult) => void }) {
+  const [txt, setTxt] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const resolve = async (lat: number, lon: number, accuracy?: number) => {
+    setBusy(true);
+    setMsg("");
+    try {
+      const a = await addressFromCoords(lon, lat);
+      if (accuracy && accuracy > 30) setMsg(`Précision GPS ≈ ${Math.round(accuracy)} m : vérifiez la maison sur la carte (onglet Plans).`);
+      onDone(a);
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const useDevice = () => {
+    if (!("geolocation" in navigator)) return setMsg("Géolocalisation non disponible sur cet appareil.");
+    setBusy(true);
+    setMsg("Localisation en cours…");
+    navigator.geolocation.getCurrentPosition(
+      (p) => resolve(p.coords.latitude, p.coords.longitude, p.coords.accuracy),
+      (e) => {
+        setBusy(false);
+        setMsg(e.code === e.PERMISSION_DENIED ? "Autorisez la localisation pour ce site dans votre navigateur, ou collez des coordonnées." : "Position introuvable : réessayez à l'extérieur ou collez des coordonnées.");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    );
+  };
+  const parsed = parseCoords(txt);
+  return (
+    <div className="mt-2 rounded-lg border border-stone-200 bg-stone-50 p-2.5 text-sm">
+      <p className="mb-1.5 text-xs font-medium text-stone-600">Ou par coordonnées GPS (pratique sur le chantier)</p>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button type="button" variant="outline" size="sm" onClick={useDevice} disabled={busy} data-testid="gps-device">
+          <Crosshair className="h-4 w-4" /> Ma position GPS
+        </Button>
+        <Input className="h-9 sm:flex-1" placeholder="ou collez : 49.88045, 2.23853" value={txt} onChange={(e) => setTxt(e.target.value)} aria-label="Coordonnées GPS" data-testid="gps-input" />
+        <Button type="button" size="sm" disabled={!parsed || busy} onClick={() => parsed && resolve(parsed.lat, parsed.lon)} data-testid="gps-validate">
+          Valider
+        </Button>
+      </div>
+      {txt && !parsed && <p className="mt-1 text-xs text-amber-800">Format attendu : latitude, longitude (ex. 49.88045, 2.23853) ou {`49°52'49"N 2°14'18"E`}.</p>}
+      {msg && <p className="mt-1 text-xs text-stone-700">{msg}</p>}
+      <p className="mt-1 text-xs text-stone-500">Placez-vous devant la maison : l&apos;analyse se rattache au bâtiment le plus proche du point.</p>
     </div>
   );
 }

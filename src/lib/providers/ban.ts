@@ -80,3 +80,27 @@ export async function reverseGeocode(lon: number, lat: number) {
   const { data, meta } = await fetchJson<{ features: BanFeature[] }>(BAN_ID, url, { timeoutMs: 8000 });
   return { result: parseBan(data)[0], meta };
 }
+
+/** commune (INSEE) contenant un point : geo.api.gouv.fr, indépendant de la BAN */
+export async function communeAt(lon: number, lat: number): Promise<Commune | undefined> {
+  const { data } = await fetchJson<Commune[]>("geo-api", `https://geo.api.gouv.fr/communes?lat=${r6(lat)}&lon=${r6(lon)}&fields=nom,code,codesPostaux,centre`, { timeoutMs: 8000 });
+  return data[0];
+}
+
+/**
+ * Adresse à partir de coordonnées GPS : BAN inverse si disponible (nom de voie), sinon commune via geo.api.gouv.fr.
+ * Le point GPS est conservé tel quel comme position du projet.
+ */
+export async function addressFromCoords(lon: number, lat: number): Promise<AddressResult> {
+  const pos = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+  try {
+    const { result } = await reverseGeocode(lon, lat);
+    if (result) return { ...result, label: `${result.label} (GPS ${pos})`, lon, lat, type: "gps" };
+  } catch {
+    /* BAN indisponible : commune seule */
+  }
+  const c = await communeAt(lon, lat);
+  if (!c) throw new Error("Ces coordonnées ne sont dans aucune commune française.");
+  const cp = c.codesPostaux[0] ?? "";
+  return { label: `Position GPS ${pos} ${cp} ${c.nom}`, street: undefined, postcode: cp, city: c.nom, insee: c.code, lon, lat, score: 1, type: "gps" };
+}

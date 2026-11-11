@@ -113,3 +113,23 @@ test("parcours complet : nouvelle adresse → dossier PDF + ZIP → email mairie
   await page.getByTestId("confirm-deposit").click();
   await expect(page.getByTestId("key-dates")).toContainText("Date limite de décision (1 mois)");
 });
+
+test("adresse par coordonnées GPS (BAN indisponible) → commune, parcelle et zonage trouvés", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.goto("app/nouveau/");
+  await page.getByTestId("gps-input").fill("49.880454, 2.238535");
+  await page.getByTestId("gps-validate").click();
+  await expect(page.getByText(/INSEE 80632/)).toBeVisible();
+  await expect(page.getByText(/Position GPS/).first()).toBeVisible();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.fill("#ln", "Gps-Fictif");
+  await page.fill("#fn", "Lea");
+  await page.fill("#em", "lea.gps@example.org");
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.getByTestId("create-project").click();
+  await page.waitForURL(/\/app\/dossier\//, { timeout: 90_000 });
+  await expect(page.getByText(/zone UC/)).toBeVisible();
+  await expect(page.getByText(/AI 0182/)).toBeVisible();
+});
