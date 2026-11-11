@@ -113,12 +113,14 @@ function ManualAddress({ street, onDone }: { street: string; onDone: (a: Address
       searchCommunes(cq)
         .then((c) => {
           setCommunes(c);
-          setSel(c[0]?.code ?? "");
+          const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          setSel((c.find((x) => norm(voie).includes(norm(x.nom))) ?? c[0])?.code ?? "");
           setErr("");
         })
         .catch(() => setErr("Service des communes indisponible."));
     }, 250);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cq]);
   const c = communes.find((x) => x.code === sel);
   return (
