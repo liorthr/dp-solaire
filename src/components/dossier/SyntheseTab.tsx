@@ -41,6 +41,11 @@ export function SyntheseTab({ b }: { b: ProjectBundle }) {
 
   return (
     <div className="space-y-4">
+      {e?.notices?.map((n) => (
+        <p key={n} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900" data-testid="notice">
+          {n}
+        </p>
+      ))}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2" title="Régime et conformité">
           <div className="space-y-3">

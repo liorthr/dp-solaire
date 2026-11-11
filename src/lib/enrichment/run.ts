@@ -1,6 +1,7 @@
 // Orchestration de l'enrichissement : appels parallèles, progression, mode dégradé par source.
 import type { AddressResult, BuildingInfo, EnrichmentResult, SourceMeta } from "@/lib/types";
-import { booleanPointInPolygon, point, pointToPolygonDistance } from "@turf/turf";
+import { booleanPointInPolygon, centroid, point, pointToPolygonDistance } from "@turf/turf";
+import { r6 } from "@/lib/providers/core";
 import { parcelsAt } from "@/lib/providers/cadastre";
 import { generatorsWithin, urbanismAt } from "@/lib/providers/gpu";
 import { buildingsAround } from "@/lib/providers/bdtopo";
@@ -36,8 +37,26 @@ export function pickMainBuilding(buildings: BuildingInfo[], lon: number, lat: nu
   return scored[0]?.b;
 }
 
-export async function runEnrichment(address: AddressResult, site: { lon: number; lat: number }, onProgress: Progress = () => {}): Promise<EnrichmentResult> {
-  const { lon, lat } = site;
+/**
+ * Adresse sans numéro (voie, lieu-dit) : le point BAN est au milieu de la voie. On rattache le projet au bâtiment
+ * résidentiel le plus proche (≤ 40 m) ; l'utilisateur confirme ou corrige sur la carte (divergence affichée).
+ */
+export async function resolveSite(address: AddressResult, site: { lon: number; lat: number }, snap: boolean) {
+  if (!snap) return { site, snapped: false, buildings: undefined as Awaited<ReturnType<typeof buildingsAround>> | undefined };
+  try {
+    const r = await buildingsAround(site.lon, site.lat);
+    const b = pickMainBuilding(r.buildings, site.lon, site.lat);
+    if (!b) return { site, snapped: false, buildings: r };
+    const [lon, lat] = centroid({ type: "Feature", geometry: b.geometry, properties: {} }).geometry.coordinates;
+    return { site: { lon: r6(lon), lat: r6(lat) }, snapped: true, buildings: r };
+  } catch {
+    return { site, snapped: false, buildings: undefined };
+  }
+}
+
+export async function runEnrichment(address: AddressResult, inputSite: { lon: number; lat: number }, onProgress: Progress = () => {}, opts: { snap?: boolean } = {}): Promise<EnrichmentResult & { site: { lon: number; lat: number }; snapped: boolean }> {
+  const resolved = await resolveSite(address, inputSite, opts.snap ?? false);
+  const { lon, lat } = resolved.site;
   const sources: Record<string, SourceMeta> = {};
   const result: EnrichmentResult = { address, parcels: [], buildings: [], zones: [], servitudes: [], prescriptions: [], risks: [], sources };
 
@@ -97,6 +116,7 @@ export async function runEnrichment(address: AddressResult, site: { lon: number;
   result.heritage = analyzeHeritage(lon, lat, servitudesOk ? result.servitudes : null, generators);
   onProgress("patrimoine", result.heritage.confidence === "haute" ? "ok" : "degraded", result.heritage.divergences[0]);
 
+  if (resolved.snapped) (result.notices ??= []).push("Adresse sans numéro : le projet a été rattaché au bâtiment résidentiel le plus proche du point de la voie. Vérifiez sur la carte (onglet Plans) et cliquez sur la bonne maison si besoin.");
   result.completedAt = new Date().toISOString();
-  return result;
+  return { ...result, site: resolved.site, snapped: resolved.snapped };
 }

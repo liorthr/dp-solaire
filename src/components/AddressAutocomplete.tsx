@@ -22,7 +22,7 @@ export function AddressAutocomplete({ value, onSelect }: { value?: AddressResult
     timer.current = setTimeout(async () => {
       try {
         setError("");
-        const r = await searchAddress(q, 6);
+        const r = await searchAddress(q);
         setResults(r.results);
         setOpen(true);
         setActive(0);

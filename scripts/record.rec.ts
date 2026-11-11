@@ -17,6 +17,8 @@ test("record fixtures", async () => {
     // requêtes de saisie progressive utilisées par l'E2E
     for (const n of [8, 14]) await searchAddress(d.address.label.slice(0, n)).catch(() => {});
     const r = await runEnrichment(d.address, d.site);
+    // parcours « nouvelle adresse » de l'E2E : point BAN de la voie + rattachement au bâtiment le plus proche
+    await runEnrichment(d.address, { lon: d.address.lon, lat: d.address.lat }, undefined, { snap: true });
     console.log(d.key, Object.entries(r.sources).map(([k, v]) => `${k}:${v.status}`).join(" "), "heritage", r.heritage?.abfConsultation);
     await solarYield(d.site.lat, d.site.lon, 35, 180, 6).catch(() => {});
     const rec = getRecorded()[annuaireUrl(d.address.insee)] as { results: unknown[] } | undefined;

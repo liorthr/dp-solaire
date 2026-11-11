@@ -62,8 +62,8 @@ function Wizard() {
       p.photos = Object.values(photos).filter(Boolean) as Photo[];
       if (sig && mandateOk) p.mandate = await simpleSignatureProvider.sign({ signerName: `${client.firstName} ${client.lastName}`, document: mandateText(p, client, s), imageDataUrl: sig });
       p = repo.saveProject(p);
-      const site = { lon: address.lon, lat: address.lat };
-      const enrichment = await runEnrichment(address, site, (id: StepId, status, message) => setProgress((pr) => ({ ...pr, [id]: { status, message } })));
+      const enrichment = await runEnrichment(address, { lon: address.lon, lat: address.lat }, (id: StepId, status, message) => setProgress((pr) => ({ ...pr, [id]: { status, message } })), { snap: address.type !== "housenumber" });
+      const site = enrichment.site;
       p = applyEnrichment(p, enrichment);
       if (panel) p = relayout(p, panel);
       p.overrides = { ...p.overrides, site };

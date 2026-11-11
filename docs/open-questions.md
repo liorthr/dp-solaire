@@ -17,3 +17,6 @@
 | Q13 | Délai de conservation des données des particuliers | Défaut produit : 5 ans après clôture, configurable | Valider avec un DPO |
 | Q14 | Validité juridique de la signature simple (tracé + hash) pour le mandat | Signature électronique simple (eIDAS) | Pour un mandat opposable, prévoir Yousign (avancée) |
 | Q15 | Mairie : détection fiable du téléservice (GNAU) | Champ `sve` de l'Annuaire souvent vide | Croiser avec la liste nationale des guichets (source à identifier) |
+| Q16 | Rattachement automatique au bâti pour les adresses sans numéro | Bâtiment résidentiel le plus proche (≤ 40 m) dans la BD TOPO | Toujours à confirmer sur la carte ; message affiché |
+| Q17 | Prévalence de « 2 exemplaires + 1 » (cerfa p. 11) vs « 3 exemplaires + 2 DP1 » (service-public) en secteur protégé | Formulations compatibles pour le dossier, différentes pour DP1 | Valider avec un service instructeur |
+| Q18 | Façades DP4 simplifiées (ouvertures non relevées) | Acceptable ? | Prévoir la saisie des ouvertures en V1.1 |

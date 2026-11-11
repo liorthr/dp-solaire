@@ -10,6 +10,8 @@
 - Remarque : de nombreux sites privés citent encore 13703 ou 16702\*01/\*02. Le produit stocke les versions dans `cerfa_versions` avec un mapping de champs par version, ce qui permet la bascule sans code.
 - DAACT : **Cerfa 13408\*14** (https://www.service-public.gouv.fr/particuliers/vosdroits/R1978, vérifié le 19/10/2026). **VÉRIFIÉ**
 
+> Le formulaire 16702\*03 numérote les pièces **DPC1…DPC8** dans son bordereau (cases P5PA2, P5PB1, P3GE1, P3GD1, P5PC1, P3GF1, P3GG1, P3GH1), alors que la notice parle de DP1…DP8. Le produit nomme les fichiers DP1… (usage courant) et coche les cases DPC correspondantes. Papier : 2 exemplaires + 1 supplémentaire en SPR/abords MH (page 11 du cerfa).
+
 ## Pièces (notice 51434 §3.5, VÉRIFIÉ)
 « Seule la pièce DP1 est à joindre obligatoirement dans tous les cas. DP2 n'est nécessaire que lorsque le projet crée une construction ou modifie le volume d'une construction existante. DP5 n'est à fournir que lorsque l'aspect extérieur est modifié. »
 

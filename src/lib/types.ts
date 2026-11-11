@@ -328,6 +328,8 @@ export interface EnrichmentResult {
   solar?: SolarEstimate;
   rnu?: boolean;
   sources: Record<string, SourceMeta>;
+  /** informations à valider par l'utilisateur (ex. rattachement automatique au bâtiment) */
+  notices?: string[];
   completedAt?: string;
 }
 
