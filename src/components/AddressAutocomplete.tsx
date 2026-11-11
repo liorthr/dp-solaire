@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import type { AddressResult } from "@/lib/types";
-import { searchAddress } from "@/lib/providers/ban";
-import { Input } from "./ui";
+import { searchAddress, searchCommunes, type Commune } from "@/lib/providers/ban";
+import { Button, Input, Select } from "./ui";
 
 export function AddressAutocomplete({ value, onSelect }: { value?: AddressResult; onSelect: (a: AddressResult) => void }) {
   const [q, setQ] = useState(value?.label ?? "");
@@ -11,6 +11,7 @@ export function AddressAutocomplete({ value, onSelect }: { value?: AddressResult
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const [error, setError] = useState("");
+  const [manual, setManual] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -65,7 +66,20 @@ export function AddressAutocomplete({ value, onSelect }: { value?: AddressResult
           } else if (e.key === "Escape") setOpen(false);
         }}
       />
-      {error && <p className="mt-1 text-xs text-red-700">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-red-700">
+          {error}{" "}
+          <button type="button" className="font-medium underline" onClick={() => setManual(true)} data-testid="manual-address">
+            Saisir l&apos;adresse manuellement
+          </button>
+        </p>
+      )}
+      {!error && !manual && (
+        <button type="button" className="mt-1 text-xs text-stone-500 underline" onClick={() => setManual(true)}>
+          Adresse introuvable ? Saisie manuelle
+        </button>
+      )}
+      {manual && <ManualAddress street={q} onDone={(a) => { setManual(false); choose(a); }} />}
       {open && results.length > 0 && (
         <ul id="address-list" role="listbox" className="absolute z-[600] mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-stone-200 bg-white shadow-lg">
           {results.map((r, i) => (
@@ -83,6 +97,58 @@ export function AddressAutocomplete({ value, onSelect }: { value?: AddressResult
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+/** repli manuel : voie libre + commune officielle (code INSEE) ; la maison est ensuite désignée sur la carte */
+function ManualAddress({ street, onDone }: { street: string; onDone: (a: AddressResult) => void }) {
+  const [voie, setVoie] = useState(street);
+  const [cq, setCq] = useState("");
+  const [communes, setCommunes] = useState<Commune[]>([]);
+  const [sel, setSel] = useState("");
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => {
+      searchCommunes(cq)
+        .then((c) => {
+          setCommunes(c);
+          setSel(c[0]?.code ?? "");
+          setErr("");
+        })
+        .catch(() => setErr("Service des communes indisponible."));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [cq]);
+  const c = communes.find((x) => x.code === sel);
+  return (
+    <div className="mt-2 space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm" data-testid="manual-panel">
+      <p className="font-medium">Saisie manuelle de l&apos;adresse</p>
+      <Input placeholder="Numéro et voie (ex. 12 allée des Tilleuls)" value={voie} onChange={(e) => setVoie(e.target.value)} aria-label="Numéro et voie" />
+      <Input placeholder="Code postal ou commune" value={cq} onChange={(e) => setCq(e.target.value)} aria-label="Code postal ou commune" data-testid="manual-commune" />
+      {communes.length > 0 && (
+        <Select value={sel} onChange={(e) => setSel(e.target.value)} aria-label="Commune">
+          {communes.map((x) => (
+            <option key={x.code} value={x.code}>
+              {x.nom} ({x.codesPostaux[0]}) : INSEE {x.code}
+            </option>
+          ))}
+        </Select>
+      )}
+      {err && <p className="text-xs text-red-700">{err}</p>}
+      <Button
+        type="button"
+        size="sm"
+        disabled={!c || !voie.trim()}
+        onClick={() => {
+          if (!c) return;
+          const pc = /\b\d{5}\b/.test(cq) ? cq.trim() : c.codesPostaux[0];
+          onDone({ label: `${voie.trim()} ${pc} ${c.nom}`, street: voie.trim(), postcode: pc, city: c.nom, insee: c.code, lon: c.centre.coordinates[0], lat: c.centre.coordinates[1], score: 0, type: "manual" });
+        }}
+      >
+        Utiliser cette adresse
+      </Button>
+      <p className="text-xs text-stone-600">Position provisoire au centre de la commune : vous désignerez la maison sur la carte (onglet Plans) pour lancer l&apos;analyse cadastre/PLU au bon endroit.</p>
     </div>
   );
 }

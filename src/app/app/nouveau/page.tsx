@@ -62,7 +62,8 @@ function Wizard() {
       p.photos = Object.values(photos).filter(Boolean) as Photo[];
       if (sig && mandateOk) p.mandate = await simpleSignatureProvider.sign({ signerName: `${client.firstName} ${client.lastName}`, document: mandateText(p, client, s), imageDataUrl: sig });
       p = repo.saveProject(p);
-      const enrichment = await runEnrichment(address, { lon: address.lon, lat: address.lat }, (id: StepId, status, message) => setProgress((pr) => ({ ...pr, [id]: { status, message } })), { snap: address.type !== "housenumber" });
+      const enrichment = await runEnrichment(address, { lon: address.lon, lat: address.lat }, (id: StepId, status, message) => setProgress((pr) => ({ ...pr, [id]: { status, message } })), { snap: address.type !== "housenumber" && address.type !== "manual" });
+      if (address.type === "manual") enrichment.notices = [...(enrichment.notices ?? []), "Adresse saisie manuellement : la position est provisoire (centre de la commune). Ouvrez l'onglet Plans et cliquez sur la maison pour relancer l'analyse au bon endroit."];
       const site = enrichment.site;
       p = applyEnrichment(p, enrichment);
       if (panel) p = relayout(p, panel);
@@ -123,7 +124,7 @@ function Wizard() {
             {address && (
               <p className="rounded-lg bg-brand-50 p-2 text-sm">
                 <strong>{address.label}</strong> : commune INSEE {address.insee}
-                {address.type !== "housenumber" && <span className="block text-xs text-amber-800">Adresse sans numéro : vous préciserez la maison sur la carte (onglet Plans).</span>}
+                {address.type === "manual" ? <span className="block text-xs text-amber-800">Adresse manuelle : vous désignerez la maison sur la carte.</span> : address.type !== "housenumber" && <span className="block text-xs text-amber-800">Adresse sans numéro : vous préciserez la maison sur la carte (onglet Plans).</span>}
               </p>
             )}
             <fieldset className="space-y-2 text-sm">

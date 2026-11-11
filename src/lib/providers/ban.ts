@@ -39,10 +39,40 @@ export function banSearchUrl(q: string, limit = 5) {
   return `${BASE}/search/?q=${encodeURIComponent(q.trim())}&limit=${limit}&autocomplete=1`;
 }
 
+/** service de géocodage de la Géoplateforme IGN (même format GeoJSON que la BAN) : utilisé en secours */
+export function geopfSearchUrl(q: string, limit = 5) {
+  return `https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(q.trim())}&limit=${limit}&index=address&autocomplete=1`;
+}
+
 export async function searchAddress(q: string, limit = 5) {
   if (q.trim().length < 3) return { results: [] as AddressResult[] };
-  const { data, meta } = await fetchJson<{ features: BanFeature[] }>(BAN_ID, banSearchUrl(q, limit), { timeoutMs: 8000, retries: 1 });
-  return { results: parseBan(data), meta };
+  try {
+    const { data, meta } = await fetchJson<{ features: BanFeature[] }>(BAN_ID, banSearchUrl(q, limit), { timeoutMs: 8000, retries: 1 });
+    return { results: parseBan(data), meta };
+  } catch (e) {
+    // BAN indisponible : repli sur la Géoplateforme
+    try {
+      const { data, meta } = await fetchJson<{ features: BanFeature[] }>("geopf-geocodage", geopfSearchUrl(q, limit), { timeoutMs: 8000, retries: 1 });
+      return { results: parseBan(data), meta };
+    } catch {
+      throw e;
+    }
+  }
+}
+
+export interface Commune {
+  nom: string;
+  code: string;
+  codesPostaux: string[];
+  centre: { coordinates: [number, number] };
+}
+/** API Découpage administratif (geo.api.gouv.fr) : saisie manuelle quand le géocodage est indisponible */
+export async function searchCommunes(q: string): Promise<Commune[]> {
+  const t = q.trim();
+  if (t.length < 2) return [];
+  const param = /^\d{5}$/.test(t) ? `codePostal=${t}` : `nom=${encodeURIComponent(t)}`;
+  const { data } = await fetchJson<Commune[]>("geo-api", `https://geo.api.gouv.fr/communes?${param}&fields=nom,code,codesPostaux,centre&limit=8`, { timeoutMs: 8000 });
+  return data;
 }
 
 export async function reverseGeocode(lon: number, lat: number) {
