@@ -20,3 +20,6 @@
 | Q16 | Rattachement automatique au bâti pour les adresses sans numéro | Bâtiment résidentiel le plus proche (≤ 40 m) dans la BD TOPO | Toujours à confirmer sur la carte ; message affiché |
 | Q17 | Prévalence de « 2 exemplaires + 1 » (cerfa p. 11) vs « 3 exemplaires + 2 DP1 » (service-public) en secteur protégé | Formulations compatibles pour le dossier, différentes pour DP1 | Valider avec un service instructeur |
 | Q18 | Façades DP4 simplifiées (ouvertures non relevées) | Acceptable ? | Prévoir la saisie des ouvertures en V1.1 |
+| Q19 | Pièces exactes exigées par Enedis pour la complétude (≤ 36 kVA) | Plan de situation, schéma, mandat, autorisation d'urbanisme supposés | Lire Enedis-PRO-RAC_20E |
+| Q20 | Coefficients de calcul (Iscmax 1,25 ; Tmin −10 °C ; chute AC 1 %) | Valeurs usuelles des guides UTE C 15-712 | Valider avec un électricien / le guide en vigueur |
+| Q21 | Pré-remplissage du SC 144C-5 (batterie) et du SC 144E | Formulaires vierges fournis | Relever les coordonnées |

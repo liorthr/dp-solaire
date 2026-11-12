@@ -1,0 +1,130 @@
+{
+  "ruleset": "raccordement-consuel",
+  "version": "2026.11.1",
+  "published_at": "2026-11-12",
+  "regimes": [],
+  "pieces": [],
+  "deadlines": [],
+  "copies": [],
+  "rules": [
+    {
+      "code": "RAC_PDL", "version": 1, "category": "raccordement", "title": "Point de livraison (PDL) renseigné",
+      "condition": { "fact": "elec.pdlValid", "op": "eq", "value": false },
+      "severity": "bloquant", "weight": 20,
+      "message": "Le numéro de point de livraison (PDL/PRM, 14 chiffres) est nécessaire pour la demande Enedis.", "suggestion": "Il figure sur la facture d'électricité du client ou sur l'écran du compteur Linky (touche +).",
+      "source_url": "https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-inf-36-kva/", "source_label": "photovoltaique.info : raccordement ≤ 36 kVA", "verification": "A_VERIFIER", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "RAC_PROCEDURE_36KVA", "version": 1, "category": "raccordement", "title": "Procédure de raccordement applicable",
+      "condition": { "fact": "elec.acPowerKva", "op": "gt", "value": 36 },
+      "severity": "bloquant", "weight": 30,
+      "message": "Puissance de raccordement de {{elec.acPowerKva}} kVA > 36 kVA : procédure des installations supérieures à 36 kVA (hors périmètre V1) et dossier technique Consuel SC 143 en complément.",
+      "suggestion": "Pour ≤ 36 kVA : demande en ligne sur Enedis Connect selon la procédure Enedis-PRO-RAC_20E.",
+      "source_url": "https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-inf-36-kva/", "source_label": "photovoltaique.info (Enedis-PRO-RAC_20E)", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "RAC_SANS_INJECTION_DECLARATION", "version": 1, "category": "raccordement", "title": "Autoconsommation totale : déclaration obligatoire (CACSI)",
+      "condition": { "fact": "elec.injection", "op": "eq", "value": "sans" },
+      "severity": "info", "weight": 0,
+      "message": "Même sans injection, la présence de l'installation doit être déclarée au gestionnaire de réseau ; l'acceptation de la déclaration complète par Enedis vaut Convention d'Autoconsommation Sans Injection (CACSI). Aucun frais de gestion ni de comptage au titre de la production.",
+      "suggestion": "Sur Enedis Connect, choisir « sans injection (autoconsommation totale) ».",
+      "source_url": "https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-inf-36-kva/sans-injection/", "source_label": "photovoltaique.info : sans injection", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "RAC_SANS_INJECTION_PUISSANCE", "version": 1, "category": "raccordement", "title": "Autoconsommation totale : production ≤ puissance souscrite",
+      "condition": { "all": [{ "fact": "elec.injection", "op": "eq", "value": "sans" }, { "fact": "elec.prodOverSubscribed", "op": "eq", "value": true }] },
+      "severity": "bloquant", "weight": 20,
+      "message": "Puissance de production ({{elec.acPowerKva}} kVA) supérieure à la puissance souscrite ({{elec.subscribedKva}} kVA) : non compatible avec l'autoconsommation totale.",
+      "suggestion": "Réduisez la puissance onduleur, augmentez la puissance souscrite ou passez en injection du surplus.",
+      "source_url": "https://www.photovoltaique.info/fr/faq/groupe/le-raccordement-au-reseau/", "source_label": "photovoltaique.info : FAQ raccordement", "verification": "A_VERIFIER", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "OA_TARIF_UNIQUE", "version": 1, "category": "achat", "title": "Contrat d'achat (S21 modifié) : tarif unique",
+      "condition": { "all": [{ "fact": "elec.injection", "op": "in", "value": ["surplus", "totale"] }, { "fact": "elec.buyer", "op": "eq", "value": "edf_oa" }] },
+      "severity": "info", "weight": 0,
+      "message": "Demande complète de raccordement à partir du 05/06/2026 (≤ 100 kWc) : tarif d'achat unique de 1,1 c€/kWh, indexé de 2 %/an, sans prime à l'investissement ; au-delà de 1 600 kWh/kWc.an l'injection n'est pas rémunérée. La demande complète de raccordement vaut demande de contrat d'achat si le producteur le demande.",
+      "suggestion": "Cocher la demande de contrat d'achat lors de la demande Enedis ; informer le client de la faible valorisation du surplus (privilégier l'autoconsommation).",
+      "source_url": "https://www.photovoltaique.info/fr/actualites/detail/arrete-s21-detail-des-modifications-et-nouveau-tarif-unique/", "source_label": "Arrêté du 1er juin 2026 modifiant l'arrêté S21 (photovoltaique.info)", "verification": "VERIFIE", "valid_from": "2026-06-05", "valid_to": null
+    },
+    {
+      "code": "OA_VENTE_TOTALE_9KWC", "version": 1, "category": "achat", "title": "Vente en totalité ≤ 9 kWc non éligible",
+      "condition": { "all": [{ "fact": "elec.injection", "op": "eq", "value": "totale" }, { "fact": "elec.buyer", "op": "eq", "value": "edf_oa" }, { "fact": "pv.powerKwc", "op": "lte", "value": 9 }] },
+      "severity": "bloquant", "weight": 25,
+      "message": "Les installations en vente de la totalité de puissance ≤ 9 kWc ne sont pas éligibles au tarif d'achat (arrêté du 1er juin 2026).",
+      "suggestion": "Passez en autoconsommation avec injection du surplus.",
+      "source_url": "https://www.photovoltaique.info/fr/actualites/detail/arrete-s21-detail-des-modifications-et-nouveau-tarif-unique/", "source_label": "Arrêté du 1er juin 2026 (photovoltaique.info)", "verification": "VERIFIE", "valid_from": "2026-06-05", "valid_to": null
+    },
+    {
+      "code": "RAC_CESSION_ENEDIS_3KW", "version": 1, "category": "achat", "title": "Cession gratuite du surplus à Enedis",
+      "condition": { "all": [{ "fact": "elec.buyer", "op": "eq", "value": "enedis" }, { "fact": "elec.acPowerKva", "op": "gt", "value": 3 }] },
+      "severity": "alerte", "weight": 10,
+      "message": "La cession du surplus à Enedis (case « je cède mon surplus à Enedis ») est prévue pour P ≤ 3 kW ; l'installation fait {{elec.acPowerKva}} kVA.",
+      "suggestion": "Choisissez le contrat d'achat (EDF OA) ou un autre acheteur.",
+      "source_url": "https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-inf-36-kva/", "source_label": "photovoltaique.info : raccordement ≤ 36 kVA", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "CONSUEL_OBLIGATOIRE", "version": 1, "category": "consuel", "title": "Attestation de conformité Consuel",
+      "condition": { "fact": "const.true", "op": "eq", "value": true },
+      "severity": "info", "weight": 0,
+      "message": "Installation de production < 250 kVA raccordée au réseau et modifiant l'installation intérieure : attestation de conformité visée par le Consuel avant mise sous tension. Attestation {{elec.attestation}} ({{elec.attestationCerfa}}) + dossier technique {{elec.consuelForm}}{{elec.extraFormsText}}.",
+      "suggestion": "Le dossier technique pré-rempli et le schéma unifilaire sont générés ci-dessous. Le Consuel transmet le visa au gestionnaire de réseau.",
+      "source_url": "https://www.consuel.com/dossiers-techniques/", "source_label": "Consuel : dossiers techniques (lu le 12/11/2026) ; photovoltaique.info : attestation Consuel", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "CONSUEL_CAS4", "version": 1, "category": "consuel", "title": "Raccordement « cas 4 » : schéma et SC 144E",
+      "condition": { "fact": "elec.connectionCase", "op": "eq", "value": 4 },
+      "severity": "alerte", "weight": 8,
+      "message": "Autre cas de raccordement (cas 4) : fournir un schéma électrique détaillé et renseigner la partie 2 du dossier technique SC 144E.",
+      "suggestion": "Préférez si possible un cas 1 à 3 (protection en amont de l'installation de consommation, § 551.7 NF C 15-100-1).",
+      "source_url": "https://www.consuel.com/wp-content/uploads/2026/07/SC-144A_5_aide-au-remplissage_3.pdf", "source_label": "Consuel : aide au remplissage SC 144A (juin 2026)", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "CONSUEL_EN50549", "version": 1, "category": "consuel", "title": "Certificat EN 50549 du découplage intégré",
+      "condition": { "fact": "elec.integratedDecoupling", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 5,
+      "message": "Découplage intégré à l'onduleur : joindre le certificat de conformité à la norme EN 50549-1 traduit en français. Pour P ≤ 36 kVA, ce certificat devra aussi couvrir la NF EN 50549-10 à compter du 01/01/2027.",
+      "suggestion": "Téléchargez le certificat sur le site du fabricant et ajoutez-le au dossier Consuel.",
+      "source_url": "https://www.consuel.com/wp-content/uploads/2026/07/SC-144A_5_aide-au-remplissage_3.pdf", "source_label": "Consuel : aide au remplissage SC 144A, rubrique (5)", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "ELEC_SPECS_MODULE", "version": 1, "category": "technique", "title": "Caractéristiques électriques du module",
+      "condition": { "fact": "elec.moduleSpecsKnown", "op": "eq", "value": false },
+      "severity": "alerte", "weight": 10,
+      "message": "Voc et Isc du module non renseignés : Iscmax et Uocmax du dossier Consuel ne peuvent pas être calculés.",
+      "suggestion": "Complétez la fiche du panneau dans le catalogue (fiche technique fabricant).",
+      "source_url": "https://www.consuel.com/wp-content/uploads/2026/07/SC-144A_5_aide-au-remplissage_3.pdf", "source_label": "Consuel : rubrique (1)", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "ELEC_PROTECTION_AGCP", "version": 1, "category": "technique", "title": "Protection AC ≤ réglage de l'AGCP (cas 1 et 2)",
+      "condition": { "fact": "elec.breakerOverAgcp", "op": "eq", "value": true },
+      "severity": "bloquant", "weight": 15,
+      "message": "Calibre de protection {{elec.breakerA}} A supérieur au réglage du disjoncteur de branchement ({{elec.agcpA}} A) : non conforme aux cas 1 et 2 (In protection ≤ Ir AGCP).",
+      "suggestion": "Vérifiez le réglage de l'AGCP ou la puissance onduleur.",
+      "source_url": "https://www.consuel.com/wp-content/uploads/2025/07/SC-144C2_2.pdf", "source_label": "Consuel SC 144C2-2, partie 3", "verification": "VERIFIE", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "ELEC_CHUTE_TENSION", "version": 1, "category": "technique", "title": "Chute de tension côté AC",
+      "condition": { "fact": "elec.dropPct", "op": "gt", "value": 1 },
+      "severity": "alerte", "weight": 6,
+      "message": "Chute de tension calculée de {{elec.dropPct}} % (> 1 % recommandé) entre onduleur(s) et tableau, section {{elec.sectionMm2}} mm².",
+      "suggestion": "Augmentez la section du câble AC ou rapprochez le point de raccordement.",
+      "source_url": "https://www.photovoltaique.info/fr/realiser-une-installation/regles-conception-mise-en-oeuvre/", "source_label": "Recommandation guides UTE C 15-712 (seuil À_VÉRIFIER)", "verification": "A_VERIFIER", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "RAC_URBANISME", "version": 1, "category": "raccordement", "title": "Autorisation d'urbanisme",
+      "condition": { "fact": "elec.urbanismeAccorde", "op": "eq", "value": false },
+      "severity": "alerte", "weight": 5,
+      "message": "La déclaration préalable n'est pas encore accordée : le gestionnaire de réseau peut demander l'autorisation d'urbanisme (ou son récépissé) pour compléter la demande.",
+      "suggestion": "Joignez le récépissé de dépôt, puis l'arrêté ou le certificat de non-opposition dès réception (onglet Suivi).",
+      "source_url": "https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-inf-36-kva/", "source_label": "Complétude de la demande (Enedis-PRO-RAC_20E) : pièce à confirmer", "verification": "A_VERIFIER", "valid_from": "2026-11-12", "valid_to": null
+    },
+    {
+      "code": "RAC_MANDAT", "version": 1, "category": "raccordement", "title": "Mandat raccordement / Consuel / contrat d'achat",
+      "condition": { "fact": "elec.mandateSigned", "op": "eq", "value": false },
+      "severity": "alerte", "weight": 10,
+      "message": "Le client n'a pas signé le mandat autorisant l'installateur à effectuer les démarches Enedis, Consuel et contrat d'achat en son nom.",
+      "suggestion": "Faites signer le mandat dans la section ci-dessous.",
+      "source_url": "https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-inf-36-kva/", "source_label": "Demande par un tiers mandaté", "verification": "A_VERIFIER", "valid_from": "2026-11-12", "valid_to": null
+    }
+  ]
+}

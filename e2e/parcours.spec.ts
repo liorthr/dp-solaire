@@ -133,3 +133,22 @@ test("adresse par coordonnées GPS (BAN indisponible) → commune, parcelle et z
   await expect(page.getByText(/zone UC/)).toBeVisible();
   await expect(page.getByText(/AI 0182/)).toBeVisible();
 });
+
+test("raccordement & Consuel : PDL, formulaire SC 144C2-2 et pack ZIP", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.getByTestId("project-row").filter({ hasText: "DEMO-1" }).click();
+  await page.getByRole("tab", { name: "Raccordement & Consuel" }).click();
+  await expect(page.getByTestId("rac-rules")).toContainText("Point de livraison (PDL) renseigné");
+  await page.getByTestId("pdl").fill("12345678901234");
+  await page.getByTestId("pdl").blur();
+  await expect(page.getByTestId("rac-rules")).not.toContainText("Point de livraison (PDL) renseigné");
+  await expect(page.getByTestId("consuel-form")).toHaveText("SC 144C2-2");
+  await expect(page.getByTestId("rac-rules")).toContainText("1,1 c€/kWh");
+  await page.getByTestId("generate-rac").click();
+  await expect(page.getByTestId("rac-downloads")).toBeVisible({ timeout: 90_000 });
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-rac-zip").click()]);
+  const zip = await JSZip.loadAsync(readFileSync((await dl.path())!));
+  const names = Object.keys(zip.files).map((n) => n.split("/").pop());
+  for (const f of ["01_Schema_unifilaire.pdf", "02_Consuel_SC_144C2-2_pre-rempli.pdf", "03_Note_de_calcul.pdf", "04_Recapitulatif_demande_Enedis.pdf", "05_Mandat_raccordement_Consuel.pdf", "06_Plan_de_situation.pdf"]) expect(names).toContain(f);
+});

@@ -12,7 +12,7 @@ import { photoStore } from "@/lib/store/db";
 import type { ProjectBundle } from "./useProject";
 import { useSaveProject } from "./useProject";
 
-const EVENT_LABEL: Record<InstructionEvent["type"], string> = {
+const EVENT_LABEL: Partial<Record<InstructionEvent["type"], string>> = {
   depot: "Dépôt",
   recepisse: "Récépissé / accusé de réception",
   notification_majoration: "Majoration du délai notifiée",
@@ -71,7 +71,7 @@ export function SuiviTab({ b }: { b: ProjectBundle }) {
 
       <Card title="Historique">
         <ul className="space-y-2 text-sm">
-          {[...p.events].sort((a, c) => a.date.localeCompare(c.date)).map((e) => (
+          {[...p.events].filter((e) => e.type in EVENT_LABEL).sort((a, c) => a.date.localeCompare(c.date)).map((e) => (
             <li key={e.id} className="flex items-start justify-between gap-2 border-l-2 border-brand-600 pl-3">
               <span>
                 <strong>{fr(e.date)}</strong> : {EVENT_LABEL[e.type]}

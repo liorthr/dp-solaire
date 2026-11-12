@@ -67,7 +67,7 @@ export async function renderInsertion(project: Project, photoId: string, panel?:
   return { before, after };
 }
 
-async function svgToPdfBytes(svgs: string[]): Promise<Uint8Array> {
+export async function svgToPdfBytes(svgs: string[]): Promise<Uint8Array> {
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
   for (const [i, s] of svgs.entries()) {
     if (i > 0) doc.addPage("a4", "landscape");
@@ -86,7 +86,7 @@ async function svgToPdfBytes(svgs: string[]): Promise<Uint8Array> {
   return new Uint8Array(doc.output("arraybuffer"));
 }
 
-function textPdf(title: string, blocks: { heading?: string; lines: string[] }[], footer: string, extras?: (doc: jsPDF, y: number) => number): Uint8Array {
+export function textPdf(title: string, blocks: { heading?: string; lines: string[] }[], footer: string, extras?: (doc: jsPDF, y: number) => number): Uint8Array {
   const doc = new jsPDF({ unit: "mm", format: "a4", compress: true });
   let y = 22;
   const W = 180;

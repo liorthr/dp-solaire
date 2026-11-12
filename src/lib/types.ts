@@ -68,6 +68,11 @@ export interface PanelModel {
   frameColor: "noir" | "argent";
   cellColor: "noir" | "bleu";
   fullBlack: boolean;
+  /** caractéristiques électriques STC (fiche technique) : Consuel / note de calcul */
+  vocV?: number;
+  iscA?: number;
+  /** coefficient de température de Voc (%/°C, négatif) */
+  vocTempCoeffPct?: number;
 }
 export interface InverterModel {
   id: ID;
@@ -75,6 +80,38 @@ export interface InverterModel {
   model: string;
   kind: "micro" | "central" | "optimiseur";
   powerVa: number;
+  phase?: "mono" | "tri";
+  /** découplage intégré conforme EN 50549-1 (certificat à joindre au dossier Consuel) */
+  integratedDecoupling?: boolean;
+}
+
+/** paramètres électriques et de raccordement (module Raccordement & Consuel) */
+export interface ElecInfo {
+  /** point de livraison (PDL / PRM Linky, 14 chiffres) */
+  pdl?: string;
+  subscribedKva?: number;
+  phase: "mono" | "tri";
+  /** calibre de réglage du disjoncteur de branchement (AGCP), A */
+  agcpA?: number;
+  injection: "surplus" | "totale" | "sans";
+  buyer: "edf_oa" | "enedis" | "autre";
+  battery: boolean;
+  batteryKwh?: number;
+  batteryRef?: string;
+  /** cas de raccordement Consuel (SC 144, rubrique 6b/4b) */
+  connectionCase: 1 | 2 | 3 | 4;
+  board: "principal" | "divisionnaire";
+  acCableLengthM: number;
+  acCableSectionMm2?: number;
+  dcCableSectionMm2: number;
+  modulesPerString?: number;
+  strings?: number;
+  dcSwitchUn?: number;
+  dcSwitchIn?: number;
+  microCount?: number;
+  installerName?: string;
+  /** mandat spécifique raccordement / Consuel / contrat d'achat */
+  mandate?: SignatureRecord;
 }
 
 export interface RoofPlane {
@@ -176,7 +213,15 @@ export interface InstructionEvent {
     | "decision_refus"
     | "retrait"
     | "certificat_tacite"
-    | "daact";
+    | "daact"
+    | "rac_demande"
+    | "rac_complete"
+    | "rac_proposition"
+    | "rac_acceptation"
+    | "rac_mise_en_service"
+    | "consuel_demande"
+    | "consuel_visite"
+    | "consuel_vise";
   date: string; // YYYY-MM-DD
   note?: string;
   payload?: Record<string, unknown>;
@@ -199,6 +244,7 @@ export interface Project {
   declarationSignature?: SignatureRecord;
   events: InstructionEvent[];
   answers: ProjectAnswers;
+  elec?: ElecInfo;
   generatedAt?: string;
   createdAt: string;
   updatedAt: string;

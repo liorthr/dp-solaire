@@ -12,10 +12,11 @@ import { InsertionTab } from "@/components/dossier/InsertionTab";
 import { DossierTab } from "@/components/dossier/DossierTab";
 import { EnvoiTab } from "@/components/dossier/EnvoiTab";
 import { SuiviTab } from "@/components/dossier/SuiviTab";
+import { RaccordementTab } from "@/components/dossier/RaccordementTab";
 import { STATUS_LABEL, STATUS_TONE } from "@/lib/project/status";
 import { repo } from "@/lib/store/db";
 
-type Tab = "synthese" | "plans" | "insertion" | "dossier" | "envoi" | "suivi";
+type Tab = "synthese" | "plans" | "insertion" | "dossier" | "envoi" | "suivi" | "raccordement";
 
 function DossierView() {
   const sp = useSearchParams();
@@ -60,6 +61,7 @@ function DossierView() {
           { id: "dossier", label: "Dossier" },
           { id: "envoi", label: "Envoi" },
           { id: "suivi", label: "Suivi" },
+          { id: "raccordement", label: "Raccordement & Consuel" },
         ]}
       />
       {tab === "synthese" && <SyntheseTab b={b} />}
@@ -68,6 +70,7 @@ function DossierView() {
       {tab === "dossier" && <DossierTab b={b} />}
       {tab === "envoi" && <EnvoiTab b={b} goTo={(t) => setTab(t as Tab)} />}
       {tab === "suivi" && <SuiviTab b={b} />}
+      {tab === "raccordement" && <RaccordementTab b={b} />}
     </div>
   );
 }

@@ -5,6 +5,7 @@
 | Acteur | Positionnement | Prix affiché | Source |
 |---|---|---|---|
 | **V2E** | Cité dans le brief comme prestataire manuel pour installateurs | **Aucune information publique trouvée** lors de nos recherches (offre, prix, avis) | Recherche web « V2E déclaration préalable panneaux solaires » : aucun résultat pertinent → À_VÉRIFIER |
+| Adelio (adelio.ai) | Plateforme « démarches énergie » : DP mairie (pièces DP1 à DP8, cerfa, calepinage IA, envoi aux mairies, suivi IA), **Consuel** et **raccordement**, en logiciel ou en service délégué à leur équipe | Non affiché sur la page d'accueil | https://www.adelio.ai/ (page d'accueil, lue le 12/11/2026) |
 | DPT Solaire | Outil en ligne générant la DP toiture (+ Consuel, extensions) | Particulier 19 € puis 39 €/DP (offre beta) ; offre pro sans prix visible | https://dpt-solaire.fr/ ; https://www.blog.dpt-solaire.fr/declaration-prealable-travaux-panneaux-solaires/ |
 | Dossier Solaire | Service particuliers et pros | DP à partir de 70 € | https://dossiersolaire.fr/ |
 | Permis Mairie | Dossier en ligne | 39 €/dossier ; abonnements Pro 79 € et Enterprise 149 € (période non précisée) | https://permismairie.com/blog/declaration-prealable-panneaux-solaires |

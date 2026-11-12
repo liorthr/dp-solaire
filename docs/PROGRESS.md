@@ -23,3 +23,11 @@ Qualité au dernier commit : lint 0 erreur ; typecheck OK ; Vitest 51/51 ; Playw
 - Annuaire : instantané pour les communes de démo ; ailleurs, lien vers l'Annuaire + saisie manuelle (le proxy serveur lève la limite).
 - PVGIS : estimation par latitude en statique.
 - Stripe : abonnement simulé.
+
+## 12/11/2026 : module Raccordement & Consuel
+- Onglet « Raccordement & Consuel » : PDL, puissance souscrite, AGCP, valorisation (surplus / totale / sans injection), acheteur, cas de raccordement, câbles, batterie.
+- Calculs : puissance AC, courant, calibre de protection, section et chute de tension, Iscmax/Uocmax ; choix automatique du dossier Consuel (SC 144C2-2 / A-5 / C-5, + SC 144E / SC 143) et de l'attestation (bleue/violette).
+- 15 règles sourcées (Consuel, Enedis, arrêté du 1er juin 2026).
+- Pack : schéma unifilaire vectoriel, SC 144 officiel pré-rempli, note de calcul, récapitulatif Enedis Connect, mandat signé, plan de situation, ZIP.
+- Suivi : demande, complétude, proposition, acceptation, Consuel (demande, visite, visa), mise en service.
+- Tests : Vitest 70/70, Playwright 9/9.
