@@ -1,6 +1,8 @@
 // Construction des faits évalués par le moteur à partir du projet (une seule source de vérité).
 import type { Client, EnrichmentResult, PanelModel, Project } from "@/lib/types";
-import { evaluate, ruleset, type Facts } from "./engine";
+import { evaluate, rulesetFor, type Facts } from "./engine";
+import { defaultPac, defaultIte, defaultPacUnits, ITE_FINISHES } from "@/data/works";
+import { distanceToLimit, iteMinDistance, pacPoint } from "@/lib/works/geom";
 import { layoutCapacity } from "@/lib/geo/calepinage";
 
 export interface FactsContext {
@@ -111,9 +113,32 @@ export function buildFacts(ctx: FactsContext): Facts {
     "filing.paper": p.filingMode === "lrar" || p.filingMode === "main_propre",
   };
 
-  // pièces requises / manquantes
+  // faits propres aux autres types de travaux
+  facts["works"] = p.works ?? "pv";
+  if (p.works === "pac") {
+    const pac = p.pac ?? defaultPac();
+    const unit = defaultPacUnits.find((u) => u.id === pac.unitId) ?? defaultPacUnits[0];
+    const pt = pacPoint(e, pac);
+    facts["pac.placement"] = pac.placement;
+    facts["pac.cover"] = pac.cover;
+    facts["pac.soundPowerDb"] = unit.soundPowerDb;
+    facts["pac.distanceLimitM"] = pt ? distanceToLimit(e, pt) ?? 99 : 99;
+    facts["pv.isGround"] = false;
+  }
+  if (p.works === "ite") {
+    const ite = p.ite ?? defaultIte();
+    facts["ite.thicknessCm"] = ite.thicknessCm;
+    facts["ite.finishLabel"] = ITE_FINISHES[ite.finish].toLowerCase();
+    facts["ite.colorName"] = ite.colorName;
+    facts["ite.overhangPublic"] = ite.overhangPublic;
+    facts["ite.overhangNeighbor"] = ite.overhangNeighbor;
+    facts["ite.derogation"] = ite.derogation;
+    facts["ite.minDistanceLimitM"] = iteMinDistance(e, ite.facadeIndexes, ite.thicknessCm) ?? 99;
+  }
+
+  // pièces requises / manquantes (selon le jeu de règles du type de travaux)
   const generated = new Set(ctx.generatedPieces ?? availablePieces(p));
-  const missing = ruleset.pieces.filter((pc) => !pc.optional && evaluate(pc.required, facts) && !generated.has(pc.code));
+  const missing = rulesetFor(p.works).pieces.filter((pc) => !pc.optional && evaluate(pc.required, facts) && !generated.has(pc.code));
   facts["pieces.missingCount"] = missing.length;
   facts["pieces.missingList"] = missing.map((m) => `${m.code} (${m.label})`).join(", ");
   return facts;
@@ -121,7 +146,8 @@ export function buildFacts(ctx: FactsContext): Facts {
 
 /** pièces que l'application est en mesure de produire avec les données actuelles */
 export function availablePieces(p: Project): string[] {
-  const out = ["DP1", "DP2", "DP3", "DP4", "DP11"];
+  const out = p.works === "pac" ? ["DP1", "DP2", "DP4", "DP11"] : ["DP1", "DP2", "DP3", "DP4", "DP11"];
+  if (p.works === "ite" && p.ite?.derogation) out.push("DP8-1");
   const hasFacade = p.photos.some((x) => x.kind === "facade");
   const hasInsertion = p.insertions.some((i) => i.quad.length === 4);
   if (hasFacade && hasInsertion) out.push("DP5", "DP6");

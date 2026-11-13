@@ -7,15 +7,16 @@ import { PDFDocument } from "pdf-lib";
 import JSZip from "jszip";
 import type { Client, InverterModel, PanelModel, Project, Tenant } from "@/lib/types";
 import { buildFacts } from "@/lib/rules/facts";
-import { evaluateProject, paperCopies, requiredPieces, ruleset } from "@/lib/rules/engine";
+import { evaluateProject, paperCopies, requiredPieces, rulesetFor } from "@/lib/rules/engine";
+import { dp2Works, dp3Ite, dp4Works } from "@/lib/works/plans";
 import { dp1, dp2, dp3, dp4, shotPoints, type PlanContext } from "@/lib/plans/dp";
 import { buildBasemap } from "@/lib/plans/basemap";
 import { DRAW, page, svgDoc, text, wrapText, n } from "@/lib/plans/svg";
-import { renderPanels, type Pt } from "@/lib/image/homography";
+import { renderFacadeFinish, renderPacUnit, renderPanels, type Pt } from "@/lib/image/homography";
 import { asset, blobToImage, imageToJpegDataUrl } from "@/lib/image/browser";
 import { photoStore } from "@/lib/store/db";
 import { cerfaData, currentCerfa, fillCerfa } from "./cerfa";
-import { DISCLAIMER, coverLetterEmail, lrarLetter, mandateText, noticeDescriptive, parcelRefs, TEMPLATES_VERSION } from "./texts";
+import { DISCLAIMER, coverLetterEmail, derogationNote, insertionImpact, insertionNotes, lrarLetter, mandateText, noticeDescriptive, parcelRefs, TEMPLATES_VERSION } from "./texts";
 import { fr } from "@/lib/instruction/deadlines";
 
 export interface BuildInput {
@@ -63,7 +64,12 @@ export async function renderInsertion(project: Project, photoId: string, panel?:
   };
   const before = mk();
   const after = mk();
-  if (ins && ins.quad.length === 4) renderPanels(after.getContext("2d", { willReadFrequently: true })!, ins.quad as Pt[], ins.rows, ins.cols, { frame: panel?.frameColor ?? "noir", cell: panel?.cellColor ?? "noir" });
+  if (ins && ins.quad.length === 4) {
+    const c2d = after.getContext("2d", { willReadFrequently: true })!;
+    if (project.works === "pac") renderPacUnit(c2d, ins.quad as Pt[], Boolean(project.pac?.cover));
+    else if (project.works === "ite") renderFacadeFinish(c2d, ins.quad as Pt[], project.ite?.colorHex ?? "#d8cbb3", project.ite?.finish ?? "enduit");
+    else renderPanels(c2d, ins.quad as Pt[], ins.rows, ins.cols, { frame: panel?.frameColor ?? "noir", cell: panel?.cellColor ?? "noir" });
+  }
   return { before, after };
 }
 
@@ -160,9 +166,11 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   if (!p.address) throw new Error("Adresse manquante");
   const s = site(p);
   const facts = buildFacts({ project: p, client, panel });
-  const ev = evaluateProject(facts);
+  const rs = rulesetFor(p.works);
+  const works = p.works ?? "pv";
+  const ev = evaluateProject(facts, undefined, rs);
   if (ev.regime.outcome !== "DP") throw new Error(`Aucun dossier DP généré : ${ev.regime.message}`);
-  const req = requiredPieces(facts).filter((x) => x.isRequired || x.code === "DP3");
+  const req = requiredPieces(facts, rs).filter((x) => x.isRequired || x.code === "DP3");
   const cart: PlanContext["cartouche"] = {
     reference: p.reference,
     address: p.address.label,
@@ -183,11 +191,20 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   if (!main && !input.noBasemap) warnings.push("Fond IGN indisponible pour DP1 : plan simplifié généré.");
   add("DP1", "Plan de situation", "DP1_plan_de_situation.pdf", await svgToPdfBytes([dp1(ctx, main, inset, scaleMain, 25000)]));
   prog("Plan de masse", 20);
-  add("DP2", "Plan de masse", "DP2_plan_de_masse.pdf", await svgToPdfBytes([dp2(ctx)]));
-  prog("Plan en coupe", 28);
-  add("DP3", "Plan en coupe", "DP3_plan_en_coupe.pdf", await svgToPdfBytes([dp3(ctx)]));
-  prog("Plans des façades et toitures", 36);
-  add("DP4", "Plan des façades et des toitures", "DP4_plan_des_facades_et_toitures.pdf", await svgToPdfBytes(dp4(ctx)));
+  add("DP2", "Plan de masse", "DP2_plan_de_masse.pdf", await svgToPdfBytes([works === "pv" ? dp2(ctx) : dp2Works(ctx)]));
+  if (works === "pv") {
+    prog("Plan en coupe", 28);
+    add("DP3", "Plan en coupe", "DP3_plan_en_coupe.pdf", await svgToPdfBytes([dp3(ctx)]));
+    prog("Plans des façades et toitures", 36);
+    add("DP4", "Plan des façades et des toitures", "DP4_plan_des_facades_et_toitures.pdf", await svgToPdfBytes(dp4(ctx)));
+  } else {
+    if (works === "ite") {
+      prog("Coupe de principe", 28);
+      add("DP3", "Coupe de principe du mur isolé", "DP3_coupe_de_principe.pdf", await svgToPdfBytes([dp3Ite(ctx)]));
+    }
+    prog("Plans des façades", 36);
+    add("DP4", "Plan des façades avant / après", "DP4_plan_des_facades.pdf", await svgToPdfBytes(dp4Works(ctx)));
+  }
 
   // ---------------------------------------------------------------- photos et insertion
   prog("Insertion visuelle DP5 / DP6", 46);
@@ -197,11 +214,11 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
     if (r && p.insertions.some((i) => i.photoId === facade.id && i.quad.length === 4)) {
       const before = await imageToJpegDataUrl(r.before, 1400);
       const after = await imageToJpegDataUrl(r.after, 1400);
-      add("DP5", "Représentation de l'aspect extérieur", "DP5_aspect_exterieur.pdf", await svgToPdfBytes([photoPage(cart, "DP5", "Aspect extérieur : avant / après", [{ ...before, caption: "État initial" }, { ...after, caption: "État projeté (photomontage)" }], ["Photomontage réalisé à partir de la photographie de la façade : champ de panneaux positionné en perspective (homographie 4 points).", panel ? `Aspect des modules : ${panel.fullBlack ? "full black" : panel.cellColor}, cadre ${panel.frameColor}.` : ""])]));
+      add("DP5", "Représentation de l'aspect extérieur", "DP5_aspect_exterieur.pdf", await svgToPdfBytes([photoPage(cart, "DP5", "Aspect extérieur : avant / après", [{ ...before, caption: "État initial" }, { ...after, caption: "État projeté (photomontage)" }], insertionNotes(p, panel))]));
       const afterBig = await imageToJpegDataUrl(r.after, 2000);
       const proche = p.photos.find((x) => x.kind === "proche");
       const imgs = [{ ...afterBig, caption: "Insertion du projet dans son environnement" }];
-      add("DP6", "Document graphique d'insertion", "DP6_insertion_paysagere.pdf", await svgToPdfBytes([photoPage(cart, "DP6", "Insertion dans l'environnement", imgs, ["Le projet ne modifie ni le volume ni la hauteur de la construction ; seule la couverture du pan équipé change d'aspect.", proche ? "Voir aussi DP7 (environnement proche)." : ""])]));
+      add("DP6", "Document graphique d'insertion", "DP6_insertion_paysagere.pdf", await svgToPdfBytes([photoPage(cart, "DP6", "Insertion dans l'environnement", imgs, [insertionImpact(p), proche ? "Voir aussi DP7 (environnement proche)." : ""])]));
     } else warnings.push("Insertion non positionnée : DP5/DP6 non générées.");
   }
   prog("Photographies DP7 / DP8", 58);
@@ -214,6 +231,10 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
     const j = await imageToJpegDataUrl(img, 2000);
     const sp = shotPoints(p, s).find((x) => x.kind === kind);
     add(code, title, file, await svgToPdfBytes([photoPage(cart, code, title, [{ ...j, caption: ph.caption || title }], [`Point de prise de vue repéré « ${code === "DP7" ? "7" : "8"} » sur DP1 et DP2${sp?.estimated ? " (position estimée)" : ""}.`, "Photographie originale (non photocopiée)."], true)]));
+  }
+
+  if (works === "ite" && p.ite?.derogation) {
+    add("DP8-1", "Note de dérogation (L. 152-5)", "DP8-1_note_derogation.pdf", textPdf("DP8-1 : Note justifiant la demande de dérogation", [{ lines: derogationNote(p) }], DISCLAIMER));
   }
 
   // ---------------------------------------------------------------- textes
@@ -238,7 +259,7 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
 
   // ---------------------------------------------------------------- cerfa
   prog("Cerfa 16702*03 pré-rempli", 76);
-  const generatedCodes = files.map((f) => f.code).filter((c) => /^DP\d+$/.test(c));
+  const generatedCodes = files.map((f) => f.code).filter((c) => /^DP\d+(-1)?$/.test(c));
   const mapping = currentCerfa();
   try {
     const res = await fetch(asset(mapping.pdf));
@@ -251,30 +272,30 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
 
   // ---------------------------------------------------------------- bordereau
   prog("Bordereau et courrier", 84);
-  const copies = paperCopies(facts);
+  const copies = paperCopies(facts, rs);
   const missing = req.filter((r) => r.isRequired && !generatedCodes.includes(r.code));
   const bordereau = textPdf(
     `Bordereau des pièces : ${p.reference}`,
     [
       { lines: [`Déclaration préalable : ${p.address.label}`, `Cadastre : ${parcelRefs(p.enrichment)}`, `Maître d'ouvrage : ${client ? `${client.firstName} ${client.lastName}` : ""} : mandataire : ${tenant.name}`, `Régime : ${ev.regime.message}`] },
-      { heading: "Pièces jointes", lines: ruleset.pieces.filter((pc) => generatedCodes.includes(pc.code)).map((pc) => `[x] ${pc.code} (${pc.cerfaCode} au cerfa) : ${pc.label} : ${pc.article}`) },
+      { heading: "Pièces jointes", lines: rs.pieces.filter((pc) => generatedCodes.includes(pc.code)).map((pc) => `[x] ${pc.code} (${pc.cerfaCode} au cerfa) : ${pc.label} : ${pc.article}`) },
       { heading: "Autres documents", lines: ["[x] Cerfa n° 16702*03 rempli", "[x] Mandat du maître d'ouvrage"] },
       ...(missing.length ? [{ heading: "Pièces manquantes à compléter", lines: missing.map((m) => `[ ] ${m.code} : ${m.label} (${m.why})`) }] : []),
       { heading: "Dépôt papier", lines: [`${copies.label} (source : ${copies.source_url}).`] },
-      { heading: "Contrôles automatiques", lines: [`Score indicatif : ${ev.blocking.length ? "dossier non déposable en l'état" : `${ev.score}/100`} (règles ${ruleset.version}, modèles ${TEMPLATES_VERSION}). Ce score n'est pas une garantie.`, ...ev.results.filter((r) => r.severity !== "ok").map((r) => `${r.severity.toUpperCase()} : ${r.title} : ${r.message}`)] },
+      { heading: "Contrôles automatiques", lines: [`Score indicatif : ${ev.blocking.length ? "dossier non déposable en l'état" : `${ev.score}/100`} (règles ${rs.ruleset} ${rs.version}, modèles ${TEMPLATES_VERSION}). Ce score n'est pas une garantie.`, ...ev.results.filter((r) => r.severity !== "ok").map((r) => `${r.severity.toUpperCase()} : ${r.title} : ${r.message}`)] },
     ],
     DISCLAIMER,
   );
   add("BORDEREAU", "Bordereau des pièces", "00_Bordereau_des_pieces.pdf", bordereau);
 
-  const pieceNames = files.filter((f) => /^DP\d+$/.test(f.code)).map((f) => f.code);
+  const pieceNames = files.filter((f) => /^DP\d+(-1)?$/.test(f.code)).map((f) => f.code);
   const mail = coverLetterEmail(p, client, tenant, p.enrichment?.mairie, [...pieceNames, "cerfa 16702*03", "mandat"]);
   const letter = lrarLetter(p, client, tenant, p.enrichment?.mairie, [...pieceNames, "cerfa 16702*03", "mandat"], copies.copies);
   add("COURRIER", "Courrier LRAR", "Courrier_LRAR_mairie.pdf", textPdf("Courrier de dépôt", [{ lines: letter.split("\n") }], DISCLAIMER));
 
   // ---------------------------------------------------------------- PDF unique
   prog("Assemblage du PDF unique", 90);
-  const order = ["BORDEREAU", "CERFA", "DP1", "DP2", "DP3", "DP4", "DP5", "DP6", "DP7", "DP8", "DP11", "MANDAT"];
+  const order = ["BORDEREAU", "CERFA", "DP1", "DP2", "DP3", "DP4", "DP5", "DP6", "DP7", "DP8", "DP8-1", "DP11", "MANDAT"];
   const merged = await PDFDocument.create();
   merged.setTitle(`Dossier DP ${p.reference}`);
   merged.setAuthor(tenant.name);

@@ -1,6 +1,6 @@
 import type { Client, PanelModel, Project, ProjectStatus } from "@/lib/types";
 import { buildFacts } from "@/lib/rules/facts";
-import { deadlineMonths, evaluateProject } from "@/lib/rules/engine";
+import { deadlineMonths, evaluateProject, rulesetFor } from "@/lib/rules/engine";
 import { computeInstruction } from "@/lib/instruction/deadlines";
 
 export const STATUS_LABEL: Record<ProjectStatus, string> = {
@@ -28,8 +28,9 @@ export const STATUS_TONE: Record<ProjectStatus, "neutral" | "info" | "alerte" | 
 
 export function analyze(p: Project, client: Client | undefined, panel: PanelModel | undefined, today?: string) {
   const facts = buildFacts({ project: p, client, panel });
-  const evaluation = evaluateProject(facts);
-  const months = deadlineMonths(facts);
+  const rs = rulesetFor(p.works);
+  const evaluation = evaluateProject(facts, undefined, rs);
+  const months = deadlineMonths(facts, rs);
   const instruction = computeInstruction(p.events, months.months, today);
   const status: ProjectStatus = p.events.some((e) => e.type === "depot") ? instruction.status : evaluation.blocking.length === 0 && evaluation.regime.outcome === "DP" ? "pret" : "brouillon";
   return { facts, evaluation, months, instruction, status };

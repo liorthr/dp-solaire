@@ -1,6 +1,8 @@
 // Moteur de conformité déterministe : évalue des règles versionnées (JSON) sur un ensemble de faits.
 // Aucune règle réglementaire n'est codée ici : tout vient de src/data/regulation/*.json.
 import rulesetJson from "@/data/regulation/rules.v1.json";
+import pacJson from "@/data/regulation/rules.pac.v1.json";
+import iteJson from "@/data/regulation/rules.ite.v1.json";
 
 export type Severity = "ok" | "info" | "alerte" | "bloquant";
 export type Op = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "in" | "nin" | "truthy" | "falsy" | "exists" | "matches";
@@ -64,6 +66,19 @@ export interface Ruleset {
 }
 
 export const ruleset = rulesetJson as unknown as Ruleset;
+
+type SpecificRuleset = Ruleset & { generic?: string[] };
+const merge = (spec: SpecificRuleset): Ruleset => ({
+  ...spec,
+  version: spec.version,
+  // contrôles génériques (complétude, photos, mandat, mairie…) partagés avec le jeu photovoltaïque
+  rules: [...ruleset.rules.filter((r) => spec.generic?.includes(r.code)), ...spec.rules],
+  deadlines: spec.deadlines.length ? spec.deadlines : ruleset.deadlines,
+  copies: spec.copies.length ? spec.copies : ruleset.copies,
+});
+const RULESETS: Record<string, Ruleset> = { pv: ruleset, pac: merge(pacJson as unknown as SpecificRuleset), ite: merge(iteJson as unknown as SpecificRuleset) };
+/** jeu de règles versionné selon le type de travaux */
+export const rulesetFor = (works?: string): Ruleset => RULESETS[works ?? "pv"] ?? ruleset;
 
 export type Facts = Record<string, unknown>;
 

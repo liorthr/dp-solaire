@@ -105,3 +105,73 @@ export function renderPanels(ctx: CanvasRenderingContext2D, quad: Pt[], rows: nu
   }
   ctx.putImageData(img, x0, y0);
 }
+
+const hexRgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) || 0);
+
+/** échantillonnage inverse générique : shade(u, v, rgbOriginal) → rgb à écrire (ou null pour laisser l'original) */
+function warpShade(ctx: CanvasRenderingContext2D, quad: Pt[], shade: (u: number, v: number, orig: number[]) => number[] | null) {
+  const unit: Pt[] = [[0, 0], [1, 0], [1, 1], [0, 1]];
+  const Hinv = invert(homography(unit, quad));
+  const xs = quad.map((p) => p[0]), ys = quad.map((p) => p[1]);
+  const x0 = Math.max(0, Math.floor(Math.min(...xs))), x1 = Math.min(ctx.canvas.width, Math.ceil(Math.max(...xs)));
+  const y0 = Math.max(0, Math.floor(Math.min(...ys))), y1 = Math.min(ctx.canvas.height, Math.ceil(Math.max(...ys)));
+  if (x1 <= x0 || y1 <= y0) return;
+  const img = ctx.getImageData(x0, y0, x1 - x0, y1 - y0);
+  const d = img.data;
+  for (let y = y0; y < y1; y++)
+    for (let x = x0; x < x1; x++) {
+      const [u, v] = apply(Hinv, [x + 0.5, y + 0.5]);
+      if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+      const i = ((y - y0) * (x1 - x0) + (x - x0)) * 4;
+      const rgb = shade(u, v, [d[i], d[i + 1], d[i + 2]]);
+      if (!rgb) continue;
+      d[i] = rgb[0];
+      d[i + 1] = rgb[1];
+      d[i + 2] = rgb[2];
+    }
+  ctx.putImageData(img, x0, y0);
+}
+
+/** unité extérieure de pompe à chaleur (caisson clair + grille de ventilateur, ou habillage bois) */
+export function renderPacUnit(ctx: CanvasRenderingContext2D, quad: Pt[], cover: boolean) {
+  warpShade(ctx, quad, (u, v) => {
+    const edge = u < 0.02 || u > 0.98 || v < 0.03 || v > 0.97;
+    if (edge) return [70, 74, 80];
+    if (cover) {
+      const slat = (v * 9) % 1;
+      const base = slat < 0.18 ? 70 : 128 - 25 * v;
+      return [base + 12, base - 6, base - 28];
+    }
+    const du = (u - 0.4) / 0.3, dv = (v - 0.5) / 0.4;
+    const r = Math.hypot(du * 0.75, dv);
+    if (r < 1) {
+      const ring = (r * 7) % 1 < 0.22;
+      return ring ? [55, 60, 66] : [120, 126, 132];
+    }
+    if (u > 0.78 && v > 0.15 && v < 0.85) return (v * 14) % 1 < 0.3 ? [180, 184, 188] : [222, 225, 228];
+    const shade = 236 - 18 * v;
+    return [shade, shade + 1, shade + 3];
+  });
+}
+
+/** façade isolée : enduit teinté (en conservant la lumière de la photo) ou bardage à lames */
+export function renderFacadeFinish(ctx: CanvasRenderingContext2D, quad: Pt[], colorHex: string, finish: string) {
+  const c = hexRgb(colorHex);
+  const bardage = finish.startsWith("bardage");
+  const brique = finish === "plaquette_brique";
+  warpShade(ctx, quad, (u, v, o) => {
+    const lum = (0.299 * o[0] + 0.587 * o[1] + 0.114 * o[2]) / 255;
+    // ouvertures conservées : vitrages et menuiseries (sombres) ou encadrements blancs ne sont pas recouverts
+    if (lum < 0.55 || (lum > 0.95 && Math.max(...o) - Math.min(...o) < 12)) return null;
+    const light = 0.72 + 0.4 * lum;
+    let k = 1;
+    if (bardage && (u * 40) % 1 < 0.08) k = 0.72;
+    if (brique) {
+      const row = Math.floor(v * 28);
+      const off = row % 2 ? 0.5 : 0;
+      if ((v * 28) % 1 < 0.1 || ((u * 12 + off) % 1) < 0.04) return [200, 196, 188];
+    }
+    const grain = 1 + 0.035 * Math.sin(u * 517 + v * 311);
+    return c.map((x) => Math.max(0, Math.min(255, x * light * k * grain)));
+  });
+}

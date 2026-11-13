@@ -13,12 +13,22 @@ import { applyEnrichment, newProject, relayout } from "@/lib/project/factory";
 import { runEnrichment, STEPS, type StepId } from "@/lib/enrichment/run";
 import { simpleSignatureProvider } from "@/lib/providers/signature";
 import { mandateText } from "@/lib/dossier/texts";
+import { IteEditor, PacEditor, WorksPicker } from "@/components/WorksEditor";
+import { defaultIte, defaultPac } from "@/data/works";
+import { bestPacFacade } from "@/lib/works/geom";
+import type { IteInfo, PacInfo, WorksType } from "@/lib/types";
 
 const STEP_LABELS = ["Adresse", "Client & mandat", "Projet", "Photos"];
 
 function Wizard() {
   const router = useRouter();
   const [step, setStep] = useState(0);
+  const [works, setWorks] = useState<WorksType>(() => {
+    const w = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("works") : null;
+    return w === "pac" || w === "ite" ? w : "pv";
+  });
+  const [pac, setPac] = useState<PacInfo>(defaultPac);
+  const [ite, setIte] = useState<IteInfo>(defaultIte);
   const [address, setAddress] = useState<AddressResult>();
   const [answers, setAnswers] = useState<ProjectAnswers>({ visibleFromPublicSpace: true, inLotissement: "nsp", copropriete: false, buildingIsListedMH: false });
   const clients = repo.clients();
@@ -44,9 +54,9 @@ function Wizard() {
   const canNext = useMemo(() => {
     if (step === 0) return Boolean(address);
     if (step === 1) return Boolean(existingClient || (c.lastName && c.firstName && (c.email || c.phone)));
-    if (step === 2) return Boolean(panel && count > 0);
+    if (step === 2) return works !== "pv" || Boolean(panel && count > 0);
     return true;
-  }, [step, address, existingClient, c, panel, count]);
+  }, [step, address, existingClient, c, panel, count, works]);
 
   const create = async () => {
     if (!address) return;
@@ -58,7 +68,10 @@ function Wizard() {
       let p: Project = newProject(s.id, currentSession()!.user.id, address);
       p.clientId = client.id;
       p.answers = answers;
-      p.pv = { ...p.pv, panelId, panelCount: count, powerKwc: power ? Number(power.replace(",", ".")) : computed, mounting, inverterId };
+      p.works = works;
+      if (works === "pv") p.pv = { ...p.pv, panelId, panelCount: count, powerKwc: power ? Number(power.replace(",", ".")) : computed, mounting, inverterId };
+      if (works === "pac") p.pac = pac;
+      if (works === "ite") p.ite = ite;
       p.photos = Object.values(photos).filter(Boolean) as Photo[];
       if (sig && mandateOk) p.mandate = await simpleSignatureProvider.sign({ signerName: `${client.firstName} ${client.lastName}`, document: mandateText(p, client, s), imageDataUrl: sig });
       p = repo.saveProject(p);
@@ -66,7 +79,8 @@ function Wizard() {
       if (address.type === "manual") enrichment.notices = [...(enrichment.notices ?? []), "Adresse saisie manuellement : la position est provisoire (centre de la commune). Ouvrez l'onglet Plans et cliquez sur la maison pour relancer l'analyse au bon endroit."];
       const site = enrichment.site;
       p = applyEnrichment(p, enrichment);
-      if (panel) p = relayout(p, panel);
+      if (works === "pv" && panel) p = relayout(p, panel);
+      if (works === "pac") p.pac = { ...pac, facadeIndex: bestPacFacade(enrichment, pac) };
       p.overrides = { ...p.overrides, site };
       repo.saveProject(p, "enrichissement");
       router.push(`/app/dossier/?id=${p.id}`);
@@ -118,6 +132,7 @@ function Wizard() {
       {step === 0 && (
         <Card title="Où se trouve le chantier ?">
           <div className="space-y-4">
+            <WorksPicker value={works} onChange={setWorks} />
             <Field label="Adresse du chantier" htmlFor="address" help="Tapez l'adresse : la Base Adresse Nationale propose les correspondances. Tout le reste (cadastre, PLU, monuments, mairie) est déduit automatiquement." example="Allée des Tilleuls 80480 Pont-de-Metz">
               <AddressAutocomplete value={address} onSelect={setAddress} />
             </Field>
@@ -130,7 +145,7 @@ function Wizard() {
             <fieldset className="space-y-2 text-sm">
               <legend className="font-medium">Questions rapides (laisser par défaut si vous ne savez pas)</legend>
               <label className="flex items-center gap-2">
-                <input type="checkbox" checked={answers.visibleFromPublicSpace !== false} onChange={(e) => setAnswers({ ...answers, visibleFromPublicSpace: e.target.checked })} /> La toiture est visible depuis la rue
+                <input type="checkbox" checked={answers.visibleFromPublicSpace !== false} onChange={(e) => setAnswers({ ...answers, visibleFromPublicSpace: e.target.checked })} /> {works === "pv" ? "La toiture est visible depuis la rue" : "Les travaux sont visibles depuis la rue"}
               </label>
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={Boolean(answers.copropriete)} onChange={(e) => setAnswers({ ...answers, copropriete: e.target.checked })} /> Bâtiment en copropriété
@@ -204,7 +219,19 @@ function Wizard() {
         </Card>
       )}
 
-      {step === 2 && (
+      {step === 2 && works === "pac" && (
+        <Card title="La pompe à chaleur">
+          <PacEditor value={pac} onChange={setPac} />
+          <p className="mt-2 text-xs text-stone-600">La façade est choisie automatiquement (la plus éloignée des voisins) après l&apos;analyse du terrain ; vous pourrez la changer dans l&apos;onglet Plans.</p>
+        </Card>
+      )}
+      {step === 2 && works === "ite" && (
+        <Card title="L'isolation par l'extérieur">
+          <IteEditor value={ite} onChange={setIte} />
+          <p className="mt-2 text-xs text-stone-600">Toutes les façades sont isolées par défaut ; vous pourrez en retirer dans l&apos;onglet Plans une fois le bâtiment identifié.</p>
+        </Card>
+      )}
+      {step === 2 && works === "pv" && (
         <Card title="Le projet photovoltaïque">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Modèle de panneau" htmlFor="panel" help="Catalogue de votre entreprise (Paramètres > Catalogue). Les dimensions servent au calepinage et aux plans.">

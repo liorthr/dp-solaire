@@ -1,0 +1,96 @@
+{
+  "ruleset": "dp-pac",
+  "version": "2026.11.1",
+  "published_at": "2026-11-13",
+  "regimes": [
+    {
+      "code": "REGIME_PAC_FACADE_TOITURE_DP", "outcome": "DP",
+      "when": { "fact": "pac.placement", "op": "in", "value": ["facade", "toiture"] },
+      "message": "Unité extérieure fixée en façade ou en toiture : elle modifie l'aspect extérieur du bâtiment, une déclaration préalable est nécessaire.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "Service-public F36778 (vérifiée le 30/03/2026)", "verification": "VERIFIE", "valid_from": "2026-03-30", "valid_to": null
+    },
+    {
+      "code": "REGIME_PAC_SOL_DALLE_PROTEGE_DP", "outcome": "DP",
+      "when": { "all": [{ "fact": "pac.placement", "op": "eq", "value": "sol_dalle" }, { "fact": "heritage.protected", "op": "eq", "value": true }] },
+      "message": "Unité posée au sol sur une dalle en secteur protégé : déclaration préalable, quelle que soit la surface de la dalle.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "Service-public F36778", "verification": "VERIFIE", "valid_from": "2026-03-30", "valid_to": null
+    },
+    {
+      "code": "REGIME_PAC_SOL_DISPENSE", "outcome": "AUCUNE",
+      "when": { "fact": "pac.placement", "op": "in", "value": ["sol_dalle", "sol_sans_dalle"] },
+      "message": "Unité posée au sol sans modifier l'aspect extérieur du bâtiment, hors secteur protégé (ou sans dalle) : pas d'autorisation d'urbanisme. Le PLU et les règles de bruit de voisinage restent applicables.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "Service-public F36778", "verification": "VERIFIE", "valid_from": "2026-03-30", "valid_to": null
+    }
+  ],
+  "pieces": [
+    { "code": "DP1", "cerfaCode": "DPC1", "label": "Plan de situation du terrain", "file": "DP1_plan_de_situation", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "Obligatoire dans tous les cas", "article": "R. 431-36 a)" },
+    { "code": "DP2", "cerfaCode": "DPC2", "label": "Plan de masse (emplacement de l'unité)", "file": "DP2_plan_de_masse", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "Situe l'unité extérieure et sa distance aux limites (recommandé pour l'instruction)", "article": "R. 431-36 b)" },
+    { "code": "DP4", "cerfaCode": "DPC4", "label": "Plan de la façade concernée", "file": "DP4_plan_des_facades", "required": { "fact": "pac.placement", "op": "in", "value": ["facade", "toiture"] }, "why": "La façade ou la toiture est modifiée", "article": "R. 431-10 a)" },
+    { "code": "DP5", "cerfaCode": "DPC5", "label": "Représentation de l'aspect extérieur", "file": "DP5_aspect_exterieur", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "L'aspect extérieur est modifié", "article": "R. 431-36 c)" },
+    { "code": "DP6", "cerfaCode": "DPC6", "label": "Document graphique d'insertion", "file": "DP6_insertion", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Visible depuis l'espace public ou secteur protégé", "article": "R. 431-10 c)" },
+    { "code": "DP7", "cerfaCode": "DPC7", "label": "Photographie de l'environnement proche", "file": "DP7_photo_environnement_proche", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Idem DP6", "article": "R. 431-10 d)" },
+    { "code": "DP8", "cerfaCode": "DPC8", "label": "Photographie du paysage lointain", "file": "DP8_photo_paysage_lointain", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Idem DP6", "article": "R. 431-10 d)" },
+    { "code": "DP11", "cerfaCode": "DPC11", "label": "Notice des matériaux et modalités d'exécution", "file": "DP11_notice_materiaux", "required": { "fact": "heritage.protected", "op": "eq", "value": true }, "why": "Recommandée en secteur protégé (À_VÉRIFIER, Q5)", "article": "R. 431-14" }
+  ],
+  "deadlines": [],
+  "copies": [],
+  "generic": ["PIECES_MANQUANTES", "ADRESSE_ABSENTE", "PARCELLE_ABSENTE", "MANDAT_NON_SIGNE", "CLIENT_INCOMPLET", "PHOTO_FACADE_MANQUANTE", "PHOTO_QUALITE", "INSERTION_NON_FAITE", "BATI_NON_IDENTIFIE", "ABF_DIVERGENCE", "PLU_ZONE_INCONNUE", "LOTISSEMENT", "MAIRIE_SANS_EMAIL", "DEPOT_ELECTRONIQUE_PM"],
+  "rules": [
+    {
+      "code": "PAC_BRUIT_VOISINAGE", "version": 1, "category": "contexte", "title": "Bruit de voisinage",
+      "condition": { "fact": "pac.distanceLimitM", "op": "lt", "value": 4 },
+      "severity": "alerte", "weight": 10,
+      "message": "L'unité est à environ {{pac.distanceLimitM}} m de la limite de propriété (puissance acoustique {{pac.soundPowerDb}} dB(A)) : l'installation ne doit pas causer de trouble anormal du voisinage (code de la santé publique).",
+      "suggestion": "Éloignez l'unité des limites et des fenêtres voisines, orientez le ventilateur vers votre terrain, prévoyez des plots antivibratiles ou un écran acoustique. Seuil de 4 m : repère interne, À_VÉRIFIER (calcul d'émergence selon le site).",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "F36778 : trouble anormal du voisinage ; CSP R1336-5", "verification": "A_VERIFIER", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "PAC_BRUIT_INFO", "version": 1, "category": "contexte", "title": "Bruit : rappel",
+      "condition": { "fact": "pac.distanceLimitM", "op": "gte", "value": 4 },
+      "severity": "info", "weight": 0,
+      "message": "L'installation ne doit pas causer de trouble anormal du voisinage ; unité à environ {{pac.distanceLimitM}} m de la limite la plus proche.",
+      "suggestion": "Évitez de diriger le ventilateur vers les fenêtres voisines.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "F36778", "verification": "VERIFIE", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "PAC_COPROPRIETE", "version": 1, "category": "contexte", "title": "Copropriété : vote de l'assemblée générale",
+      "condition": { "fact": "answers.copropriete", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 10,
+      "message": "En copropriété, la pose d'une unité extérieure sur les parties communes ou affectant l'aspect de l'immeuble doit être autorisée par l'assemblée générale à la majorité absolue (article 25 de la loi du 10 juillet 1965).",
+      "suggestion": "Faites inscrire le projet à l'ordre du jour de la prochaine AG.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "F36778 : loi n° 65-557, article 25", "verification": "VERIFIE", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "PAC_SECTEUR_PROTEGE", "version": 1, "category": "contexte", "title": "Secteur protégé : intégration de l'unité",
+      "condition": { "fact": "heritage.protected", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 15,
+      "message": "Projet en secteur protégé ({{heritage.label}}) : l'ABF est consulté et le délai d'instruction est porté à 2 mois en général.",
+      "suggestion": "Placez l'unité hors de la vue depuis l'espace public (cour, jardin, façade arrière), dans un coloris proche du mur ou derrière un habillage ajouré ; évitez la façade sur rue et la toiture.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578", "source_label": "F17578 (secteur protégé) ; conseils d'intégration : pratique UDAP (À_VÉRIFIER)", "verification": "VERIFIE", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "PAC_FACADE_RUE", "version": 1, "category": "contexte", "title": "Unité visible depuis la rue",
+      "condition": { "all": [{ "fact": "pac.placement", "op": "in", "value": ["facade", "toiture"] }, { "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "pac.cover", "op": "eq", "value": false }] },
+      "severity": "info", "weight": 3,
+      "message": "L'unité sera visible depuis l'espace public : le règlement du PLU (article sur l'aspect extérieur) peut imposer son intégration.",
+      "suggestion": "Prévoyez un habillage (caisson ajouré) ou une implantation moins visible ; vérifiez l'article « aspect extérieur » de la zone.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "F36778 : respect du PLU", "verification": "VERIFIE", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "PAC_PLU_ZONE", "version": 1, "category": "contexte", "title": "Règles du PLU",
+      "condition": { "fact": "plu.hasZone", "op": "eq", "value": true },
+      "severity": "info", "weight": 0,
+      "message": "Le terrain est en zone {{plu.libelle}} du {{plu.docName}} : l'installation doit respecter son règlement, même sans autorisation d'urbanisme.",
+      "suggestion": "Consultez le règlement de zone (lien dans « Urbanisme »).",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36778", "source_label": "F36778", "verification": "VERIFIE", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "AIDES_RENOV", "version": 1, "category": "info", "title": "Aides à la rénovation énergétique",
+      "condition": { "fact": "const.true", "op": "eq", "value": true },
+      "severity": "info", "weight": 0,
+      "message": "Des aides existent pour les projets de rénovation énergétique (MaPrimeRénov', éco-PTZ, TVA à taux réduit…) ; un conseiller France Rénov' informe gratuitement (0 808 800 700).",
+      "suggestion": "Informez votre client avant la signature du devis.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "Service-public (rubrique aides)", "verification": "VERIFIE", "valid_from": "2026-11-13", "valid_to": null
+    }
+  ]
+}

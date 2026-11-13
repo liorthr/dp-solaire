@@ -2,7 +2,7 @@
 import { ExternalLink, Landmark, MapPinned, ShieldAlert, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Badge, Button, Card, Disclaimer, severityLabel, severityTone } from "@/components/ui";
-import { requiredPieces, ruleset } from "@/lib/rules/engine";
+import { requiredPieces, rulesetFor } from "@/lib/rules/engine";
 import { availablePieces } from "@/lib/rules/facts";
 import { orientationLabel } from "@/lib/geo/roof";
 import { STATUS_LABEL } from "@/lib/project/status";
@@ -18,7 +18,7 @@ export function SyntheseTab({ b }: { b: ProjectBundle }) {
   const ev = analysis.evaluation;
   const h = e?.heritage;
   const zone = e?.zones[0];
-  const pieces = requiredPieces(analysis.facts).filter((x) => x.isRequired);
+  const pieces = requiredPieces(analysis.facts, rulesetFor(b.project.works)).filter((x) => x.isRequired);
   const avail = new Set(availablePieces(p));
   const [aiMsg, setAiMsg] = useState("");
   const serverMode = process.env.NEXT_PUBLIC_DEPLOY_TARGET === "server";
@@ -66,7 +66,7 @@ export function SyntheseTab({ b }: { b: ProjectBundle }) {
                   <Badge tone="bloquant">{ev.blocking.length} bloquant(s)</Badge> <Badge tone="alerte">{ev.warnings.length} alerte(s)</Badge>
                 </p>
                 <p className="mt-1 text-xs text-stone-500">
-                  Statut : {STATUS_LABEL[analysis.status]} : règles v{ruleset.version}
+                  Statut : {STATUS_LABEL[analysis.status]} : règles {rulesetFor(b.project.works).ruleset} v{rulesetFor(b.project.works).version}
                 </p>
               </div>
             </div>

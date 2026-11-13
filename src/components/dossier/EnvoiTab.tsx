@@ -4,7 +4,7 @@ import { Mail, MonitorSmartphone, Send, Stamp } from "lucide-react";
 import type { FilingMode } from "@/lib/types";
 import { Badge, Button, Card, Field, Input, Modal } from "@/components/ui";
 import { coverLetterEmail, gnauSteps, lrarLetter } from "@/lib/dossier/texts";
-import { paperCopies } from "@/lib/rules/engine";
+import { paperCopies, rulesetFor } from "@/lib/rules/engine";
 import { buildEml, mailtoLink } from "@/lib/mail/eml";
 import { annuaireSearchLink } from "@/lib/providers/annuaire";
 import { uid } from "@/lib/project/factory";
@@ -33,7 +33,7 @@ export function EnvoiTab({ b, goTo }: { b: ProjectBundle; goTo: (tab: string) =>
   const [confirm, setConfirm] = useState(false);
   const [depositDate, setDepositDate] = useState(new Date().toISOString().slice(0, 10));
   const [sendMsg, setSendMsg] = useState("");
-  const copies = paperCopies(analysis.facts);
+  const copies = paperCopies(analysis.facts, rulesetFor(b.project.works));
   const serverMail = process.env.NEXT_PUBLIC_DEPLOY_TARGET === "server";
   const deposited = p.events.some((e) => e.type === "depot");
 

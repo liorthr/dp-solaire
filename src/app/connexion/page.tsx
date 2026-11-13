@@ -78,7 +78,7 @@ export default function Connexion() {
               <button className="text-brand-700 underline" onClick={() => { setMode("login"); setEmail(DEMO_ACCOUNTS.admin.email); setPassword(DEMO_ACCOUNTS.admin.password); }}>remplir</button>
             </li>
           </ul>
-          <p className="mt-3 text-xs text-stone-600">Mode démo : comptes et dossiers sont stockés uniquement dans ce navigateur (aucun serveur). 3 dossiers de démonstration sont pré-créés.</p>
+          <p className="mt-3 text-xs text-stone-600">Mode démo : comptes et dossiers sont stockés uniquement dans ce navigateur (aucun serveur). 5 dossiers de démonstration sont pré-créés (solaire, pompe à chaleur, isolation).</p>
           <button className="mt-2 text-xs text-red-700 underline" onClick={() => { if (window.confirm("Effacer toutes les données de démo de ce navigateur ?")) { resetAll(); window.location.reload(); } }}>Réinitialiser la démo</button>
         </Card>
       </div>

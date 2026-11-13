@@ -1,4 +1,4 @@
-// Tests de bout en bout du moteur sur les 3 dossiers de démo, avec les réponses réelles des API enregistrées (fixtures).
+// Tests de bout en bout du moteur sur les dossiers de démo, avec les réponses réelles des API enregistrées (fixtures).
 import { beforeAll, describe, expect, it } from "vitest";
 import { demoCases } from "@/data/demo";
 import { defaultPanels } from "@/data/catalog";

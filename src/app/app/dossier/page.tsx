@@ -15,6 +15,8 @@ import { SuiviTab } from "@/components/dossier/SuiviTab";
 import { RaccordementTab } from "@/components/dossier/RaccordementTab";
 import { STATUS_LABEL, STATUS_TONE } from "@/lib/project/status";
 import { repo } from "@/lib/store/db";
+import { worksSummary } from "@/lib/works/summary";
+import { WORKS } from "@/data/works";
 
 type Tab = "synthese" | "plans" | "insertion" | "dossier" | "envoi" | "suivi" | "raccordement";
 
@@ -32,10 +34,11 @@ function DossierView() {
         <div className="min-w-0">
           <h1 className="text-xl font-bold sm:text-2xl" data-testid="project-title">{p.reference}</h1>
           <p className="text-sm text-stone-600">
-            {p.address?.label} : {b.client ? `${b.client.firstName} ${b.client.lastName}` : "client ?"} : {p.pv.panelCount} panneaux, {String(p.pv.powerKwc).replace(".", ",")} kWc
+            {p.address?.label} : {b.client ? `${b.client.firstName} ${b.client.lastName}` : "client ?"} : {worksSummary(p)}
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Badge tone="neutral">{WORKS.find((w) => w.id === (p.works ?? "pv"))!.short}</Badge>
           <Badge tone={STATUS_TONE[analysis.status]}>{STATUS_LABEL[analysis.status]}</Badge>
           <Button
             variant="ghost"
@@ -61,7 +64,7 @@ function DossierView() {
           { id: "dossier", label: "Dossier" },
           { id: "envoi", label: "Envoi" },
           { id: "suivi", label: "Suivi" },
-          { id: "raccordement", label: "Raccordement & Consuel" },
+          ...((p.works ?? "pv") === "pv" ? [{ id: "raccordement" as Tab, label: "Raccordement & Consuel" }] : []),
         ]}
       />
       {tab === "synthese" && <SyntheseTab b={b} />}
@@ -70,7 +73,7 @@ function DossierView() {
       {tab === "dossier" && <DossierTab b={b} />}
       {tab === "envoi" && <EnvoiTab b={b} goTo={(t) => setTab(t as Tab)} />}
       {tab === "suivi" && <SuiviTab b={b} />}
-      {tab === "raccordement" && <RaccordementTab b={b} />}
+      {tab === "raccordement" && (p.works ?? "pv") === "pv" && <RaccordementTab b={b} />}
     </div>
   );
 }

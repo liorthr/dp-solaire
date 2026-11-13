@@ -1,0 +1,100 @@
+{
+  "ruleset": "dp-ite",
+  "version": "2026.11.1",
+  "published_at": "2026-11-13",
+  "regimes": [
+    {
+      "code": "REGIME_ITE_MH_INSCRIT_PC", "outcome": "PC",
+      "when": { "fact": "answers.buildingIsListedMH", "op": "eq", "value": true },
+      "message": "Le bâtiment est inscrit au titre des monuments historiques : les travaux relèvent d'un permis de construire (R*421-16).",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice cerfa 51434, §2.2 5)", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "REGIME_ITE_DP", "outcome": "DP",
+      "when": { "fact": "const.true", "op": "eq", "value": true },
+      "message": "Isolation thermique par l'extérieur : l'aspect extérieur du bâtiment est modifié, une déclaration préalable est nécessaire.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "Service-public F37924 (vérifiée le 25/09/2026)", "verification": "VERIFIE", "valid_from": "2026-09-25", "valid_to": null
+    }
+  ],
+  "pieces": [
+    { "code": "DP1", "cerfaCode": "DPC1", "label": "Plan de situation du terrain", "file": "DP1_plan_de_situation", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "Obligatoire dans tous les cas", "article": "R. 431-36 a)" },
+    { "code": "DP2", "cerfaCode": "DPC2", "label": "Plan de masse (épaisseur ajoutée, distances aux limites)", "file": "DP2_plan_de_masse", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "L'emprise du bâtiment augmente de l'épaisseur de l'isolant", "article": "R. 431-36 b)" },
+    { "code": "DP3", "cerfaCode": "DPC3", "label": "Coupe de principe du mur isolé", "file": "DP3_coupe_de_principe", "required": { "fact": "const.true", "op": "eq", "value": false }, "optional": true, "why": "Fournie en complément : composition du mur et épaisseur", "article": "R. 431-10 b)" },
+    { "code": "DP4", "cerfaCode": "DPC4", "label": "Plans des façades avant / après", "file": "DP4_plan_des_facades", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "Les façades sont modifiées (matériau, couleur)", "article": "R. 431-10 a)" },
+    { "code": "DP5", "cerfaCode": "DPC5", "label": "Représentation de l'aspect extérieur", "file": "DP5_aspect_exterieur", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "L'aspect extérieur est modifié", "article": "R. 431-36 c)" },
+    { "code": "DP6", "cerfaCode": "DPC6", "label": "Document graphique d'insertion", "file": "DP6_insertion", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Visible depuis l'espace public ou secteur protégé", "article": "R. 431-10 c)" },
+    { "code": "DP7", "cerfaCode": "DPC7", "label": "Photographie de l'environnement proche", "file": "DP7_photo_environnement_proche", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Idem DP6", "article": "R. 431-10 d)" },
+    { "code": "DP8", "cerfaCode": "DPC8", "label": "Photographie du paysage lointain", "file": "DP8_photo_paysage_lointain", "required": { "any": [{ "fact": "answers.visibleFromPublicSpace", "op": "neq", "value": false }, { "fact": "heritage.protected", "op": "eq", "value": true }] }, "why": "Idem DP6", "article": "R. 431-10 d)" },
+    { "code": "DP8-1", "cerfaCode": "DPC8-1", "label": "Note de dérogation (L. 152-5)", "file": "DP8-1_note_derogation", "required": { "fact": "ite.derogation", "op": "eq", "value": true }, "why": "Dérogation aux règles d'implantation ou de hauteur pour l'isolation", "article": "R. 431-31-2" },
+    { "code": "DP11", "cerfaCode": "DPC11", "label": "Notice des matériaux et modalités d'exécution", "file": "DP11_notice_materiaux", "required": { "fact": "const.true", "op": "eq", "value": true }, "why": "Précise isolant, finition et couleur (attendue pour une ITE)", "article": "R. 431-14" }
+  ],
+  "deadlines": [],
+  "copies": [],
+  "generic": ["PIECES_MANQUANTES", "ADRESSE_ABSENTE", "PARCELLE_ABSENTE", "MANDAT_NON_SIGNE", "CLIENT_INCOMPLET", "PHOTO_FACADE_MANQUANTE", "PHOTO_QUALITE", "INSERTION_NON_FAITE", "BATI_NON_IDENTIFIE", "ABF_DIVERGENCE", "PLU_ZONE_INCONNUE", "LOTISSEMENT", "MAIRIE_SANS_EMAIL", "DEPOT_ELECTRONIQUE_PM"],
+  "rules": [
+    {
+      "code": "ITE_SURPLOMB_PUBLIC", "version": 1, "category": "contexte", "title": "Empiètement sur le domaine public",
+      "condition": { "fact": "ite.overhangPublic", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 12,
+      "message": "L'isolant empiète sur le domaine public (trottoir) : un droit de surplomb doit être demandé à la commune avant les travaux.",
+      "suggestion": "Joignez la demande de surplomb/occupation du domaine public ; vérifiez la largeur de trottoir restante.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "F37924, étape 3 : droit de surplomb", "verification": "VERIFIE", "valid_from": "2026-09-25", "valid_to": null
+    },
+    {
+      "code": "ITE_SURPLOMB_VOISIN", "version": 1, "category": "contexte", "title": "Empiètement sur la propriété voisine",
+      "condition": { "fact": "ite.overhangNeighbor", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 12,
+      "message": "L'isolant empiète sur le terrain voisin (mur en limite) : convention de surplomb avec le voisin, acte authentique et indemnité éventuelle.",
+      "suggestion": "Prenez contact avec le voisin avant le dépôt ; la convention se signe avant le début des travaux.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "F37924 : surplomb de la propriété voisine", "verification": "VERIFIE", "valid_from": "2026-09-25", "valid_to": null
+    },
+    {
+      "code": "ITE_DEROGATION", "version": 1, "category": "completude", "title": "Dérogation aux règles du PLU (L. 152-5)",
+      "condition": { "fact": "ite.derogation", "op": "eq", "value": true },
+      "severity": "info", "weight": 0,
+      "message": "Vous demandez une dérogation aux règles d'implantation ou de hauteur pour isoler par l'extérieur : la note DPC8-1 justifiant la dérogation est jointe au dossier.",
+      "suggestion": "Indiquez les règles concernées et l'épaisseur ajoutée (la dérogation est encadrée par le code de l'urbanisme : limites À_VÉRIFIER, Q22).",
+      "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 : pièce DP 8-1 (L. 151-29-1, L. 152-5…)", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
+    },
+    {
+      "code": "ITE_LIMITE_PROCHE", "version": 1, "category": "contexte", "title": "Distance aux limites après isolation",
+      "condition": { "fact": "ite.minDistanceLimitM", "op": "lt", "value": 0.5 },
+      "severity": "alerte", "weight": 8,
+      "message": "Une façade isolée sera à environ {{ite.minDistanceLimitM}} m de la limite de propriété après pose de {{ite.thicknessCm}} cm d'isolant : vérifiez les règles d'implantation du PLU et l'éventuel surplomb.",
+      "suggestion": "Cochez « empiète sur la propriété voisine » si l'isolant dépasse la limite, ou demandez la dérogation L. 152-5.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "F37924", "verification": "A_VERIFIER", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "ITE_SECTEUR_PROTEGE", "version": 1, "category": "contexte", "title": "Secteur protégé : façades patrimoniales",
+      "condition": { "fact": "heritage.protected", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 18,
+      "message": "Projet en secteur protégé ({{heritage.label}}) : l'ABF est consulté (délai porté à 2 mois en général). Une ITE peut être refusée sur des façades en pierre, brique ou à modénature.",
+      "suggestion": "Réservez l'ITE aux façades sans intérêt patrimonial (arrière, pignons) ; enduit à la chaux de teinte locale ; isolation par l'intérieur sur la façade sur rue. Un rendez-vous préalable avec l'UDAP est conseillé.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578", "source_label": "F17578 (secteur protégé) ; conseils : pratique UDAP (À_VÉRIFIER)", "verification": "VERIFIE", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "ITE_REGLES_ASPECT", "version": 1, "category": "contexte", "title": "Matériaux et couleurs",
+      "condition": { "fact": "const.true", "op": "eq", "value": true },
+      "severity": "info", "weight": 0,
+      "message": "Finition prévue : {{ite.finishLabel}}, teinte « {{ite.colorName}} ». Le PLU, le règlement de lotissement ou de copropriété peuvent imposer matériaux, couleurs (nuancier) et distances.",
+      "suggestion": "Vérifiez le nuancier communal éventuel et l'article « aspect extérieur » de la zone.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "F37924, étape 1", "verification": "VERIFIE", "valid_from": "2026-09-25", "valid_to": null
+    },
+    {
+      "code": "ITE_COPROPRIETE", "version": 1, "category": "contexte", "title": "Copropriété",
+      "condition": { "fact": "answers.copropriete", "op": "eq", "value": true },
+      "severity": "alerte", "weight": 10,
+      "message": "En copropriété, le règlement de copropriété s'applique et les travaux sur les façades (parties communes) doivent être votés en assemblée générale.",
+      "suggestion": "Obtenez le procès-verbal d'AG avant de déposer.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "F37924 (règle de majorité À_VÉRIFIER)", "verification": "A_VERIFIER", "valid_from": "2026-11-13", "valid_to": null
+    },
+    {
+      "code": "AIDES_RENOV", "version": 1, "category": "info", "title": "Aides à la rénovation énergétique",
+      "condition": { "fact": "const.true", "op": "eq", "value": true },
+      "severity": "info", "weight": 0,
+      "message": "Des aides existent pour l'isolation (MaPrimeRénov', éco-PTZ, TVA à taux réduit…) ; un conseiller France Rénov' informe gratuitement (0 808 800 700).",
+      "suggestion": "Informez votre client avant la signature du devis.",
+      "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F37924", "source_label": "F37924, étape 2", "verification": "VERIFIE", "valid_from": "2026-09-25", "valid_to": null
+    }
+  ]
+}

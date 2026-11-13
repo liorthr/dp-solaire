@@ -1,4 +1,5 @@
 "use client";
+import { worksSummary } from "@/lib/works/summary";
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import { AlertTriangle, CalendarClock, Clock, FilePlus2, Trophy } from "lucide-react";
@@ -90,7 +91,7 @@ function Dashboard() {
                       {p.reference} {p.demo && <Badge>démo</Badge>}
                     </p>
                     <p className="truncate text-sm text-stone-600">
-                      {p.address?.label} : {client ? `${client.firstName} ${client.lastName}` : "client à renseigner"} : {p.pv.panelCount} panneaux, {String(p.pv.powerKwc).replace(".", ",")} kWc
+                      {p.address?.label} : {client ? `${client.firstName} ${client.lastName}` : "client à renseigner"} : {worksSummary(p)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

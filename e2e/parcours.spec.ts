@@ -20,9 +20,9 @@ async function login(page: Page) {
   await expect(page.getByTestId("project-row").first()).toBeVisible({ timeout: 60_000 });
 }
 
-test("connexion et tableau de bord avec les 3 dossiers de démo", async ({ page }) => {
+test("connexion et tableau de bord avec les 5 dossiers de démo", async ({ page }) => {
   await login(page);
-  await expect(page.getByTestId("project-row")).toHaveCount(3);
+  await expect(page.getByTestId("project-row")).toHaveCount(5);
   await expect(page.getByText("DEMO-2-ABF")).toBeVisible();
 });
 
@@ -151,4 +151,63 @@ test("raccordement & Consuel : PDL, formulaire SC 144C2-2 et pack ZIP", async ({
   const zip = await JSZip.loadAsync(readFileSync((await dl.path())!));
   const names = Object.keys(zip.files).map((n) => n.split("/").pop());
   for (const f of ["01_Schema_unifilaire.pdf", "02_Consuel_SC_144C2-2_pre-rempli.pdf", "03_Note_de_calcul.pdf", "04_Recapitulatif_demande_Enedis.pdf", "05_Mandat_raccordement_Consuel.pdf", "06_Plan_de_situation.pdf"]) expect(names).toContain(f);
+});
+
+test("pompe à chaleur : dossier démo, distance au voisin, plans et dossier sans onglet raccordement", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.getByTestId("project-row").filter({ hasText: "DEMO-4-PAC" }).click();
+  await expect(page.getByText(/Pompe à chaleur, air\/eau/)).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Raccordement & Consuel" })).toHaveCount(0);
+  await expect(page.getByTestId("rules")).toContainText("Bruit : rappel");
+  await page.getByRole("tab", { name: "Plans" }).click();
+  await expect(page.locator("#pac-facade")).toBeVisible();
+  await expect(page.locator("svg").filter({ hasText: "Unité PAC fixée en façade" })).toBeVisible();
+  // au sol sans dalle, hors secteur protégé : aucune formalité, aucun dossier généré
+  await page.selectOption("#pac-place", "sol_sans_dalle");
+  await page.getByRole("tab", { name: "Dossier" }).click();
+  await expect(page.getByText("Aucun dossier DP ne sera généré")).toBeVisible();
+  await page.getByRole("tab", { name: "Plans" }).click();
+  await page.selectOption("#pac-place", "facade");
+  await page.getByRole("tab", { name: "Dossier" }).click();
+  await page.getByTestId("generate").click();
+  await expect(page.getByTestId("downloads")).toBeVisible({ timeout: 120_000 });
+  const [zipDl] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-zip").click()]);
+  const zip = await JSZip.loadAsync(readFileSync((await zipDl.path())!));
+  const names = Object.keys(zip.files).map((n) => n.split("/").pop());
+  for (const f of ["DP2_plan_de_masse.pdf", "DP4_plan_des_facades.pdf", "DP5_aspect_exterieur.pdf", "DP11_notice_materiaux.pdf", "Cerfa_16702-03_declaration_prealable.pdf"]) expect(names).toContain(f);
+  expect(names).not.toContain("DP3_plan_en_coupe.pdf");
+  const mail = await zip.file(/Email_mairie.txt/)[0].async("string");
+  expect(mail).toContain("pompe à chaleur");
+});
+
+test("isolation par l'extérieur : nouveau dossier ITE en périmètre ABF → coupe, façades, note de dérogation", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.goto("app/nouveau/");
+  await page.getByTestId("works-ite").check();
+  await page.fill("#address", "Rue Cormont 80000 Amiens");
+  await page.locator("#address-list button").first().click();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.selectOption("#client", "");
+  await page.fill("#ln", "Testeur-Fictif");
+  await page.fill("#fn", "Iris");
+  await page.fill("#em", "iris.testeur@example.org");
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.fill("#ite-th", "16");
+  await page.getByRole("button", { name: /Gris clair/ }).click();
+  await page.getByText(/Demander une dérogation/).click();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.getByTestId("create-project").click();
+  await page.waitForURL(/\/app\/dossier\//, { timeout: 90_000 });
+  await expect(page.getByText(/Isolation extérieure 16 cm/)).toBeVisible();
+  await expect(page.getByTestId("rules")).toContainText("Secteur protégé : façades patrimoniales");
+  await expect(page.getByText(/Délai d'instruction attendu/)).toContainText("2 mois");
+  await page.getByRole("tab", { name: "Dossier" }).click();
+  await page.getByTestId("generate").click();
+  await expect(page.getByTestId("downloads")).toBeVisible({ timeout: 120_000 });
+  const [zipDl] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-zip").click()]);
+  const zip = await JSZip.loadAsync(readFileSync((await zipDl.path())!));
+  const names = Object.keys(zip.files).map((n) => n.split("/").pop());
+  for (const f of ["DP2_plan_de_masse.pdf", "DP3_coupe_de_principe.pdf", "DP4_plan_des_facades.pdf", "DP8-1_note_derogation.pdf", "DP11_notice_materiaux.pdf"]) expect(names).toContain(f);
 });

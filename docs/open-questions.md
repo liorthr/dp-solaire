@@ -23,3 +23,7 @@
 | Q19 | Pièces exactes exigées par Enedis pour la complétude (≤ 36 kVA) | Plan de situation, schéma, mandat, autorisation d'urbanisme supposés | Lire Enedis-PRO-RAC_20E |
 | Q20 | Coefficients de calcul (Iscmax 1,25 ; Tmin −10 °C ; chute AC 1 %) | Valeurs usuelles des guides UTE C 15-712 | Valider avec un électricien / le guide en vigueur |
 | Q21 | Pré-remplissage du SC 144C-5 (batterie) et du SC 144E | Formulaires vierges fournis | Relever les coordonnées |
+| Q22 | PAC : seuil « bruit » de 4 m à la limite | Repère interne prudent, pas de distance réglementaire générale ; règle d'émergence (CSP R1336-5 et suivants) | Faire valider la formulation ; prévoir un calcul acoustique simplifié |
+| Q23 | ITE : plafonds de la dérogation L. 152-5 (épaisseur maximale, règles concernées) | Notice 51434 (pièce DP 8-1) ; décret d'application non relu | Lire L. 152-5 et R. 152-5 à R. 152-9 sur Légifrance |
+| Q24 | ITE et PAC en copropriété : majorité requise (art. 24 ou 25) | F36778 cite l'art. 25 pour la PAC ; F37924 ne précise pas pour l'ITE | Vérifier la loi de 1965 dans sa version en vigueur |
+| Q25 | Case « DPC8-1 » du cerfa 16702*03 | Champ non identifié dans l'AcroForm | Relever le nom du champ dans le PDF officiel |

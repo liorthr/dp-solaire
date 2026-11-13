@@ -31,3 +31,13 @@ Qualité au dernier commit : lint 0 erreur ; typecheck OK ; Vitest 51/51 ; Playw
 - Pack : schéma unifilaire vectoriel, SC 144 officiel pré-rempli, note de calcul, récapitulatif Enedis Connect, mandat signé, plan de situation, ZIP.
 - Suivi : demande, complétude, proposition, acceptation, Consuel (demande, visite, visa), mise en service.
 - Tests : Vitest 70/70, Playwright 9/9.
+
+## 13/11/2026 : pompes à chaleur et isolation par l'extérieur
+- Choix du type de travaux dans l'assistant (solaire / PAC / ITE), badge sur le dossier et le tableau de bord ; onglet Raccordement réservé au solaire.
+- Deux jeux de règles sourcés (service-public F36778, F37924, F17578, notice 51434) : régime DP / PC / aucune formalité, bruit, copropriété, surplomb, dérogation L. 152-5, secteur protégé.
+- Géométrie : façades orientées du bâtiment (BD TOPO), position de l'unité PAC (façade la plus éloignée des voisins par défaut), distance aux limites cadastrales, distance après isolation.
+- Plans : DP2 enrichi (unité + distance / bandes d'isolant), DP3 coupe de principe du mur isolé, DP4 façades avant/après (teinte, bardage, unité + détail 1/20), DP8-1 note de dérogation.
+- Photomontage : unité PAC ou nouvelle finition de façade en perspective (ouvertures conservées).
+- Textes (description cerfa, notice DP11, mandat, email, LRAR) adaptés au type de travaux.
+- Démos DEMO-4-PAC et DEMO-5-ITE ; tests : Vitest 81/81, Playwright 11/11 (desktop).
+- Questions ouvertes Q22 à Q25.

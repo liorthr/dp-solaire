@@ -1,6 +1,6 @@
-# DP Solaire : déclaration préalable photovoltaïque automatisée
+# DP Solaire : déclaration préalable automatisée (solaire, pompe à chaleur, isolation)
 
-SaaS B2B pour installateurs solaires. L'installateur fournit **une adresse, le matériel et 3 photos**. L'application :
+SaaS B2B pour installateurs : **panneaux photovoltaïques** (avec raccordement Enedis et Consuel), **pompes à chaleur** (unité extérieure) et **isolation thermique par l'extérieur**. L'installateur fournit **une adresse, le matériel et 3 photos**. L'application :
 - interroge les sources publiques (BAN, cadastre, Géoportail de l'Urbanisme, BD TOPO, Géorisques, Annuaire) ;
 - détecte les secteurs protégés et la consultation de l'ABF ;
 - évalue la conformité avec des règles sourcées et versionnées ;
@@ -20,13 +20,15 @@ SaaS B2B pour installateurs solaires. L'installateur fournit **une adresse, le m
 | Installateur | `demo@dp-solaire.fr` / `Demo-2026!` |
 | Super-admin (back-office) | `admin@dp-solaire.fr` / `Admin-2026!` |
 
-Trois dossiers de démonstration sont créés au premier lancement : adresses publiques réelles, clients **fictifs**, photos de **synthèse** marquées « ILLUSTRATION DÉMO ».
+Cinq dossiers de démonstration sont créés au premier lancement : adresses publiques réelles, clients **fictifs**, photos de **synthèse** marquées « ILLUSTRATION DÉMO ».
 
 | Dossier | Adresse | Cas |
 |---|---|---|
 | DEMO-1 | Allée des Tilleuls, 80480 Pont-de-Metz | zone UC, aucune servitude, déjà déposé (suivi en cours) |
 | DEMO-2 | Rue Cormont, 80000 Amiens | abords de la cathédrale (AC1 / PDA) : ABF, 2 mois, 3 exemplaires |
 | DEMO-3 | Chemin du Marais, 80470 Ailly-sur-Somme | zone N(i) du PLUi Nièvre et Somme (règle restrictive citée) + PPRI |
+| DEMO-4-PAC | Allée des Tilleuls, 80480 Pont-de-Metz | pompe à chaleur en façade : distance au voisin, DP4 avec détail coté |
+| DEMO-5-ITE | Rue Cormont, 80000 Amiens | isolation par l'extérieur en périmètre ABF : surplomb du trottoir, alignement |
 
 **Mode démo** : sans serveur ni base, comptes et dossiers sont stockés dans le navigateur (localStorage, photos en IndexedDB). Le bouton « Réinitialiser la démo » est sur la page de connexion.
 
@@ -106,5 +108,5 @@ Principes :
 - **IA étiquetée, sourcée, éditable**.
 
 ## Documentation
-- `docs/regulation/` : régime, cerfa et pièces, délais, patrimoine/ABF, exemple PLU (sources et dates)
+- `docs/regulation/` : régime, cerfa et pièces, délais, patrimoine/ABF, exemple PLU, raccordement/Consuel, PAC et ITE (`07-pac-ite.md`) (sources et dates)
 - `docs/providers.md`, `docs/competition.md`, `docs/PLAN.md`, `docs/open-questions.md`, `docs/PROGRESS.md`

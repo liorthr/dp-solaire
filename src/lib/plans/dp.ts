@@ -14,7 +14,7 @@ export interface PlanContext {
   site: { lon: number; lat: number };
 }
 
-const COLORS = { pv: "#1e293b", pvStroke: "#0ea5e9", parcel: "#c2410c", building: "#d6d3d1", main: "#a8a29e", photo: "#7c3aed", roof: "#b45309" };
+export const COLORS = { pv: "#1e293b", pvStroke: "#0ea5e9", parcel: "#c2410c", building: "#d6d3d1", main: "#a8a29e", photo: "#7c3aed", roof: "#b45309" };
 
 export function mainBuilding(p: Project): BuildingInfo | undefined {
   const e = p.enrichment;
@@ -134,7 +134,15 @@ export function panelsGround(rp: RoofPlane, layout: PvLayout): [number, number][
   return layout.panels.map((pn) => [P(pn.x, pn.y), P(pn.x + pn.w, pn.y), P(pn.x + pn.w, pn.y + pn.h), P(pn.x, pn.y + pn.h), P(pn.x, pn.y)]);
 }
 
-export function dp2(ctx: PlanContext): string {
+export interface Dp2Options {
+  /** dessin supplémentaire (unité PAC, isolant…) dans le repère papier */
+  extra?: (T: (c: [number, number]) => [number, number], scale: number) => string;
+  legend?: Cartouche["legend"];
+  notes?: string[];
+  hideSection?: boolean;
+}
+
+export function dp2(ctx: PlanContext, opts: Dp2Options = {}): string {
   const { project: p, site } = ctx;
   const e = p.enrichment;
   const main = mainBuilding(p);
@@ -169,7 +177,7 @@ export function dp2(ctx: PlanContext): string {
     const nx = -uy, ny = ux, half = rect.width / 2 + 3;
     const c1 = T([rect.center[0] - nx * half, rect.center[1] - ny * half]);
     const c2 = T([rect.center[0] + nx * half, rect.center[1] + ny * half]);
-    parts.push(`<line x1="${n(c1[0])}" y1="${n(c1[1])}" x2="${n(c2[0])}" y2="${n(c2[1])}" stroke="#2563eb" stroke-width="0.3" stroke-dasharray="3 1 0.5 1"/>`, text(c1[0], c1[1] - 1, "A", 3, { weight: "bold", fill: "#2563eb" }), text(c2[0], c2[1] - 1, "A", 3, { weight: "bold", fill: "#2563eb" }));
+    if (!opts.hideSection) parts.push(`<line x1="${n(c1[0])}" y1="${n(c1[1])}" x2="${n(c2[0])}" y2="${n(c2[1])}" stroke="#2563eb" stroke-width="0.3" stroke-dasharray="3 1 0.5 1"/>`, text(c1[0], c1[1] - 1, "A", 3, { weight: "bold", fill: "#2563eb" }), text(c2[0], c2[1] - 1, "A", 3, { weight: "bold", fill: "#2563eb" }));
     // cotes du bâtiment
     const k = rect.corners.map(T);
     const ctr = T(rect.center);
@@ -208,6 +216,7 @@ export function dp2(ctx: PlanContext): string {
     if (!rp) continue;
     for (const poly of panelsGround(rp, l)) parts.push(`<path d="${pathFromRing(poly.map(T))}" fill="${COLORS.pv}" stroke="${COLORS.pvStroke}" stroke-width="0.12"/>`);
   }
+  if (opts.extra) parts.push(opts.extra(T, scale));
   // points de vue
   for (const s of shotPoints(p, site)) {
     const [x, y] = T(s.l93);
@@ -223,7 +232,7 @@ export function dp2(ctx: PlanContext): string {
     code: "DP2",
     title: "Plan de masse",
     scale: `1/${scale}`,
-    legend: [
+    legend: opts.legend ?? [
       { kind: "dash", color: COLORS.parcel, label: "Limite de parcelle" },
       { kind: "fill", color: COLORS.main, label: "Construction existante" },
       { kind: "fill", color: COLORS.pv, label: `Panneaux projetés (${nb})` },
@@ -231,7 +240,7 @@ export function dp2(ctx: PlanContext): string {
       { kind: "line", color: "#15803d", label: "Distance aux limites" },
       { kind: "arrow", color: COLORS.photo, label: "Prises de vue DP7 / DP8" },
     ],
-    notes: [
+    notes: opts.notes ?? [
       "Projet sans création d'emprise au sol ni de surface de plancher ; hauteur du bâtiment inchangée.",
       "Emprise du bâti : IGN BD TOPO ; parcelle : cadastre DGFiP. Cotes en mètres.",
       ...(main ? [] : ["Emprise du bâtiment non trouvée : à dessiner."]),

@@ -227,8 +227,55 @@ export interface InstructionEvent {
   payload?: Record<string, unknown>;
 }
 
+/** type de travaux couvert par le dossier */
+export type WorksType = "pv" | "pac" | "ite";
+
+export interface PacUnitModel {
+  id: ID;
+  brand: string;
+  model: string;
+  kind: "air_eau" | "air_air";
+  widthMm: number;
+  heightMm: number;
+  depthMm: number;
+  /** puissance acoustique Lw, dB(A) (fiche technique) */
+  soundPowerDb: number;
+  color: string;
+}
+
+export interface PacInfo {
+  unitId: ID;
+  placement: "facade" | "toiture" | "sol_dalle" | "sol_sans_dalle";
+  /** façade (index du côté du rectangle d'emprise, 0 à 3) */
+  facadeIndex: number;
+  /** position le long de la façade (0 à 1) */
+  positionRatio: number;
+  /** hauteur de pose (m) pour une unité murale */
+  mountHeightM: number;
+  /** habillage / caisson acoustique ou décoratif */
+  cover: boolean;
+}
+
+export interface IteInfo {
+  facadeIndexes: number[];
+  thicknessCm: number;
+  finish: "enduit" | "bardage_bois" | "bardage_composite" | "plaquette_brique";
+  colorName: string;
+  colorHex: string;
+  /** l'isolant empiète sur le domaine public (trottoir) */
+  overhangPublic: boolean;
+  /** l'isolant empiète sur la propriété voisine (mur en limite) */
+  overhangNeighbor: boolean;
+  /** dérogation aux règles d'implantation/hauteur du PLU (L.152-5) */
+  derogation: boolean;
+}
+
 export interface Project {
   id: ID;
+  /** défaut : photovoltaïque (dossiers créés avant l'ajout des autres travaux) */
+  works?: WorksType;
+  pac?: PacInfo;
+  ite?: IteInfo;
   tenantId: ID;
   reference: string;
   clientId?: ID;

@@ -151,7 +151,7 @@
       "code": "PHOTO_FACADE_MANQUANTE", "version": 1, "category": "plans", "title": "Photo de la façade avec la toiture",
       "condition": { "fact": "photos.facade", "op": "eq", "value": false },
       "severity": "bloquant", "weight": 20,
-      "message": "La photo de la façade avec la toiture est nécessaire pour l'insertion (DP5/DP6).", "suggestion": "Prenez la photo face à la maison, toiture entière visible, en plein jour.",
+      "message": "La photo de la façade (avec la partie concernée par les travaux) est nécessaire pour l'insertion (DP5/DP6).", "suggestion": "Prenez la photo face à la maison, toiture entière visible, en plein jour.",
       "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 : DP5, DP6", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
     },
     {
@@ -165,7 +165,7 @@
       "code": "INSERTION_NON_FAITE", "version": 1, "category": "plans", "title": "Insertion visuelle positionnée",
       "condition": { "fact": "insertion.done", "op": "eq", "value": false },
       "severity": "bloquant", "weight": 15,
-      "message": "Le champ de panneaux n'est pas positionné sur la photo (DP5/DP6).", "suggestion": "Étape Insertion : placez les 4 coins du champ de panneaux sur la photo.",
+      "message": "Le photomontage n'est pas positionné sur la photo de la façade (DP5/DP6).", "suggestion": "Étape Insertion : placez les 4 coins du champ de panneaux sur la photo.",
       "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700", "source_label": "Notice 51434 : DP5, DP6", "verification": "VERIFIE", "valid_from": "2026-10-19", "valid_to": null
     },
     {

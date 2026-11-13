@@ -3,6 +3,8 @@ import type { Client, EnrichmentResult, InverterModel, MairieInfo, PanelModel, P
 import { fr } from "@/lib/instruction/deadlines";
 import { panelAreaM2 } from "@/lib/geo/calepinage";
 import { orientationLabel } from "@/lib/geo/roof";
+import { defaultIte, defaultPac, defaultPacUnits, ITE_FINISHES } from "@/data/works";
+import { projectFacades } from "@/lib/works/geom";
 
 export const TEMPLATES_VERSION = "2026.11.1";
 
@@ -18,7 +20,42 @@ export function totalPanelArea(p: Project) {
   return Math.round(p.pv.layouts.reduce((s, l) => s + panelAreaM2(l), 0) * 10) / 10;
 }
 
+/** objet court des travaux (courriers, objet d'email) */
+export function worksObject(p: Project): string {
+  if (p.works === "pac") return "installation d'une pompe à chaleur (unité extérieure)";
+  if (p.works === "ite") return "isolation thermique par l'extérieur";
+  return "installation de panneaux photovoltaïques";
+}
+
+const facadeNames = (p: Project, idxs: number[]) =>
+  projectFacades(p.enrichment)
+    .filter((f) => idxs.includes(f.index))
+    .map((f) => f.label.toLowerCase())
+    .join(", ") || "façades à préciser";
+
+function pacDescription(p: Project): string {
+  const pac = p.pac ?? defaultPac();
+  const u = defaultPacUnits.find((x) => x.id === pac.unitId) ?? defaultPacUnits[0];
+  const where = { facade: `fixée sur la ${facadeNames(p, [pac.facadeIndex])} par consoles murales (${String(pac.mountHeightM).replace(".", ",")} m du sol)`, toiture: "posée en toiture", sol_dalle: `posée au sol sur une dalle béton le long de la ${facadeNames(p, [pac.facadeIndex])}`, sol_sans_dalle: `posée au sol sur plots le long de la ${facadeNames(p, [pac.facadeIndex])}` }[pac.placement];
+  return (
+    `Installation d'une pompe à chaleur air/eau : unité extérieure de ${u.widthMm} × ${u.heightMm} × ${u.depthMm} mm, ${where}` +
+    `${pac.cover ? ", avec habillage décoratif" : ""}. Puissance acoustique annoncée : ${u.soundPowerDb} dB(A). ` +
+    "Aucune surface de plancher créée, volume et hauteur du bâtiment inchangés."
+  );
+}
+
+function iteDescription(p: Project): string {
+  const ite = p.ite ?? defaultIte();
+  return (
+    `Isolation thermique par l'extérieur des façades (${facadeNames(p, ite.facadeIndexes)}) de la maison existante : isolant de ${ite.thicknessCm} cm, ` +
+    `finition ${ITE_FINISHES[ite.finish].toLowerCase()}, teinte « ${ite.colorName} ». Hauteur du bâtiment inchangée ; débords de toit, appuis et descentes d'eaux pluviales adaptés.` +
+    (ite.derogation ? " Dérogation demandée au titre de l'article L. 152-5 du code de l'urbanisme (voir DP8-1)." : "")
+  );
+}
+
 export function projectDescription(p: Project, panel?: PanelModel): string {
+  if (p.works === "pac") return pacDescription(p);
+  if (p.works === "ite") return iteDescription(p);
   const planes = p.pv.layouts
     .map((l) => p.pv.roofPlanes.find((r) => r.id === l.roofPlaneId))
     .filter(Boolean)
@@ -38,7 +75,7 @@ export function mandateText(p: Project, c: Client | undefined, t: Tenant): strin
     "",
     `Je soussigné(e) ${fullName(c)}, propriétaire (ou titulaire du droit de construire) du terrain situé ${p.address?.label ?? "(adresse)"} (parcelle(s) ${parcelRefs(p.enrichment)}),`,
     `donne mandat à ${t.name}${t.siret ? ` (SIRET ${t.siret})` : ""}, ${t.address ?? ""},`,
-    "pour constituer, signer pour mon compte le cas échéant et déposer auprès de la mairie compétente la déclaration préalable relative à l'installation de panneaux photovoltaïques décrite ci-après, recevoir les correspondances du service instructeur et y répondre (pièces complémentaires), et demander le certificat de non-opposition.",
+    "pour constituer, signer pour mon compte le cas échéant et déposer auprès de la mairie compétente la déclaration préalable relative aux travaux décrits ci-après, recevoir les correspondances du service instructeur et y répondre (pièces complémentaires), et demander le certificat de non-opposition.",
     "",
     `Projet : ${projectDescription(p)}`,
     `Référence dossier : ${p.reference}`,
@@ -51,6 +88,36 @@ export function mandateText(p: Project, c: Client | undefined, t: Tenant): strin
 export function noticeDescriptive(p: Project, panel: PanelModel | undefined, inverter: InverterModel | undefined): string[] {
   const e = p.enrichment;
   const zone = e?.zones[0];
+  const head = [
+    `Adresse du terrain : ${p.address?.label ?? ""}`,
+    `Références cadastrales : ${parcelRefs(e)} : superficie ${e?.parcels.reduce((s, x) => s + x.contenanceM2, 0) ?? "?"} m²`,
+    `Document d'urbanisme : ${zone ? `${zone.docType} ${zone.docName}, zone ${zone.libelle}${zone.libelong ? ` (${zone.libelong})` : ""}` : "non identifié sur le Géoportail de l'Urbanisme"}`,
+  ];
+  if (p.works === "pac") {
+    const pac = p.pac ?? defaultPac();
+    const u = defaultPacUnits.find((x) => x.id === pac.unitId) ?? defaultPacUnits[0];
+    return [
+      ...head,
+      "État initial : maison individuelle existante.",
+      `Projet : ${projectDescription(p)}`,
+      `Matériaux et couleurs : caisson ${pac.cover ? "dissimulé par un habillage à lames (teinte bois ou gris à préciser)" : "de teinte claire (blanc/gris) d'origine fabricant"} ; liaisons frigorifiques et électriques sous goulotte de la teinte de la façade.`,
+      `Bruit : puissance acoustique de ${u.soundPowerDb} dB(A) selon la fiche fabricant ; unité orientée de façon à limiter la gêne pour le voisinage, plots antivibratiles. Le bruit de voisinage relève du code de la santé publique (émergence).`,
+      "Évacuation des condensats raccordée ou dirigée vers un regard ; aucun rejet sur le domaine public.",
+      "Modalités d'exécution : pose par une entreprise qualifiée (attestation de capacité fluides frigorigènes), durée de chantier estimée à 1 à 2 jours.",
+    ];
+  }
+  if (p.works === "ite") {
+    const ite = p.ite ?? defaultIte();
+    return [
+      ...head,
+      "État initial : maison individuelle existante, façades enduites ou maçonnées.",
+      `Projet : ${projectDescription(p)}`,
+      `Matériaux et couleurs : isolant ${ite.thicknessCm} cm (nature à préciser selon le système sous avis technique) ; finition ${ITE_FINISHES[ite.finish].toLowerCase()}, teinte « ${ite.colorName} » (${ite.colorHex}).`,
+      `Implantation : l'emprise augmente de l'épaisseur de l'isolant sur les façades concernées.${ite.overhangPublic ? " L'isolant surplombe le domaine public : une autorisation de surplomb est demandée à la commune." : ""}${ite.overhangNeighbor ? " L'isolant surplombe la propriété voisine : une convention de surplomb est conclue avec le voisin." : ""}`,
+      "Points singuliers : retour d'isolant en tableaux, appuis de fenêtres prolongés, débords de toiture et descentes d'eaux pluviales adaptés.",
+      "Modalités d'exécution : entreprise qualifiée, échafaudage, durée de chantier estimée à 2 à 4 semaines.",
+    ];
+  }
   return [
     `Adresse du terrain : ${p.address?.label ?? ""}`,
     `Références cadastrales : ${parcelRefs(e)} : superficie ${e?.parcels.reduce((s, x) => s + x.contenanceM2, 0) ?? "?"} m²`,
@@ -65,11 +132,11 @@ export function noticeDescriptive(p: Project, panel: PanelModel | undefined, inv
 }
 
 export function coverLetterEmail(p: Project, c: Client | undefined, t: Tenant, mairie: MairieInfo | undefined, pieces: string[]) {
-  const subject = `Déclaration préalable : panneaux photovoltaïques : ${p.address?.label ?? ""} : ${fullName(c)}`;
+  const subject = `Déclaration préalable : ${worksObject(p)} : ${p.address?.label ?? ""} : ${fullName(c)}`;
   const body = [
     `Madame, Monsieur,`,
     "",
-    `Pour le compte de ${fullName(c)}, nous vous adressons une déclaration préalable de travaux (cerfa n° 16702*03) relative à l'installation de ${p.pv.panelCount} panneaux photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc) sur la toiture de la maison située ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
+    `Pour le compte de ${fullName(c)}, nous vous adressons une déclaration préalable de travaux (cerfa n° 16702*03) relative à ${p.works && p.works !== "pv" ? `l'${worksObject(p).replace(/^l'|^/, "")}` : `l'installation de ${p.pv.panelCount} panneaux photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc) sur la toiture`} de la maison située ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
     "",
     `Pièces jointes : ${pieces.join(", ")}.`,
     "",
@@ -97,7 +164,7 @@ export function lrarLetter(p: Project, c: Client | undefined, t: Tenant, mairie:
     `Lettre recommandée avec demande d'avis de réception`,
     `Le ${today()}`,
     "",
-    `Objet : dépôt d'une déclaration préalable de travaux : installation de panneaux photovoltaïques`,
+    `Objet : dépôt d'une déclaration préalable de travaux : ${worksObject(p)}`,
     `Terrain : ${p.address?.label} : ${parcelRefs(p.enrichment)}`,
     "",
     "Madame, Monsieur,",
@@ -130,7 +197,7 @@ export function tacitCertificateRequest(p: Project, c: Client | undefined, t: Te
     "",
     "Madame, Monsieur,",
     "",
-    `Une déclaration préalable a été déposée le ${fr(depositDate)} pour l'installation de panneaux photovoltaïques ${p.address?.label} (réf. ${p.reference}). À notre connaissance, aucune décision d'opposition ni demande de pièces n'a été notifiée avant le ${fr(deadline)}, date d'expiration du délai d'instruction.`,
+    `Une déclaration préalable a été déposée le ${fr(depositDate)} (${worksObject(p)}) ${p.address?.label} (réf. ${p.reference}). À notre connaissance, aucune décision d'opposition ni demande de pièces n'a été notifiée avant le ${fr(deadline)}, date d'expiration du délai d'instruction.`,
     "",
     "Nous vous prions de bien vouloir nous délivrer le certificat attestant de la non-opposition tacite à cette déclaration.",
     "",
@@ -151,6 +218,37 @@ export function piecesResponseLetter(p: Project, t: Tenant, requested: string[])
     "",
     `Pour ${t.name}`,
   ].join("\n");
+}
+
+export function insertionNotes(p: Project, panel?: PanelModel): string[] {
+  if (p.works === "pac") return ["Photomontage réalisé à partir de la photographie de la façade : unité extérieure positionnée en perspective (homographie 4 points), dimensions d'après la fiche fabricant."];
+  if (p.works === "ite") {
+    const ite = p.ite ?? defaultIte();
+    return ["Photomontage réalisé à partir de la photographie de la façade : nouvelle finition appliquée en perspective (homographie 4 points).", `Finition ${ITE_FINISHES[ite.finish].toLowerCase()}, teinte « ${ite.colorName} » (rendu indicatif, se référer au nuancier du fabricant).`];
+  }
+  return ["Photomontage réalisé à partir de la photographie de la façade : champ de panneaux positionné en perspective (homographie 4 points).", panel ? `Aspect des modules : ${panel.fullBlack ? "full black" : panel.cellColor}, cadre ${panel.frameColor}.` : ""];
+}
+
+export function insertionImpact(p: Project): string {
+  if (p.works === "pac") return "Le projet ne modifie ni le volume ni la hauteur de la construction ; seule l'unité extérieure est ajoutée.";
+  if (p.works === "ite") return "Le volume est très légèrement augmenté de l'épaisseur de l'isolant ; la hauteur est inchangée. L'aspect des façades isolées change (matériau et teinte).";
+  return "Le projet ne modifie ni le volume ni la hauteur de la construction ; seule la couverture du pan équipé change d'aspect.";
+}
+
+/** note DP8-1 : trame à compléter par l'installateur (les plafonds de dérogation sont À_VÉRIFIER, Q22) */
+export function derogationNote(p: Project): string[] {
+  const ite = p.ite ?? defaultIte();
+  return [
+    `Projet : ${projectDescription(p)}`,
+    "",
+    "Fondement : article L. 152-5 du code de l'urbanisme : l'autorité compétente peut, par décision motivée, déroger aux règles du PLU relatives à l'emprise au sol, à la hauteur, à l'implantation et à l'aspect extérieur des constructions pour permettre la mise en œuvre d'une isolation en saillie des façades ou par surélévation des toitures (conditions et limites fixées par décret en Conseil d'État : À VÉRIFIER).",
+    "",
+    "Règle(s) du PLU auxquelles il est demandé de déroger : [à compléter : article et règle, ex. recul minimal par rapport à la limite séparative].",
+    `Nature de la dérogation : saillie de ${ite.thicknessCm} cm due à l'isolant sur les façades concernées.`,
+    "Justification : amélioration de la performance énergétique d'un bâtiment existant ; bonne insertion dans le cadre bâti (teinte et finition décrites en DP11, photomontage en DP6).",
+    "",
+    "Pièce DP 8-1 prévue par la notice du formulaire de déclaration préalable lorsque le projet nécessite une dérogation (source : notice cerfa citée dans les règles ITE_DEROGATION). Contenu à valider par le déclarant.",
+  ];
 }
 
 export const DISCLAIMER =
