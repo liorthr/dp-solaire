@@ -1,5 +1,7 @@
 // Géométrie propre aux PAC et ITE : position de l'unité, distances aux limites de propriété.
-import type { EnrichmentResult, PacInfo } from "@/lib/types";
+import type { EnrichmentResult, JoineryItem, PacInfo, Project, PvLayout, RoofWindowItem } from "@/lib/types";
+import { JOINERY_KINDS, ROOF_WINDOW_MODELS } from "@/data/works";
+import { panelsGround } from "@/lib/plans/dp";
 import { facadesOf, type Facade } from "@/lib/geo/facades";
 import { outerRing, toL93 } from "@/lib/geo/proj";
 
@@ -95,4 +97,83 @@ export function nearestOnLimit(e: EnrichmentResult | undefined, p: [number, numb
     }
   }
   return best;
+}
+
+/** extrémités gauche / droite d'une façade pour un observateur placé dehors, face au mur */
+export function facadeLeftRight(f: Facade): [[number, number], [number, number]] {
+  const nv = outward(f);
+  const left: [number, number] = [nv[1], -nv[0]]; // à gauche du regard (regard = -normale)
+  const d = [f.b[0] - f.a[0], f.b[1] - f.a[1]];
+  return d[0] * left[0] + d[1] * left[1] > 0 ? [f.b as [number, number], f.a as [number, number]] : [f.a as [number, number], f.b as [number, number]];
+}
+
+/** position L93 du milieu d'une ouverture (xM depuis le coin gauche vu de dehors), légèrement à l'extérieur du mur */
+export function joineryPoint(f: Facade, xM: number, widthM: number): [number, number] {
+  const [L, R] = facadeLeftRight(f);
+  const nv = outward(f);
+  const t = Math.max(0, Math.min(1, (xM + widthM / 2) / (f.lengthM || 1)));
+  return [L[0] + (R[0] - L[0]) * t + nv[0] * 0.05, L[1] + (R[1] - L[1]) * t + nv[1] * 0.05];
+}
+
+/** distance minimale des ouvertures créées à la limite */
+export function joineryMinDistance(e: EnrichmentResult | undefined, items: JoineryItem[]): number | undefined {
+  const fs = projectFacades(e);
+  let best: number | undefined;
+  for (const it of items.filter((i) => i.isNew)) {
+    const f = fs[it.facadeIndex];
+    if (!f) continue;
+    const d = distanceToLimit(e, joineryPoint(f, it.xM, it.widthM));
+    if (d !== undefined) best = best === undefined ? d : Math.min(best, d);
+  }
+  return best;
+}
+
+/** emprises au sol (L93) des fenêtres de toit */
+export function roofWindowsGround(p: Project): { item: RoofWindowItem; ring: [number, number][] }[] {
+  const v = p.velux;
+  if (!v) return [];
+  const m = ROOF_WINDOW_MODELS.find((x) => x.id === v.modelId) ?? ROOF_WINDOW_MODELS[0];
+  const out: { item: RoofWindowItem; ring: [number, number][] }[] = [];
+  for (const it of v.items) {
+    const rp = p.pv.roofPlanes.find((r) => r.id === it.roofPlaneId);
+    if (!rp) continue;
+    const ring = panelsGround(rp, { roofPlaneId: rp.id, orientation: "portrait", panels: [{ x: it.x, y: it.y, w: m.widthMm / 1000, h: m.heightMm / 1000 }], marginEdgeM: 0, marginGutterM: 0, marginRidgeM: 0, gapM: 0 } as PvLayout)[0];
+    if (ring) out.push({ item: it, ring });
+  }
+  return out;
+}
+
+export function roofWindowsMinDistance(p: Project): number | undefined {
+  let best: number | undefined;
+  for (const { ring } of roofWindowsGround(p))
+    for (const c of ring) {
+      const d = distanceToLimit(p.enrichment, c);
+      if (d !== undefined) best = best === undefined ? d : Math.min(best, d);
+    }
+  return best;
+}
+
+/** ouvertures proposées par défaut (à ajuster) : la façade la plus longue, fenêtres réparties + une porte */
+export function defaultJoineryItems(e: EnrichmentResult | undefined): JoineryItem[] {
+  const fs = projectFacades(e);
+  if (!fs.length) return [];
+  const f = [...fs].sort((a, b) => b.lengthM - a.lengthM)[0];
+  const n = Math.max(1, Math.min(4, Math.floor(f.lengthM / 3)));
+  const items: JoineryItem[] = [];
+  for (let i = 0; i < n; i++) {
+    const cx = (f.lengthM * (i + 0.5)) / n;
+    const isDoor = i === Math.floor(n / 2) && n > 1;
+    const k = isDoor ? JOINERY_KINDS.porte : JOINERY_KINDS.fenetre;
+    items.push({ id: `j${i + 1}`, facadeIndex: f.index, kind: isDoor ? "porte" : "fenetre", widthM: k.w, heightM: k.h, xM: Math.round((cx - k.w / 2) * 100) / 100, sillM: k.sill, isNew: false });
+  }
+  return items;
+}
+
+/** fenêtres de toit proposées par défaut : 2 sur le premier pan, au tiers du rampant */
+export function defaultRoofWindows(p: Project, modelId: string, count = 2): RoofWindowItem[] {
+  const rp = p.pv.roofPlanes[0];
+  if (!rp) return [];
+  const m = ROOF_WINDOW_MODELS.find((x) => x.id === modelId) ?? ROOF_WINDOW_MODELS[0];
+  const w = m.widthMm / 1000;
+  return Array.from({ length: count }, (_, i) => ({ id: `w${i + 1}`, roofPlaneId: rp.id, x: Math.round(((rp.widthM * (i + 1)) / (count + 1) - w / 2) * 100) / 100, y: Math.round(rp.slopeLengthM * 0.3 * 100) / 100 }));
 }

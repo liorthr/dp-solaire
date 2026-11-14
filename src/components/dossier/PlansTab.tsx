@@ -11,8 +11,9 @@ import { runEnrichment } from "@/lib/enrichment/run";
 import { dp2, dp4, type PlanContext } from "@/lib/plans/dp";
 import { dp2Works, dp3Ite, dp4Works } from "@/lib/works/plans";
 import { projectFacades } from "@/lib/works/geom";
-import { IteEditor, PacEditor } from "@/components/WorksEditor";
-import { defaultIte, defaultPac } from "@/data/works";
+import { IteEditor, JoineryEditor, PacEditor, VeluxEditor } from "@/components/WorksEditor";
+import { defaultIte, defaultJoinery, defaultPac, defaultVelux } from "@/data/works";
+import { defaultJoineryItems, defaultRoofWindows } from "@/lib/works/geom";
 import { parcelRefs } from "@/lib/dossier/texts";
 import { fr } from "@/lib/instruction/deadlines";
 import type { ProjectBundle } from "./useProject";
@@ -42,11 +43,7 @@ export function PlansTab({ b }: { b: ProjectBundle }) {
   const pickBuilding = (id: string) => {
     const bld = p.enrichment?.buildings.find((x) => x.id === id);
     if (!bld) return;
-    if (works !== "pv")
-      return save(
-        { ...p, enrichment: { ...p.enrichment!, mainBuildingId: id } },
-        "choix_batiment",
-      );
+    if (works !== "pv") return save(retarget({ ...p, enrichment: { ...p.enrichment!, mainBuildingId: id } }), "choix_batiment");
     if (!panel) return;
     const est = estimateRoof(bld);
     let next: Project = {
@@ -56,6 +53,19 @@ export function PlansTab({ b }: { b: ProjectBundle }) {
     };
     next = relayout(next, panel, [est.planes[0].id]);
     save(next, "choix_batiment");
+  };
+  /** bâtiment changé : pans de toiture et éléments proposés par défaut recalculés */
+  const retarget = (next: Project): Project => {
+    const bld = next.enrichment?.buildings.find((x) => x.id === next.enrichment?.mainBuildingId);
+    if (!bld) return next;
+    const est = estimateRoof(bld);
+    let out: Project = { ...next, pv: { ...next.pv, roofPlanes: est.planes, layouts: [] } };
+    if (works === "menuiserie") out = { ...out, menuiserie: { ...(out.menuiserie ?? defaultJoinery()), items: defaultJoineryItems(out.enrichment) } };
+    if (works === "velux") {
+      const v = out.velux ?? defaultVelux();
+      out = { ...out, velux: { ...v, items: defaultRoofWindows(out, v.modelId, Math.max(1, v.items.length)) } };
+    }
+    return out;
   };
   const reanalyze = async (lon: number, lat: number) => {
     if (
@@ -73,7 +83,8 @@ export function PlansTab({ b }: { b: ProjectBundle }) {
         enrichment: e,
         overrides: { ...p.overrides, site: { lon, lat } },
       };
-      if (bld && panel && works === "pv") {
+      if (works !== "pv") next = retarget(next);
+      else if (bld && panel) {
         const est = estimateRoof(bld);
         next = relayout(
           { ...next, pv: { ...next.pv, roofPlanes: est.planes, layouts: [] } },
@@ -182,6 +193,36 @@ export function PlansTab({ b }: { b: ProjectBundle }) {
             onChange={(v) => save({ ...p, pac: v }, "edition_pac")}
             facades={facades}
           />
+        </Card>
+      )}
+      {works === "menuiserie" && (
+        <Card title="Menuiseries : façades, types et cotes">
+          <JoineryEditor value={p.menuiserie ?? defaultJoinery()} onChange={(v) => save({ ...p, menuiserie: v }, "edition_menuiseries")} facades={facades} />
+        </Card>
+      )}
+      {works === "velux" && (
+        <Card title="Fenêtres de toit : modèle et positions">
+          <VeluxEditor value={p.velux ?? defaultVelux()} onChange={(v) => save({ ...p, velux: v }, "edition_fenetres_toit")} planes={p.pv.roofPlanes} />
+          {p.pv.roofPlanes.length > 0 && (
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              {p.pv.roofPlanes.map((rp) => (
+                <div key={rp.id} className="rounded-lg border border-stone-200 p-2 text-xs">
+                  <p className="font-medium">{rp.label}</p>
+                  <div className="mt-1 grid grid-cols-3 gap-1">
+                    <Field label="Pente (°)">
+                      <Input type="number" value={rp.tiltDeg} onChange={(e) => save({ ...p, pv: { ...p.pv, roofPlanes: p.pv.roofPlanes.map((r) => (r.id === rp.id ? { ...r, tiltDeg: Number(e.target.value) } : r)) } }, "edition_pan")} />
+                    </Field>
+                    <Field label="Égout (m)">
+                      <Input type="number" step="0.1" value={rp.widthM} onChange={(e) => save({ ...p, pv: { ...p.pv, roofPlanes: p.pv.roofPlanes.map((r) => (r.id === rp.id ? { ...r, widthM: Number(e.target.value) } : r)) } }, "edition_pan")} />
+                    </Field>
+                    <Field label="Rampant (m)">
+                      <Input type="number" step="0.1" value={rp.slopeLengthM} onChange={(e) => save({ ...p, pv: { ...p.pv, roofPlanes: p.pv.roofPlanes.map((r) => (r.id === rp.id ? { ...r, slopeLengthM: Number(e.target.value) } : r)) } }, "edition_pan")} />
+                    </Field>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       )}
       {works === "ite" && (

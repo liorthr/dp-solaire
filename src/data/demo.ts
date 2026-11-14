@@ -1,14 +1,16 @@
 // Dossiers de démonstration : adresses de voies publiques réelles, bâtiments repérés dans la BD TOPO,
 // clients FICTIFS. Utilisés pour la démo et les tests E2E.
-import type { AddressResult, IteInfo, PacInfo, WorksType } from "@/lib/types";
+import type { AddressResult, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
 
 export interface DemoCase {
-  key: "sans-contrainte" | "abf" | "plu-restrictif" | "pac" | "ite";
+  key: "sans-contrainte" | "abf" | "plu-restrictif" | "pac" | "ite" | "menuiserie" | "velux";
   works?: WorksType;
   /** jeu de photos d'illustration (par défaut : key) */
   photos?: "sans-contrainte" | "abf" | "plu-restrictif";
   pac?: PacInfo;
   ite?: IteInfo;
+  menuiserie?: JoineryInfo;
+  velux?: RoofWindowInfo;
   title: string;
   description: string;
   address: AddressResult;
@@ -74,5 +76,31 @@ export const demoCases: DemoCase[] = [
     panelId: "gen-430-fb",
     panelCount: 0,
     ite: { facadeIndexes: [0, 1, 2, 3], thicknessCm: 14, finish: "enduit", colorName: "Ton pierre", colorHex: "#d8cbb3", overhangPublic: true, overhangNeighbor: false, derogation: false },
+  },
+  {
+    key: "menuiserie",
+    works: "menuiserie",
+    photos: "plu-restrictif",
+    title: "Fenêtres et porte : bois vers alu en zone N",
+    description: "Ailly-sur-Somme (80), chemin du Marais : 3 fenêtres et la porte d'entrée remplacées (bois → aluminium gris anthracite).",
+    address: { label: "Chemin du Marais 80470 Ailly-sur-Somme", street: "Chemin du Marais", postcode: "80470", city: "Ailly-sur-Somme", insee: "80011", lon: 2.199032, lat: 49.932125, score: 1, type: "street" },
+    site: { lon: 2.198025, lat: 49.931534 },
+    client: { civility: "M.", firstName: "Hugo", lastName: "Démo-Moreau", email: "hugo.demo@example.org", phone: "06 00 00 00 06" },
+    panelId: "gen-430-fb",
+    panelCount: 0,
+    menuiserie: { identical: false, materialBefore: "bois", materialAfter: "alu", colorName: "Gris anthracite (RAL 7016)", colorHex: "#383e42", items: [], view: "droite", neighborAgreement: false, changeOfUse: false },
+  },
+  {
+    key: "velux",
+    works: "velux",
+    photos: "abf",
+    title: "Fenêtres de toit en périmètre ABF",
+    description: "Amiens (80), rue Cormont : 2 fenêtres de toit 78 × 118 dans les abords de la cathédrale.",
+    address: { label: "Rue Cormont 80000 Amiens", street: "Rue Cormont", postcode: "80000", city: "Amiens", insee: "80021", lon: 2.301666, lat: 49.894273, score: 0.97, type: "street" },
+    site: { lon: 2.301622, lat: 49.894189 },
+    client: { civility: "Mme", firstName: "Léa", lastName: "Fictif-Garnier", email: "lea.fictif@example.org", phone: "06 00 00 00 07" },
+    panelId: "gen-430-fb",
+    panelCount: 0,
+    velux: { modelId: "rw-78x118", frameColor: "gris_anthracite", identical: false, items: [], view: "droite", neighborAgreement: false, attic: true, atticAreaM2: 18, changeOfUse: false, shutters: false },
   },
 ];

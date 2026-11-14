@@ -1,0 +1,402 @@
+{
+ "ruleset": "dp-fenetres-de-toit",
+ "version": "2026.11.1",
+ "published_at": "2026-11-14",
+ "regimes": [
+  {
+   "code": "REGIME_VELUX_DESTINATION_PC",
+   "outcome": "PC",
+   "when": {
+    "fact": "velux.changeOfUse",
+    "op": "eq",
+    "value": true
+   },
+   "message": "Fenêtres de toit avec changement de destination (grange ou commerce transformé en logement…) : un permis de construire est nécessaire (hors périmètre de l'application).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "Service-public F36766 (vérifiée le 23/01/2025)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_VELUX_IDENTIQUE",
+   "outcome": "AUCUNE",
+   "when": {
+    "fact": "velux.identical",
+    "op": "eq",
+    "value": true
+   },
+   "message": "Remplacement par une fenêtre de toit identique (même dimension, même aspect) : l'aspect extérieur n'est pas modifié. À confirmer avec la mairie.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "F36766 : la DP vise la création ou le changement « pour un autre modèle »",
+   "verification": "A_VERIFIER",
+   "valid_from": "2026-11-14",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_VELUX_DP",
+   "outcome": "DP",
+   "when": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "message": "Créer une fenêtre de toit ou la changer pour un autre modèle modifie l'aspect extérieur : une déclaration préalable est nécessaire, y compris avec un aménagement des combles.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "Service-public F36766 (vérifiée le 23/01/2025)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null
+  }
+ ],
+ "pieces": [
+  {
+   "code": "DP1",
+   "cerfaCode": "DPC1",
+   "label": "Plan de situation du terrain",
+   "file": "DP1_plan_de_situation",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "Obligatoire pour tous les projets",
+   "article": "R. 431-36 a)"
+  },
+  {
+   "code": "DP2",
+   "cerfaCode": "DPC2",
+   "label": "Plan de masse (fenêtres de toit, distances)",
+   "file": "DP2_plan_de_masse",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "Situe les fenêtres de toit et leur distance aux limites",
+   "article": "R. 431-36 b)"
+  },
+  {
+   "code": "DP4",
+   "cerfaCode": "DPC4",
+   "label": "Plan de la toiture et des façades",
+   "file": "DP4_plan_toiture",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "La toiture est modifiée",
+   "article": "R. 431-10 a)"
+  },
+  {
+   "code": "DP5",
+   "cerfaCode": "DPC5",
+   "label": "Représentation de l'aspect extérieur",
+   "file": "DP5_aspect_exterieur",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "L'aspect extérieur est modifié",
+   "article": "R. 431-36 c)"
+  },
+  {
+   "code": "DP6",
+   "cerfaCode": "DPC6",
+   "label": "Document graphique d'insertion",
+   "file": "DP6_insertion",
+   "required": {
+    "any": [
+     {
+      "fact": "answers.visibleFromPublicSpace",
+      "op": "neq",
+      "value": false
+     },
+     {
+      "fact": "heritage.protected",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "why": "Visible depuis l'espace public ou secteur protégé",
+   "article": "R. 431-10 c)"
+  },
+  {
+   "code": "DP7",
+   "cerfaCode": "DPC7",
+   "label": "Photographie de l'environnement proche",
+   "file": "DP7_photo_environnement_proche",
+   "required": {
+    "any": [
+     {
+      "fact": "answers.visibleFromPublicSpace",
+      "op": "neq",
+      "value": false
+     },
+     {
+      "fact": "heritage.protected",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "why": "Idem DP6",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "DP8",
+   "cerfaCode": "DPC8",
+   "label": "Photographie du paysage lointain",
+   "file": "DP8_photo_paysage_lointain",
+   "required": {
+    "any": [
+     {
+      "fact": "answers.visibleFromPublicSpace",
+      "op": "neq",
+      "value": false
+     },
+     {
+      "fact": "heritage.protected",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "why": "Idem DP6",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "DP11",
+   "cerfaCode": "DPC11",
+   "label": "Notice des matériaux",
+   "file": "DP11_notice_materiaux",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "Modèle, dimensions, coloris et pose",
+   "article": "R. 431-14"
+  }
+ ],
+ "deadlines": [],
+ "copies": [],
+ "generic": [
+  "PIECES_MANQUANTES",
+  "ADRESSE_ABSENTE",
+  "PARCELLE_ABSENTE",
+  "MANDAT_NON_SIGNE",
+  "CLIENT_INCOMPLET",
+  "PHOTO_FACADE_MANQUANTE",
+  "PHOTO_QUALITE",
+  "INSERTION_NON_FAITE",
+  "BATI_NON_IDENTIFIE",
+  "ABF_DIVERGENCE",
+  "PLU_ZONE_INCONNUE",
+  "LOTISSEMENT",
+  "MAIRIE_SANS_EMAIL",
+  "DEPOT_ELECTRONIQUE_PM"
+ ],
+ "rules": [
+  {
+   "code": "VELUX_VUE_DROITE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Vue droite sur le voisin à moins de 1,90 m",
+   "condition": {
+    "all": [
+     {
+      "fact": "velux.view",
+      "op": "eq",
+      "value": "droite"
+     },
+     {
+      "fact": "velux.minDistanceM",
+      "op": "lt",
+      "value": 1.9
+     },
+     {
+      "fact": "velux.neighborAgreement",
+      "op": "eq",
+      "value": false
+     }
+    ]
+   },
+   "severity": "alerte",
+   "weight": 15,
+   "message": "Une fenêtre de toit avec vue droite serait à environ {{velux.minDistanceM}} m de la limite voisine : la distance à respecter est de 1,90 m, sauf accord écrit du voisin.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "F36766, « À noter » : 1,9 m sans se pencher",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Remontez la fenêtre sur le pan, choisissez un pan opposé, ou obtenez l'accord écrit du voisin."
+  },
+  {
+   "code": "VELUX_VUE_OBLIQUE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Vue oblique sur le voisin à moins de 0,60 m",
+   "condition": {
+    "all": [
+     {
+      "fact": "velux.view",
+      "op": "eq",
+      "value": "oblique"
+     },
+     {
+      "fact": "velux.minDistanceM",
+      "op": "lt",
+      "value": 0.6
+     },
+     {
+      "fact": "velux.neighborAgreement",
+      "op": "eq",
+      "value": false
+     }
+    ]
+   },
+   "severity": "alerte",
+   "weight": 15,
+   "message": "Une fenêtre de toit avec vue oblique serait à environ {{velux.minDistanceM}} m de la limite voisine : la distance à respecter est de 0,60 m, sauf accord écrit du voisin.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "F36766, « À noter » : 0,6 m en se penchant",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Déplacez la fenêtre ou obtenez l'accord écrit du voisin."
+  },
+  {
+   "code": "VELUX_COMBLES",
+   "version": 1,
+   "category": "contexte",
+   "title": "Aménagement des combles",
+   "condition": {
+    "fact": "velux.attic",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Aménagement des combles associé : de la surface de plancher est créée ({{velux.atticAreaM2}} m² déclarés). Une DP reste la règle selon F36766 ; l'aménagement peut avoir une incidence sur la taxe foncière (déclaration au centre des impôts fonciers).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "F36766 : combles → DP ; impôts fonciers",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Renseignez la surface de plancher créée au cerfa. Au-delà de certains seuils de surface, un permis peut être exigé (seuils À_VÉRIFIER, Q27)."
+  },
+  {
+   "code": "VELUX_COMBLES_SURFACE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Surface de combles importante",
+   "condition": {
+    "all": [
+     {
+      "fact": "velux.attic",
+      "op": "eq",
+      "value": true
+     },
+     {
+      "fact": "velux.atticAreaM2",
+      "op": "gt",
+      "value": 20
+     }
+    ]
+   },
+   "severity": "alerte",
+   "weight": 10,
+   "message": "Plus de 20 m² de surface de plancher créée sous combles : vérifiez si un permis de construire est nécessaire (seuils de 20 m² / 40 m² selon la zone).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "Seuils À_VÉRIFIER (Q27)",
+   "verification": "A_VERIFIER",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Contrôlez les seuils avec le service urbanisme avant le dépôt."
+  },
+  {
+   "code": "VELUX_SECTEUR_PROTEGE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Secteur protégé : fenêtres de toit",
+   "condition": {
+    "fact": "heritage.protected",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "alerte",
+   "weight": 15,
+   "message": "Projet en secteur protégé ({{heritage.label}}) : l'ABF est consulté (délai porté à 2 mois en général). Nombre, taille et alignement des fenêtres de toit sont examinés.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578",
+   "source_label": "F17578 ; conseils : pratique UDAP (À_VÉRIFIER)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Pratique fréquente des UDAP : fenêtres de petite taille, encastrées, alignées sur les ouvertures de la façade, sur le pan le moins visible ; parfois modèle « patrimoine » (À_VÉRIFIER auprès de l'UDAP)."
+  },
+  {
+   "code": "VELUX_ALIGNEMENT",
+   "version": 1,
+   "category": "contexte",
+   "title": "Composition de la toiture",
+   "condition": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "{{velux.count}} fenêtre(s) de toit {{velux.modelLabel}}, coloris {{velux.colorLabel}}. Le PLU peut limiter le nombre ou la proportion de fenêtres de toit et imposer leur encastrement.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "F36766 ; règles du PLU",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Alignez les fenêtres de toit entre elles et sur les ouvertures de la façade ; vérifiez l'article « aspect extérieur » de la zone."
+  },
+  {
+   "code": "VELUX_COPROPRIETE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Copropriété : toiture = partie commune",
+   "condition": {
+    "fact": "answers.copropriete",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "alerte",
+   "weight": 10,
+   "message": "En copropriété, la toiture est une partie commune : les travaux doivent être autorisés par l'assemblée générale.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "F36762, étape 6 (parties communes : toiture, façade)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Obtenez le procès-verbal d'AG avant de déposer."
+  },
+  {
+   "code": "AIDES_RENOV",
+   "version": 1,
+   "category": "info",
+   "title": "Aides à la rénovation énergétique",
+   "condition": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Des aides existent pour la rénovation énergétique (MaPrimeRénov', éco-PTZ, TVA à taux réduit…) ; un conseiller France Rénov' informe gratuitement (0 808 800 700).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36766",
+   "source_label": "Service-public (rubrique aides)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Informez votre client avant la signature du devis."
+  }
+ ]
+}

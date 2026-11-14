@@ -190,6 +190,8 @@ export interface Insertion {
   rows: number;
   cols: number;
   aiSuggested?: boolean;
+  /** éléments supplémentaires (plusieurs fenêtres, fenêtres de toit…) */
+  extraQuads?: [number, number][][];
 }
 
 export interface SignatureRecord {
@@ -228,7 +230,67 @@ export interface InstructionEvent {
 }
 
 /** type de travaux couvert par le dossier */
-export type WorksType = "pv" | "pac" | "ite";
+export type WorksType = "pv" | "pac" | "ite" | "menuiserie" | "velux";
+
+export type JoineryKind = "fenetre" | "porte_fenetre" | "porte" | "volet_battant" | "volet_roulant" | "porte_garage";
+export type JoineryMaterial = "bois" | "pvc" | "alu" | "mixte" | "acier";
+
+/** une ouverture (fenêtre, porte, volet…) sur une façade, cotes en mètres depuis le coin gauche et le sol */
+export interface JoineryItem {
+  id: ID;
+  facadeIndex: number;
+  kind: JoineryKind;
+  widthM: number;
+  heightM: number;
+  xM: number;
+  sillM: number;
+  /** ouverture créée (n'existait pas) */
+  isNew: boolean;
+}
+
+export interface JoineryInfo {
+  /** remplacement à l'identique (même forme, matériau, couleur) : pas de formalité */
+  identical: boolean;
+  materialBefore: JoineryMaterial;
+  materialAfter: JoineryMaterial;
+  colorName: string;
+  colorHex: string;
+  items: JoineryItem[];
+  /** type de vue créée par une nouvelle ouverture vers le terrain voisin */
+  view: "droite" | "oblique" | "sans";
+  neighborAgreement: boolean;
+  changeOfUse: boolean;
+}
+
+export interface RoofWindowModel {
+  id: ID;
+  label: string;
+  widthMm: number;
+  heightMm: number;
+}
+
+export interface RoofWindowItem {
+  id: ID;
+  roofPlaneId: ID;
+  /** position (m) dans le repère du pan : x le long de l'égout depuis la rive gauche, y le long du rampant depuis l'égout */
+  x: number;
+  y: number;
+}
+
+export interface RoofWindowInfo {
+  modelId: string;
+  frameColor: "gris_anthracite" | "noir" | "cuivre" | "blanc";
+  identical: boolean;
+  items: RoofWindowItem[];
+  view: "droite" | "oblique" | "sans";
+  neighborAgreement: boolean;
+  /** aménagement des combles associé (création de surface de plancher) */
+  attic: boolean;
+  atticAreaM2?: number;
+  changeOfUse: boolean;
+  /** volets roulants extérieurs */
+  shutters: boolean;
+}
 
 export interface PacUnitModel {
   id: ID;
@@ -276,6 +338,8 @@ export interface Project {
   works?: WorksType;
   pac?: PacInfo;
   ite?: IteInfo;
+  menuiserie?: JoineryInfo;
+  velux?: RoofWindowInfo;
   tenantId: ID;
   reference: string;
   clientId?: ID;

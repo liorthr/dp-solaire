@@ -1,8 +1,16 @@
 import type { Project } from "@/lib/types";
-import { defaultIte, defaultPac, defaultPacUnits, ITE_FINISHES } from "@/data/works";
+import { defaultIte, defaultJoinery, defaultPac, defaultPacUnits, defaultVelux, ITE_FINISHES, JOINERY_MATERIALS, ROOF_WINDOW_MODELS } from "@/data/works";
 
 /** résumé d'une ligne du projet (en-tête de dossier, tableau de bord) */
 export function worksSummary(p: Project): string {
+  if (p.works === "menuiserie") {
+    const m = p.menuiserie ?? defaultJoinery();
+    return `${m.items.length} menuiserie(s) ${JOINERY_MATERIALS[m.materialAfter].toLowerCase()}, ${m.colorName}`;
+  }
+  if (p.works === "velux") {
+    const v = p.velux ?? defaultVelux();
+    return `${v.items.length} fenêtre(s) de toit ${(ROOF_WINDOW_MODELS.find((x) => x.id === v.modelId) ?? ROOF_WINDOW_MODELS[0]).label}`;
+  }
   if (p.works === "pac") {
     const pac = p.pac ?? defaultPac();
     const u = defaultPacUnits.find((x) => x.id === pac.unitId) ?? defaultPacUnits[0];

@@ -13,10 +13,10 @@ import { applyEnrichment, newProject, relayout } from "@/lib/project/factory";
 import { runEnrichment, STEPS, type StepId } from "@/lib/enrichment/run";
 import { simpleSignatureProvider } from "@/lib/providers/signature";
 import { mandateText } from "@/lib/dossier/texts";
-import { IteEditor, PacEditor, WorksPicker } from "@/components/WorksEditor";
-import { defaultIte, defaultPac } from "@/data/works";
-import { bestPacFacade } from "@/lib/works/geom";
-import type { IteInfo, PacInfo, WorksType } from "@/lib/types";
+import { IteEditor, JoineryEditor, PacEditor, VeluxEditor, WorksPicker } from "@/components/WorksEditor";
+import { defaultIte, defaultJoinery, defaultPac, defaultVelux } from "@/data/works";
+import { bestPacFacade, defaultJoineryItems, defaultRoofWindows } from "@/lib/works/geom";
+import type { IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
 
 const STEP_LABELS = ["Adresse", "Client & mandat", "Projet", "Photos"];
 
@@ -25,10 +25,13 @@ function Wizard() {
   const [step, setStep] = useState(0);
   const [works, setWorks] = useState<WorksType>(() => {
     const w = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("works") : null;
-    return w === "pac" || w === "ite" ? w : "pv";
+    return w === "pac" || w === "ite" || w === "menuiserie" || w === "velux" ? w : "pv";
   });
   const [pac, setPac] = useState<PacInfo>(defaultPac);
   const [ite, setIte] = useState<IteInfo>(defaultIte);
+  const [menu, setMenu] = useState<JoineryInfo>(defaultJoinery);
+  const [velux, setVelux] = useState<RoofWindowInfo>(defaultVelux);
+  const [veluxCount, setVeluxCount] = useState(2);
   const [address, setAddress] = useState<AddressResult>();
   const [answers, setAnswers] = useState<ProjectAnswers>({ visibleFromPublicSpace: true, inLotissement: "nsp", copropriete: false, buildingIsListedMH: false });
   const clients = repo.clients();
@@ -72,6 +75,8 @@ function Wizard() {
       if (works === "pv") p.pv = { ...p.pv, panelId, panelCount: count, powerKwc: power ? Number(power.replace(",", ".")) : computed, mounting, inverterId };
       if (works === "pac") p.pac = pac;
       if (works === "ite") p.ite = ite;
+      if (works === "menuiserie") p.menuiserie = menu;
+      if (works === "velux") p.velux = velux;
       p.photos = Object.values(photos).filter(Boolean) as Photo[];
       if (sig && mandateOk) p.mandate = await simpleSignatureProvider.sign({ signerName: `${client.firstName} ${client.lastName}`, document: mandateText(p, client, s), imageDataUrl: sig });
       p = repo.saveProject(p);
@@ -81,6 +86,8 @@ function Wizard() {
       p = applyEnrichment(p, enrichment);
       if (works === "pv" && panel) p = relayout(p, panel);
       if (works === "pac") p.pac = { ...pac, facadeIndex: bestPacFacade(enrichment, pac) };
+      if (works === "menuiserie") p.menuiserie = { ...menu, items: defaultJoineryItems(enrichment) };
+      if (works === "velux") p.velux = { ...velux, items: defaultRoofWindows(p, velux.modelId, veluxCount) };
       p.overrides = { ...p.overrides, site };
       repo.saveProject(p, "enrichissement");
       router.push(`/app/dossier/?id=${p.id}`);
@@ -229,6 +236,18 @@ function Wizard() {
         <Card title="L'isolation par l'extérieur">
           <IteEditor value={ite} onChange={setIte} />
           <p className="mt-2 text-xs text-stone-600">Toutes les façades sont isolées par défaut ; vous pourrez en retirer dans l&apos;onglet Plans une fois le bâtiment identifié.</p>
+        </Card>
+      )}
+      {step === 2 && works === "menuiserie" && (
+        <Card title="Fenêtres, portes et volets">
+          <JoineryEditor value={menu} onChange={setMenu} />
+          <p className="mt-2 text-xs text-stone-600">Après l&apos;analyse du terrain, les menuiseries de la façade principale sont pré-placées ; vous ajusterez leur nombre, leurs cotes et les ouvertures créées dans l&apos;onglet Plans.</p>
+        </Card>
+      )}
+      {step === 2 && works === "velux" && (
+        <Card title="Fenêtres de toit">
+          <VeluxEditor value={{ ...velux, items: Array.from({ length: veluxCount }, (_, i) => ({ id: String(i), roofPlaneId: "", x: 0, y: 0 })) }} onChange={(v) => setVelux({ ...v, items: [] })} onCount={setVeluxCount} />
+          <p className="mt-2 text-xs text-stone-600">Les fenêtres sont placées sur le pan principal (BD TOPO) ; vous ajusterez le pan et leur position dans l&apos;onglet Plans.</p>
         </Card>
       )}
       {step === 2 && works === "pv" && (

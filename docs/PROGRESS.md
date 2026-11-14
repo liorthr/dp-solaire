@@ -41,3 +41,18 @@ Qualité au dernier commit : lint 0 erreur ; typecheck OK ; Vitest 51/51 ; Playw
 - Textes (description cerfa, notice DP11, mandat, email, LRAR) adaptés au type de travaux.
 - Démos DEMO-4-PAC et DEMO-5-ITE ; tests : Vitest 81/81, Playwright 11/11 (desktop).
 - Questions ouvertes Q22 à Q25.
+
+## 14/11/2026 : fenêtres, portes, volets et fenêtres de toit
+- Deux nouveaux types de travaux dans l'assistant et le tableau de bord.
+- Règles sourcées (F36762 et F76 vérifiées le 10/11/2026, F36766) :
+  - régime : aucune formalité à l'identique, DP sinon, PC en cas de changement de destination ;
+  - vues sur le voisin : 1,90 m en vue droite, 0,60 m en vue oblique, levée par l'accord écrit du voisin ;
+  - combles, copropriété, secteur ABF, coffres de volets roulants.
+- Saisie : tableau des menuiseries (façade, type, cotes, position, création) pré-rempli ; fenêtres de toit positionnées sur les pans (x depuis la rive, y depuis l'égout).
+- Plans :
+  - DP2 : façades concernées et distances des ouvertures créées / emprise des fenêtres de toit ;
+  - DP4 : façades avant/après avec les menuiseries cotées / pan de toiture rabattu coté et façade avant/après.
+- Photomontage à plusieurs éléments (un cadre par menuiserie ou fenêtre de toit).
+- Démos : DEMO-6-MENUISERIE et DEMO-7-VELUX.
+- Tests : Vitest 91/91, Playwright desktop 14/14.
+- Questions ouvertes : Q26 à Q28.

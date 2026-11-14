@@ -11,7 +11,8 @@ import { simpleSignatureProvider } from "@/lib/providers/signature";
 import { mandateText } from "@/lib/dossier/texts";
 import { addDays } from "@/lib/instruction/deadlines";
 import { photoStore } from "./db";
-import { bestPacFacade } from "@/lib/works/geom";
+import { bestPacFacade, defaultRoofWindows, projectFacades } from "@/lib/works/geom";
+import type { JoineryItem } from "@/lib/types";
 
 /** quadrilatère du champ de panneaux sur les photos d'illustration 2000×1500 (pan avant, en perspective) */
 const DEMO_QUADS: Record<string, [number, number][]> = {
@@ -21,6 +22,18 @@ const DEMO_QUADS: Record<string, [number, number][]> = {
   pac: [[1240, 990], [1360, 990], [1360, 1083], [1240, 1083]],
   ite: [[414, 653], [1586, 653], [1586, 1124], [414, 1124]],
 };
+
+/** photo d'illustration (2000×1500) : 3 fenêtres et la porte, de gauche à droite ; mur de x = 413 à 1587 */
+const DEMO_OPENINGS: { kind: JoineryItem["kind"]; quad: [number, number][] }[] = [
+  { kind: "fenetre", quad: [[582, 747], [711, 747], [711, 886], [582, 886]] },
+  { kind: "fenetre", quad: [[918, 747], [1047, 747], [1047, 886], [918, 886]] },
+  { kind: "porte", quad: [[916, 912], [1050, 912], [1050, 1124], [916, 1124]] },
+  { kind: "fenetre", quad: [[1254, 747], [1383, 747], [1383, 886], [1254, 886]] },
+];
+const DEMO_ROOF_WINDOWS: [number, number][][] = [
+  [[750, 430], [828, 430], [831, 515], [747, 515]],
+  [[1172, 430], [1250, 430], [1253, 515], [1169, 515]],
+];
 
 export async function seedDemoProjects(tenantId: string, userId: string): Promise<Project[]> {
   const prevMode = providerMode();
@@ -42,6 +55,20 @@ export async function seedDemoProjects(tenantId: string, userId: string): Promis
         p = applyEnrichment(p, enrichment);
         if (d.pac) p.pac = { ...d.pac, facadeIndex: bestPacFacade(enrichment, d.pac) };
         if (d.ite) p.ite = d.ite;
+        if (d.menuiserie) {
+          const f = [...projectFacades(enrichment)].sort((a, b) => b.lengthM - a.lengthM)[0];
+          const L = f?.lengthM ?? 10;
+          // positions relevées sur la photo : rapport (x - 413) / 1174 de la largeur du mur
+          p.menuiserie = {
+            ...d.menuiserie,
+            items: DEMO_OPENINGS.map((o, j) => {
+              const w = ((o.quad[1][0] - o.quad[0][0]) / 1174) * L;
+              const h = o.kind === "porte" ? 2.15 : 1.25;
+              return { id: `j${j + 1}`, facadeIndex: f?.index ?? 0, kind: o.kind, widthM: Math.round(w * 100) / 100, heightM: h, xM: Math.round((((o.quad[0][0] - 413) / 1174) * L) * 100) / 100, sillM: o.kind === "porte" ? 0 : 1.0, isNew: false };
+            }),
+          };
+        }
+        if (d.velux) p.velux = { ...d.velux, items: defaultRoofWindows(p, d.velux.modelId, 2) };
       } else {
         p.pv = { ...p.pv, panelId: panel.id, panelCount: d.panelCount, powerKwc: (d.panelCount * panel.powerWc) / 1000, inverterId: "gen-micro-400" };
         p = applyEnrichment(p, enrichment);
@@ -55,10 +82,12 @@ export async function seedDemoProjects(tenantId: string, userId: string): Promis
         const key = uid("blob");
         await photoStore.put(key, blob);
         const { quality, width, height } = await analyzePhoto(blob, kind);
-        p.photos.push({ id: uid("pho"), kind, blobKey: key, width, height, quality, caption: kind === "facade" ? (d.works && d.works !== "pv" ? "Façade principale" : "Façade principale et toiture") : kind === "proche" ? "Vue depuis la rue" : "Vue lointaine depuis la voie publique" });
+        p.photos.push({ id: uid("pho"), kind, blobKey: key, width, height, quality, caption: kind === "facade" ? (d.works && d.works !== "pv" && d.works !== "velux" ? "Façade principale" : "Façade principale et toiture") : kind === "proche" ? "Vue depuis la rue" : "Vue lointaine depuis la voie publique" });
       }
       const facade = p.photos.find((x) => x.kind === "facade");
-      if (facade) p.insertions = [{ photoId: facade.id, quad: DEMO_QUADS[d.key], rows: 2, cols: Math.ceil(d.panelCount / 2) }];
+      if (facade && d.works === "menuiserie") p.insertions = [{ photoId: facade.id, quad: DEMO_OPENINGS[0].quad, extraQuads: DEMO_OPENINGS.slice(1).map((o) => o.quad), rows: 1, cols: 1 }];
+      else if (facade && d.works === "velux") p.insertions = [{ photoId: facade.id, quad: DEMO_ROOF_WINDOWS[0], extraQuads: DEMO_ROOF_WINDOWS.slice(1), rows: 1, cols: 1 }];
+      else if (facade) p.insertions = [{ photoId: facade.id, quad: DEMO_QUADS[d.key], rows: 2, cols: Math.ceil(d.panelCount / 2) }];
       const signerName = `${d.client.firstName} ${d.client.lastName}`;
       if (i < 2 || d.works) p.mandate = await simpleSignatureProvider.sign({ signerName, document: mandateText(p, client, repo.tenant()), imageDataUrl: scribbleSignature(signerName) });
       if (i === 0) {

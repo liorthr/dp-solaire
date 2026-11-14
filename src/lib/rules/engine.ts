@@ -3,6 +3,8 @@
 import rulesetJson from "@/data/regulation/rules.v1.json";
 import pacJson from "@/data/regulation/rules.pac.v1.json";
 import iteJson from "@/data/regulation/rules.ite.v1.json";
+import menuJson from "@/data/regulation/rules.menuiserie.v1.json";
+import veluxJson from "@/data/regulation/rules.velux.v1.json";
 
 export type Severity = "ok" | "info" | "alerte" | "bloquant";
 export type Op = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "in" | "nin" | "truthy" | "falsy" | "exists" | "matches";
@@ -76,7 +78,7 @@ const merge = (spec: SpecificRuleset): Ruleset => ({
   deadlines: spec.deadlines.length ? spec.deadlines : ruleset.deadlines,
   copies: spec.copies.length ? spec.copies : ruleset.copies,
 });
-const RULESETS: Record<string, Ruleset> = { pv: ruleset, pac: merge(pacJson as unknown as SpecificRuleset), ite: merge(iteJson as unknown as SpecificRuleset) };
+const RULESETS: Record<string, Ruleset> = { pv: ruleset, pac: merge(pacJson as unknown as SpecificRuleset), ite: merge(iteJson as unknown as SpecificRuleset), menuiserie: merge(menuJson as unknown as SpecificRuleset), velux: merge(veluxJson as unknown as SpecificRuleset) };
 /** jeu de règles versionné selon le type de travaux */
 export const rulesetFor = (works?: string): Ruleset => RULESETS[works ?? "pv"] ?? ruleset;
 

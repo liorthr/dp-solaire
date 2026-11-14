@@ -3,7 +3,7 @@ import type { Client, EnrichmentResult, InverterModel, MairieInfo, PanelModel, P
 import { fr } from "@/lib/instruction/deadlines";
 import { panelAreaM2 } from "@/lib/geo/calepinage";
 import { orientationLabel } from "@/lib/geo/roof";
-import { defaultIte, defaultPac, defaultPacUnits, ITE_FINISHES } from "@/data/works";
+import { defaultIte, defaultJoinery, defaultPac, defaultPacUnits, defaultVelux, ITE_FINISHES, JOINERY_KINDS, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS } from "@/data/works";
 import { projectFacades } from "@/lib/works/geom";
 
 export const TEMPLATES_VERSION = "2026.11.1";
@@ -24,6 +24,8 @@ export function totalPanelArea(p: Project) {
 export function worksObject(p: Project): string {
   if (p.works === "pac") return "installation d'une pompe à chaleur (unité extérieure)";
   if (p.works === "ite") return "isolation thermique par l'extérieur";
+  if (p.works === "menuiserie") return "remplacement de menuiseries extérieures (fenêtres, portes, volets)";
+  if (p.works === "velux") return "installation de fenêtres de toit";
   return "installation de panneaux photovoltaïques";
 }
 
@@ -53,7 +55,39 @@ function iteDescription(p: Project): string {
   );
 }
 
+function joineryList(p: Project): string {
+  const m = p.menuiserie ?? defaultJoinery();
+  const counts = new Map<string, number>();
+  for (const it of m.items) counts.set(it.kind, (counts.get(it.kind) ?? 0) + 1);
+  return [...counts].map(([k, c]) => `${c} ${JOINERY_KINDS[k as keyof typeof JOINERY_KINDS].label.toLowerCase()}`).join(", ") || "menuiseries à préciser";
+}
+
+function menuDescription(p: Project): string {
+  const m = p.menuiserie ?? defaultJoinery();
+  const created = m.items.filter((i) => i.isNew);
+  return (
+    `Remplacement de menuiseries extérieures (${joineryList(p)}) sur ${facadeNames(p, [...new Set(m.items.map((i) => i.facadeIndex))])} de la maison existante : ` +
+    `${JOINERY_MATERIALS[m.materialBefore].toLowerCase()} remplacé par ${JOINERY_MATERIALS[m.materialAfter].toLowerCase()}, teinte « ${m.colorName} ». ` +
+    (created.length ? `Création de ${created.length} ouverture(s) (${created.map((c) => `${JOINERY_KINDS[c.kind].label.toLowerCase()} ${String(c.widthM).replace(".", ",")} × ${String(c.heightM).replace(".", ",")} m`).join(", ")}). ` : "Dimensions des baies inchangées. ") +
+    "Volume, hauteur et emprise du bâtiment inchangés."
+  );
+}
+
+function veluxDescription(p: Project): string {
+  const v = p.velux ?? defaultVelux();
+  const m = ROOF_WINDOW_MODELS.find((x) => x.id === v.modelId) ?? ROOF_WINDOW_MODELS[0];
+  const planes = [...new Set(v.items.map((i) => i.roofPlaneId))].map((id) => p.pv.roofPlanes.find((r) => r.id === id)).filter(Boolean).map((r) => `pan ${orientationLabel(r!.azimuthDeg).toLowerCase()}`);
+  return (
+    `Installation de ${v.items.length} fenêtre(s) de toit de ${m.label}, coloris ${ROOF_WINDOW_COLORS[v.frameColor].label.toLowerCase()}, posée(s) dans le plan de la couverture (${planes.join(" et ") || "pan à préciser"})` +
+    `${v.shutters ? ", avec volets roulants extérieurs" : ""}. ` +
+    (v.attic ? `Aménagement des combles associé : ${v.atticAreaM2 ?? "?"} m² de surface de plancher créée. ` : "Sans création de surface de plancher. ") +
+    "Volume et hauteur du bâtiment inchangés."
+  );
+}
+
 export function projectDescription(p: Project, panel?: PanelModel): string {
+  if (p.works === "menuiserie") return menuDescription(p);
+  if (p.works === "velux") return veluxDescription(p);
   if (p.works === "pac") return pacDescription(p);
   if (p.works === "ite") return iteDescription(p);
   const planes = p.pv.layouts
@@ -93,6 +127,29 @@ export function noticeDescriptive(p: Project, panel: PanelModel | undefined, inv
     `Références cadastrales : ${parcelRefs(e)} : superficie ${e?.parcels.reduce((s, x) => s + x.contenanceM2, 0) ?? "?"} m²`,
     `Document d'urbanisme : ${zone ? `${zone.docType} ${zone.docName}, zone ${zone.libelle}${zone.libelong ? ` (${zone.libelong})` : ""}` : "non identifié sur le Géoportail de l'Urbanisme"}`,
   ];
+  if (p.works === "menuiserie") {
+    const m = p.menuiserie ?? defaultJoinery();
+    return [
+      ...head,
+      `État initial : maison individuelle existante ; menuiseries actuelles en ${JOINERY_MATERIALS[m.materialBefore].toLowerCase()}.`,
+      `Projet : ${projectDescription(p)}`,
+      `Matériaux et couleurs : menuiseries ${JOINERY_MATERIALS[m.materialAfter].toLowerCase()}, teinte « ${m.colorName} » (${m.colorHex}) ; vitrage clair ; ${m.items.some((i) => i.kind === "volet_roulant") ? "coffres de volets roulants posés à l'intérieur ou sous linteau (à préciser)" : "aucun coffre extérieur ajouté"}.`,
+      ...m.items.map((it) => `- ${JOINERY_KINDS[it.kind].label} ${String(it.widthM).replace(".", ",")} × ${String(it.heightM).replace(".", ",")} m${it.isNew ? " (création)" : " (remplacement dans la baie existante)"}.`),
+      m.items.some((i) => i.isNew) ? `Vues sur le voisinage : vue ${m.view === "sans" ? "sans vis-à-vis (translucide ou sans vue)" : m.view} ; ${m.neighborAgreement ? "accord écrit du voisin obtenu" : "distances de 1,90 m (vue droite) / 0,60 m (vue oblique) respectées"}.` : "",
+      "Modalités d'exécution : pose en rénovation ou en dépose totale par une entreprise qualifiée, durée de chantier de 1 à 3 jours.",
+    ].filter(Boolean);
+  }
+  if (p.works === "velux") {
+    const v = p.velux ?? defaultVelux();
+    return [
+      ...head,
+      `État initial : maison individuelle existante, toiture ${p.pv.roofPlanes.map((r) => `${r.label.toLowerCase()} ${r.tiltDeg}°`).join(", ")}.`,
+      `Projet : ${projectDescription(p)}`,
+      `Matériaux : fenêtres de toit à rotation ou projection, raccord d'étanchéité adapté à la couverture, coloris ${ROOF_WINDOW_COLORS[v.frameColor].label.toLowerCase()} ; pose encastrée dans le plan de la toiture.`,
+      `Vues sur le voisinage : vue ${v.view === "sans" ? "sans vis-à-vis" : v.view} ; ${v.neighborAgreement ? "accord écrit du voisin obtenu" : "distances de 1,90 m (vue droite) / 0,60 m (vue oblique) à la limite respectées"}.`,
+      "Modalités d'exécution : pose par une entreprise qualifiée, depuis la toiture ou l'intérieur, durée de chantier de 1 à 2 jours.",
+    ];
+  }
   if (p.works === "pac") {
     const pac = p.pac ?? defaultPac();
     const u = defaultPacUnits.find((x) => x.id === pac.unitId) ?? defaultPacUnits[0];
@@ -221,6 +278,11 @@ export function piecesResponseLetter(p: Project, t: Tenant, requested: string[])
 }
 
 export function insertionNotes(p: Project, panel?: PanelModel): string[] {
+  if (p.works === "menuiserie") {
+    const m = p.menuiserie ?? defaultJoinery();
+    return ["Photomontage réalisé à partir de la photographie de la façade : menuiseries projetées positionnées en perspective (homographie 4 points).", `Menuiseries ${JOINERY_MATERIALS[m.materialAfter].toLowerCase()}, teinte « ${m.colorName} » (rendu indicatif).`];
+  }
+  if (p.works === "velux") return ["Photomontage réalisé à partir de la photographie de la toiture : fenêtres de toit positionnées en perspective (homographie 4 points), dimensions d'après le modèle choisi."];
   if (p.works === "pac") return ["Photomontage réalisé à partir de la photographie de la façade : unité extérieure positionnée en perspective (homographie 4 points), dimensions d'après la fiche fabricant."];
   if (p.works === "ite") {
     const ite = p.ite ?? defaultIte();
@@ -230,6 +292,8 @@ export function insertionNotes(p: Project, panel?: PanelModel): string[] {
 }
 
 export function insertionImpact(p: Project): string {
+  if (p.works === "menuiserie") return "Le projet ne modifie ni le volume ni la hauteur de la construction ; seules les menuiseries changent d'aspect.";
+  if (p.works === "velux") return "Le projet ne modifie ni le volume ni la hauteur de la construction ; les fenêtres de toit sont posées dans le plan de la couverture.";
   if (p.works === "pac") return "Le projet ne modifie ni le volume ni la hauteur de la construction ; seule l'unité extérieure est ajoutée.";
   if (p.works === "ite") return "Le volume est très légèrement augmenté de l'épaisseur de l'isolant ; la hauteur est inchangée. L'aspect des façades isolées change (matériau et teinte).";
   return "Le projet ne modifie ni le volume ni la hauteur de la construction ; seule la couverture du pan équipé change d'aspect.";

@@ -27,3 +27,6 @@
 | Q23 | ITE : plafonds de la dérogation L. 152-5 (épaisseur maximale, règles concernées) | Notice 51434 (pièce DP 8-1) ; décret d'application non relu | Lire L. 152-5 et R. 152-5 à R. 152-9 sur Légifrance |
 | Q24 | ITE et PAC en copropriété : majorité requise (art. 24 ou 25) | F36778 cite l'art. 25 pour la PAC ; F37924 ne précise pas pour l'ITE | Vérifier la loi de 1965 dans sa version en vigueur |
 | Q25 | Case « DPC8-1 » du cerfa 16702*03 | Champ non identifié dans l'AcroForm | Relever le nom du champ dans le PDF officiel |
+| Q26 | Fenêtre de toit remplacée par un modèle identique : dispense de DP | F36766 vise la création ou le changement « pour un autre modèle » ; l'identique n'est pas cité explicitement | Confirmer auprès d'un service instructeur |
+| Q27 | Fenêtres de toit + combles : seuils de surface de plancher au-delà desquels un PC est exigé | F36766 indique une DP sans seuil ; seuil de 20 m² utilisé comme alerte prudente | Lire R. 421-14 et R. 421-17 sur Légifrance |
+| Q28 | Coffres de volets roulants extérieurs | Règles propres à chaque PLU ; pratique UDAP | Relever l'article « aspect extérieur » des PLU des communes clientes |

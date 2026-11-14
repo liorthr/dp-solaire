@@ -20,9 +20,9 @@ async function login(page: Page) {
   await expect(page.getByTestId("project-row").first()).toBeVisible({ timeout: 60_000 });
 }
 
-test("connexion et tableau de bord avec les 5 dossiers de démo", async ({ page }) => {
+test("connexion et tableau de bord avec les 7 dossiers de démo", async ({ page }) => {
   await login(page);
-  await expect(page.getByTestId("project-row")).toHaveCount(5);
+  await expect(page.getByTestId("project-row")).toHaveCount(7);
   await expect(page.getByText("DEMO-2-ABF")).toBeVisible();
 });
 
@@ -210,4 +210,69 @@ test("isolation par l'extérieur : nouveau dossier ITE en périmètre ABF → co
   const zip = await JSZip.loadAsync(readFileSync((await zipDl.path())!));
   const names = Object.keys(zip.files).map((n) => n.split("/").pop());
   for (const f of ["DP2_plan_de_masse.pdf", "DP3_coupe_de_principe.pdf", "DP4_plan_des_facades.pdf", "DP8-1_note_derogation.pdf", "DP11_notice_materiaux.pdf"]) expect(names).toContain(f);
+});
+
+test("menuiseries : dossier démo bois → alu, tableau des baies, photomontage multi-éléments et dossier", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.getByTestId("project-row").filter({ hasText: "DEMO-6-MENUISERIE" }).click();
+  await expect(page.getByText(/4 menuiserie\(s\) aluminium/)).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Raccordement & Consuel" })).toHaveCount(0);
+  await expect(page.getByTestId("rules")).toContainText("Matériaux et couleurs");
+  await page.getByRole("tab", { name: "Plans" }).click();
+  await expect(page.getByTestId("joinery-table").locator("tbody tr")).toHaveCount(4);
+  await page.getByRole("tab", { name: "Photos & insertion" }).click();
+  await expect(page.getByTestId("insertion-editor")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: /Porte d'entrée 3/ })).toBeVisible();
+  await page.getByRole("tab", { name: "Dossier" }).click();
+  await page.getByTestId("generate").click();
+  await expect(page.getByTestId("downloads")).toBeVisible({ timeout: 120_000 });
+  const [zipDl] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-zip").click()]);
+  const zip = await JSZip.loadAsync(readFileSync((await zipDl.path())!));
+  const names = Object.keys(zip.files).map((n) => n.split("/").pop());
+  for (const f of ["DP1_plan_de_situation.pdf", "DP4_plan_des_facades.pdf", "DP5_aspect_exterieur.pdf", "DP11_notice_materiaux.pdf", "Cerfa_16702-03_declaration_prealable.pdf"]) expect(names).toContain(f);
+  const mail = await zip.file(/Email_mairie.txt/)[0].async("string");
+  expect(mail).toContain("menuiseries extérieures");
+});
+
+test("menuiseries à l'identique : aucune formalité, pas de dossier", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.getByTestId("project-row").filter({ hasText: "DEMO-6-MENUISERIE" }).click();
+  await page.getByRole("tab", { name: "Plans" }).click();
+  await page.getByTestId("menu-identical").check();
+  await page.getByRole("tab", { name: "Dossier" }).click();
+  await expect(page.getByText("Aucun dossier DP ne sera généré")).toBeVisible();
+});
+
+test("fenêtres de toit : nouveau dossier en périmètre ABF, vue sur le voisin, plan de toiture", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.goto("app/nouveau/");
+  await page.getByTestId("works-velux").check();
+  await page.fill("#address", "Rue Cormont 80000 Amiens");
+  await page.locator("#address-list button").first().click();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.selectOption("#client", "");
+  await page.fill("#ln", "Testeur-Fictif");
+  await page.fill("#fn", "Noé");
+  await page.fill("#em", "noe.testeur@example.org");
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.fill("#velux-count", "3");
+  await page.selectOption("#velux-model", "rw-114x118");
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.getByTestId("create-project").click();
+  await page.waitForURL(/\/app\/dossier\//, { timeout: 90_000 });
+  await expect(page.getByTestId("project-title").locator("..")).toContainText("3 fenêtre(s) de toit 114 × 118 cm");
+  await expect(page.getByTestId("rules")).toContainText("Secteur protégé : fenêtres de toit");
+  await expect(page.getByText(/Délai d'instruction attendu/)).toContainText("2 mois");
+  await page.getByRole("tab", { name: "Plans" }).click();
+  await expect(page.locator("svg").filter({ hasText: "Fenêtre de toit la plus proche" })).toBeVisible();
+  await page.getByRole("tab", { name: "Dossier" }).click();
+  await page.getByTestId("generate").click();
+  await expect(page.getByTestId("downloads")).toBeVisible({ timeout: 120_000 });
+  const [zipDl] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-zip").click()]);
+  const zip = await JSZip.loadAsync(readFileSync((await zipDl.path())!));
+  const names = Object.keys(zip.files).map((n) => n.split("/").pop());
+  for (const f of ["DP2_plan_de_masse.pdf", "DP4_plan_toiture.pdf", "DP11_notice_materiaux.pdf"]) expect(names).toContain(f);
 });

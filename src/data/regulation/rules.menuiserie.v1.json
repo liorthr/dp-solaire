@@ -1,0 +1,412 @@
+{
+ "ruleset": "dp-menuiseries",
+ "version": "2026.11.1",
+ "published_at": "2026-11-14",
+ "regimes": [
+  {
+   "code": "REGIME_MENU_IDENTIQUE",
+   "outcome": "AUCUNE",
+   "when": {
+    "fact": "menu.identical",
+    "op": "eq",
+    "value": true
+   },
+   "message": "Remplacement à l'identique (même forme, même matériau, même couleur) : l'aspect extérieur n'est pas modifié, aucune autorisation d'urbanisme n'est nécessaire. Les règles du PLU, du lotissement et de la copropriété restent à respecter.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "Service-public F36762, étape 3 (vérifiée le 10/11/2026) : DP « si vos travaux modifient l'aspect extérieur »",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_MENU_DESTINATION_PC",
+   "outcome": "PC",
+   "when": {
+    "fact": "menu.changeOfUse",
+    "op": "eq",
+    "value": true
+   },
+   "message": "Les travaux modifient l'aspect extérieur et s'accompagnent d'un changement de destination : un permis de construire est nécessaire (hors périmètre de l'application).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "F36762, onglet « Avec changement de destination »",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_MENU_DP",
+   "outcome": "DP",
+   "when": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "message": "Le changement de fenêtres, portes ou volets modifie l'aspect extérieur du bâtiment (matériau, couleur, forme, nouvelle ouverture) : une déclaration préalable est nécessaire.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "Service-public F36762 (vérifiée le 10/11/2026)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null
+  }
+ ],
+ "pieces": [
+  {
+   "code": "DP1",
+   "cerfaCode": "DPC1",
+   "label": "Plan de situation du terrain",
+   "file": "DP1_plan_de_situation",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "Obligatoire pour tous les projets",
+   "article": "R. 431-36 a)"
+  },
+  {
+   "code": "DP2",
+   "cerfaCode": "DPC2",
+   "label": "Plan de masse (façades concernées, distances)",
+   "file": "DP2_plan_de_masse",
+   "required": {
+    "fact": "menu.hasNew",
+    "op": "eq",
+    "value": true
+   },
+   "why": "Fourni en complément pour situer les façades et les distances de vue",
+   "article": "R. 431-36 b)",
+   "optional": true
+  },
+  {
+   "code": "DP4",
+   "cerfaCode": "DPC4",
+   "label": "Plans des façades avant / après",
+   "file": "DP4_plan_des_facades",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "Les façades sont modifiées",
+   "article": "R. 431-10 a) ; F36762 étape 4"
+  },
+  {
+   "code": "DP5",
+   "cerfaCode": "DPC5",
+   "label": "Représentation de l'aspect extérieur",
+   "file": "DP5_aspect_exterieur",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "L'aspect extérieur est modifié",
+   "article": "R. 431-36 c)"
+  },
+  {
+   "code": "DP6",
+   "cerfaCode": "DPC6",
+   "label": "Document graphique d'insertion",
+   "file": "DP6_insertion",
+   "required": {
+    "any": [
+     {
+      "fact": "answers.visibleFromPublicSpace",
+      "op": "neq",
+      "value": false
+     },
+     {
+      "fact": "heritage.protected",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "why": "Visible depuis l'espace public ou secteur protégé",
+   "article": "R. 431-10 c)"
+  },
+  {
+   "code": "DP7",
+   "cerfaCode": "DPC7",
+   "label": "Photographie de l'environnement proche",
+   "file": "DP7_photo_environnement_proche",
+   "required": {
+    "any": [
+     {
+      "fact": "answers.visibleFromPublicSpace",
+      "op": "neq",
+      "value": false
+     },
+     {
+      "fact": "heritage.protected",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "why": "Idem DP6",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "DP8",
+   "cerfaCode": "DPC8",
+   "label": "Photographie du paysage lointain",
+   "file": "DP8_photo_paysage_lointain",
+   "required": {
+    "any": [
+     {
+      "fact": "answers.visibleFromPublicSpace",
+      "op": "neq",
+      "value": false
+     },
+     {
+      "fact": "heritage.protected",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "why": "Idem DP6",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "DP11",
+   "cerfaCode": "DPC11",
+   "label": "Notice des matériaux et couleurs",
+   "file": "DP11_notice_materiaux",
+   "required": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "why": "Précise matériaux, couleurs et types d'ouverture",
+   "article": "R. 431-14"
+  }
+ ],
+ "deadlines": [],
+ "copies": [],
+ "generic": [
+  "PIECES_MANQUANTES",
+  "ADRESSE_ABSENTE",
+  "PARCELLE_ABSENTE",
+  "MANDAT_NON_SIGNE",
+  "CLIENT_INCOMPLET",
+  "PHOTO_FACADE_MANQUANTE",
+  "PHOTO_QUALITE",
+  "INSERTION_NON_FAITE",
+  "BATI_NON_IDENTIFIE",
+  "ABF_DIVERGENCE",
+  "PLU_ZONE_INCONNUE",
+  "LOTISSEMENT",
+  "MAIRIE_SANS_EMAIL",
+  "DEPOT_ELECTRONIQUE_PM"
+ ],
+ "rules": [
+  {
+   "code": "MENU_VUE_DROITE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Vue droite sur le voisin à moins de 1,90 m",
+   "condition": {
+    "all": [
+     {
+      "fact": "menu.hasNew",
+      "op": "eq",
+      "value": true
+     },
+     {
+      "fact": "menu.view",
+      "op": "eq",
+      "value": "droite"
+     },
+     {
+      "fact": "menu.minDistanceNewM",
+      "op": "lt",
+      "value": 1.9
+     },
+     {
+      "fact": "menu.neighborAgreement",
+      "op": "eq",
+      "value": false
+     }
+    ]
+   },
+   "severity": "alerte",
+   "weight": 15,
+   "message": "Une nouvelle ouverture avec vue droite serait à environ {{menu.minDistanceNewM}} m de la limite voisine : la distance minimale est de 1,90 m (règle de droit civil, indépendante de la DP).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F76",
+   "source_label": "F76 (vérifiée le 10/11/2026) : vue droite 1,9 m",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Déplacez l'ouverture, prévoyez un vitrage translucide fixe (jour de souffrance, briques de verre) ou obtenez l'accord écrit du voisin."
+  },
+  {
+   "code": "MENU_VUE_OBLIQUE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Vue oblique sur le voisin à moins de 0,60 m",
+   "condition": {
+    "all": [
+     {
+      "fact": "menu.hasNew",
+      "op": "eq",
+      "value": true
+     },
+     {
+      "fact": "menu.view",
+      "op": "eq",
+      "value": "oblique"
+     },
+     {
+      "fact": "menu.minDistanceNewM",
+      "op": "lt",
+      "value": 0.6
+     },
+     {
+      "fact": "menu.neighborAgreement",
+      "op": "eq",
+      "value": false
+     }
+    ]
+   },
+   "severity": "alerte",
+   "weight": 15,
+   "message": "Une nouvelle ouverture avec vue oblique serait à environ {{menu.minDistanceNewM}} m de la limite voisine : la distance minimale est de 0,60 m.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F76",
+   "source_label": "F76 : vue oblique 0,6 m",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Déplacez l'ouverture ou obtenez l'accord écrit du voisin."
+  },
+  {
+   "code": "MENU_ACCORD_VOISIN",
+   "version": 1,
+   "category": "info",
+   "title": "Accord écrit du voisin",
+   "condition": {
+    "all": [
+     {
+      "fact": "menu.hasNew",
+      "op": "eq",
+      "value": true
+     },
+     {
+      "fact": "menu.neighborAgreement",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "L'accord écrit du voisin est indiqué : conservez-le avec le dossier (il n'est pas une pièce de la DP).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F76",
+   "source_label": "F76",
+   "verification": "A_VERIFIER",
+   "valid_from": "2026-11-14",
+   "valid_to": null
+  },
+  {
+   "code": "MENU_SECTEUR_PROTEGE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Secteur protégé : menuiseries",
+   "condition": {
+    "fact": "heritage.protected",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "alerte",
+   "weight": 15,
+   "message": "Projet en secteur protégé ({{heritage.label}}) : l'ABF est consulté (délai porté à 2 mois en général). Matériau, couleur et dessin des menuiseries visibles sont examinés.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578",
+   "source_label": "F17578 ; conseils : pratique UDAP (À_VÉRIFIER)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Pratique fréquente des UDAP : menuiseries bois peintes, petits bois, volets battants plutôt que coffres de volets roulants visibles (À_VÉRIFIER auprès de l'UDAP du département)."
+  },
+  {
+   "code": "MENU_REGLES_ASPECT",
+   "version": 1,
+   "category": "contexte",
+   "title": "Matériaux et couleurs",
+   "condition": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Menuiseries prévues : {{menu.materialAfterLabel}}, teinte « {{menu.colorName}} » ({{menu.count}} élément(s)). Le PLU, le règlement de lotissement ou de copropriété peuvent imposer matériaux, couleurs et distances.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "F36762, étape 1",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Vérifiez l'article « aspect extérieur » de la zone et le nuancier communal éventuel."
+  },
+  {
+   "code": "MENU_COFFRE_VOLET",
+   "version": 1,
+   "category": "contexte",
+   "title": "Coffre de volet roulant visible",
+   "condition": {
+    "fact": "menu.hasRollerShutter",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Volets roulants : précisez si le coffre est intérieur, sous linteau ou extérieur visible ; certains PLU interdisent les coffres en saillie.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "F36762, étape 1 (règles du PLU)",
+   "verification": "A_VERIFIER",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Indiquez la pose du coffre dans la notice (DP11)."
+  },
+  {
+   "code": "MENU_COPROPRIETE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Copropriété : façade = partie commune",
+   "condition": {
+    "fact": "answers.copropriete",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "alerte",
+   "weight": 10,
+   "message": "En copropriété, les travaux qui touchent les parties communes (façade) doivent être autorisés par l'assemblée générale.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "F36762, étape 6",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Obtenez le procès-verbal d'AG avant de déposer."
+  },
+  {
+   "code": "AIDES_RENOV",
+   "version": 1,
+   "category": "info",
+   "title": "Aides à la rénovation énergétique",
+   "condition": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Des aides existent pour la rénovation énergétique (MaPrimeRénov', éco-PTZ, TVA à taux réduit…) ; un conseiller France Rénov' informe gratuitement (0 808 800 700).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "F36762, étape 2",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-14",
+   "valid_to": null,
+   "suggestion": "Informez votre client avant la signature du devis."
+  }
+ ]
+}

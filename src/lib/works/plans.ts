@@ -2,12 +2,15 @@
 import type { Project } from "@/lib/types";
 import { DRAW, dimension, fmtM, n, page, scaleBar, text, wrapText } from "@/lib/plans/svg";
 import { COLORS, dp2, roofOf, type PlanContext } from "@/lib/plans/dp";
-import { projectFacades, outward, pacPoint, distanceToLimit, nearestOnLimit } from "./geom";
-import { defaultIte, defaultPac, defaultPacUnits, ITE_FINISHES } from "@/data/works";
+import { projectFacades, outward, pacPoint, distanceToLimit, nearestOnLimit, joineryPoint } from "./geom";
+import { defaultIte, defaultJoinery, defaultPac, defaultPacUnits, ITE_FINISHES, JOINERY_KINDS, JOINERY_MATERIALS } from "@/data/works";
+import { dp2Velux, dp4Velux } from "./velux-plans";
+import type { JoineryItem } from "@/lib/types";
 import type { Facade } from "@/lib/geo/facades";
 
 const PAC_COLOR = "#0f766e";
 const ITE_COLOR = "#ea580c";
+const MENU_COLOR = "#7c3aed";
 
 const unitOf = (p: Project) => {
   const pac = p.pac ?? defaultPac();
@@ -20,6 +23,8 @@ const placementLabel: Record<string, string> = { facade: "fixée en façade", to
 export function dp2Works(ctx: PlanContext): string {
   const p = ctx.project;
   const e = p.enrichment;
+  if (p.works === "velux") return dp2Velux(ctx);
+  if (p.works === "menuiserie") return dp2Menu(ctx);
   if (p.works === "pac") {
     const { pac, unit } = unitOf(p);
     const f = projectFacades(e)[pac.facadeIndex];
@@ -128,6 +133,7 @@ function elevation(p: Project, f: Facade, d: Dims, x: number, yBase: number, k: 
     const top = f.isLong ? yBase - g : yBase - g;
     for (let xx = x + step; xx < x + W; xx += step) s += `<line x1="${n(xx)}" y1="${n(yBase)}" x2="${n(xx)}" y2="${n(top)}" stroke="#00000033" stroke-width="0.15"/>`;
   }
+  if (p.works === "menuiserie") s += joineryOnFacade(p, f, x, yBase, k, after);
   if (after && p.works === "pac") {
     const { pac, unit } = unitOf(p);
     if (pac.facadeIndex === f.index) {
@@ -144,6 +150,94 @@ function elevation(p: Project, f: Facade, d: Dims, x: number, yBase: number, k: 
   s += `<line x1="${n(x - 4)}" y1="${n(yBase)}" x2="${n(x + W + 4)}" y2="${n(yBase)}" stroke="#111" stroke-width="0.5"/>`;
   s += text(x + W / 2, yBase + 6.5, label, 2.7, { anchor: "middle", weight: "bold" });
   return s;
+}
+
+/** ouvertures dessinées sur l'élévation (avant : existantes ; après : nouvelle teinte, créations repérées) */
+function joineryOnFacade(p: Project, f: Facade, x: number, yBase: number, k: number, after: boolean): string {
+  const m = p.menuiserie ?? defaultJoinery();
+  let s = "";
+  const items = m.items.filter((i) => i.facadeIndex === f.index && (after || !i.isNew));
+  for (const it of items) {
+    const x0 = x + it.xM * k, w = it.widthM * k, h = it.heightM * k, y0 = yBase - (it.sillM + it.heightM) * k;
+    const frame = after ? m.colorHex : "#ffffff";
+    if (it.kind === "volet_battant") {
+      s += `<rect x="${n(x0 + w * 0.08)}" y="${n(y0)}" width="${n(w * 0.84)}" height="${n(h)}" fill="#9fb4c7" stroke="#111" stroke-width="0.2"/>`;
+      for (const sx of [x0 - w * 0.42, x0 + w]) {
+        s += `<rect x="${n(sx)}" y="${n(y0)}" width="${n(w * 0.42)}" height="${n(h)}" fill="${after ? m.colorHex : "#8a6a48"}" stroke="#111" stroke-width="0.25"/>`;
+        for (let yy = y0 + h * 0.12; yy < y0 + h; yy += h * 0.12) s += `<line x1="${n(sx)}" y1="${n(yy)}" x2="${n(sx + w * 0.42)}" y2="${n(yy)}" stroke="#00000055" stroke-width="0.12"/>`;
+      }
+    } else if (it.kind === "volet_roulant") {
+      s += `<rect x="${n(x0)}" y="${n(y0)}" width="${n(w)}" height="${n(h)}" fill="#9fb4c7" stroke="#111" stroke-width="0.25"/>`;
+      if (after) {
+        s += `<rect x="${n(x0)}" y="${n(y0 - 0.22 * k)}" width="${n(w)}" height="${n(0.22 * k)}" fill="${m.colorHex}" stroke="#111" stroke-width="0.25"/>`;
+        for (let yy = y0 + 0.6; yy < y0 + h * 0.45; yy += 0.9) s += `<line x1="${n(x0)}" y1="${n(yy)}" x2="${n(x0 + w)}" y2="${n(yy)}" stroke="#111" stroke-width="0.12"/>`;
+      }
+    } else if (it.kind === "porte" || it.kind === "porte_garage") {
+      s += `<rect x="${n(x0)}" y="${n(y0)}" width="${n(w)}" height="${n(h)}" fill="${after ? m.colorHex : "#8a6a48"}" stroke="#111" stroke-width="0.3"/>`;
+      if (it.kind === "porte_garage") for (let yy = y0 + h / 5; yy < yBase - 0.2; yy += h / 5) s += `<line x1="${n(x0)}" y1="${n(yy)}" x2="${n(x0 + w)}" y2="${n(yy)}" stroke="#00000066" stroke-width="0.15"/>`;
+      else s += `<rect x="${n(x0 + w * 0.3)}" y="${n(y0 + h * 0.12)}" width="${n(w * 0.4)}" height="${n(h * 0.3)}" fill="#9fb4c7" stroke="#111" stroke-width="0.15"/>`;
+    } else {
+      // fenêtre / porte-fenêtre : dormant + 2 vantaux
+      s += `<rect x="${n(x0)}" y="${n(y0)}" width="${n(w)}" height="${n(h)}" fill="${frame}" stroke="#111" stroke-width="0.3"/>`;
+      const t = Math.max(0.5, 0.06 * k);
+      s += `<rect x="${n(x0 + t)}" y="${n(y0 + t)}" width="${n(w / 2 - t * 1.5)}" height="${n(h - 2 * t)}" fill="#9fb4c7" stroke="#111" stroke-width="0.12"/>`;
+      s += `<rect x="${n(x0 + w / 2 + t / 2)}" y="${n(y0 + t)}" width="${n(w / 2 - t * 1.5)}" height="${n(h - 2 * t)}" fill="#9fb4c7" stroke="#111" stroke-width="0.12"/>`;
+    }
+    if (after && it.isNew) s += `<rect x="${n(x0 - 0.8)}" y="${n(y0 - 0.8)}" width="${n(w + 1.6)}" height="${n(h + 1.6)}" fill="none" stroke="${MENU_COLOR}" stroke-width="0.5" stroke-dasharray="1.2 0.6"/>` + text(x0 + w / 2, y0 - 1.6, "création", 2.2, { anchor: "middle", fill: MENU_COLOR, weight: "bold" });
+    if (after) s += text(x0 + w / 2, yBase - it.sillM * k + 2.6, `${fmtM(it.widthM).replace(" m", "")}×${fmtM(it.heightM)}`, 1.9, { anchor: "middle", fill: "#334155" });
+  }
+  return s;
+}
+
+function dp2Menu(ctx: PlanContext): string {
+  const p = ctx.project;
+  const e = p.enrichment;
+  const m = p.menuiserie ?? defaultJoinery();
+  const fs = projectFacades(e);
+  const idx = [...new Set(m.items.map((i) => i.facadeIndex))];
+  return dp2(ctx, {
+    hideSection: true,
+    extra: (T) => {
+      let s = "";
+      for (const i of idx) {
+        const f = fs[i];
+        if (!f) continue;
+        const [a, b] = [T(f.a as [number, number]), T(f.b as [number, number])];
+        s += `<line x1="${n(a[0])}" y1="${n(a[1])}" x2="${n(b[0])}" y2="${n(b[1])}" stroke="${MENU_COLOR}" stroke-width="1.4" stroke-linecap="round"/>`;
+        const nv = outward(f);
+        const mid = T([(f.a[0] + f.b[0]) / 2 + nv[0] * 2.2, (f.a[1] + f.b[1]) / 2 + nv[1] * 2.2]);
+        const cnt = m.items.filter((it) => it.facadeIndex === i).length;
+        s += text(mid[0], mid[1], `${f.label} : ${cnt} élément(s)`, 2.4, { anchor: "middle", weight: "bold", fill: MENU_COLOR });
+      }
+      for (const it of m.items.filter((x) => x.isNew)) {
+        const f = fs[it.facadeIndex];
+        if (!f) continue;
+        const pt = joineryPoint(f, it.xM, it.widthM);
+        const q = nearestOnLimit(e, pt);
+        const d = distanceToLimit(e, pt);
+        const [px, py] = T(pt);
+        s += `<circle cx="${n(px)}" cy="${n(py)}" r="1.4" fill="${MENU_COLOR}"/>`;
+        if (q && d !== undefined) {
+          const [qx, qy] = T(q);
+          s += `<line x1="${n(px)}" y1="${n(py)}" x2="${n(qx)}" y2="${n(qy)}" stroke="${MENU_COLOR}" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>`;
+          s += text((px + qx) / 2 + 1.5, (py + qy) / 2, `${JOINERY_KINDS[it.kind].label} créée : ${fmtM(d)}`, 2.2, { fill: MENU_COLOR, weight: "bold" });
+        }
+      }
+      return s;
+    },
+    legend: [
+      { kind: "dash", color: COLORS.parcel, label: "Limite de parcelle" },
+      { kind: "fill", color: COLORS.main, label: "Construction existante" },
+      { kind: "line", color: MENU_COLOR, label: "Façades dont les menuiseries changent" },
+      { kind: "fill", color: COLORS.building, label: "Bâtiments voisins" },
+      { kind: "arrow", color: COLORS.photo, label: "Prises de vue DP7 / DP8" },
+    ],
+    notes: [
+      `${m.items.length} menuiserie(s) : ${JOINERY_MATERIALS[m.materialBefore].toLowerCase()} → ${JOINERY_MATERIALS[m.materialAfter].toLowerCase()}, teinte ${m.colorName}.`,
+      m.items.some((i) => i.isNew) ? "Ouvertures créées : distance mesurée jusqu'à la limite la plus proche (vues : 1,90 m droite / 0,60 m oblique)." : "Aucune ouverture créée : dimensions des baies inchangées.",
+      "Aucune modification de l'emprise ni de la hauteur. Bâti : IGN BD TOPO ; parcelle : cadastre DGFiP.",
+    ],
+  });
 }
 
 function fitScale(wM: number, hM: number, fixedW: number, fixedH: number) {
@@ -178,9 +272,11 @@ function pacDetail(p: Project, x: number, y: number): string {
 
 export function dp4Works(ctx: PlanContext): string[] {
   const p = ctx.project;
+  if (p.works === "velux") return dp4Velux(ctx);
   const d = dimsOf(p);
   const fsAll = projectFacades(p.enrichment);
-  const concerned = p.works === "pac" ? fsAll.filter((f) => f.index === (p.pac ?? defaultPac()).facadeIndex) : fsAll.filter((f) => (p.ite ?? defaultIte()).facadeIndexes.includes(f.index));
+  const menuIdx = (p.menuiserie ?? defaultJoinery()).items.map((i: JoineryItem) => i.facadeIndex);
+  const concerned = p.works === "pac" ? fsAll.filter((f) => f.index === (p.pac ?? defaultPac()).facadeIndex) : p.works === "menuiserie" ? fsAll.filter((f) => menuIdx.includes(f.index)) : fsAll.filter((f) => (p.ite ?? defaultIte()).facadeIndexes.includes(f.index));
   const pages: string[] = [];
   const perPage = p.works === "pac" ? 1 : 2;
   for (let i = 0; i < concerned.length; i += perPage) {
@@ -209,8 +305,11 @@ export function dp4Works(ctx: PlanContext): string[] {
       });
     }
     svg += scaleBar(DRAW.x + DRAW.w - 60, DRAW.y + DRAW.h - 7, scale, 40);
+    const mj = p.menuiserie ?? defaultJoinery();
     const legend =
-      p.works === "pac"
+      p.works === "menuiserie"
+        ? [{ kind: "fill" as const, color: "#ffffff", label: `Menuiseries existantes (${JOINERY_MATERIALS[mj.materialBefore].toLowerCase()})` }, { kind: "fill" as const, color: mj.colorHex, label: `Projetées : ${JOINERY_MATERIALS[mj.materialAfter].toLowerCase()}, ${mj.colorName}` }, { kind: "dash" as const, color: MENU_COLOR, label: "Ouverture créée" }]
+        : p.works === "pac"
         ? [{ kind: "fill" as const, color: "#f5f0e6", label: "Façade existante" }, { kind: "fill" as const, color: "#f8fafc", label: "Unité extérieure PAC" }]
         : [{ kind: "fill" as const, color: "#f5f0e6", label: "Façade existante" }, { kind: "fill" as const, color: (p.ite ?? defaultIte()).colorHex, label: `Finition projetée : ${(p.ite ?? defaultIte()).colorName}` }];
     pages.push(
@@ -221,8 +320,8 @@ export function dp4Works(ctx: PlanContext): string[] {
         scale: perPage === 1 ? `1/${scale} (détail 1/20)` : `1/${scale}`,
         legend,
         notes: [
-          p.works === "pac" ? "Seule l'unité extérieure est ajoutée ; aucune autre modification de façade." : `Isolation par l'extérieur ${(p.ite ?? defaultIte()).thicknessCm} cm, ${ITE_FINISHES[(p.ite ?? defaultIte()).finish].toLowerCase()} ; appuis, tableaux et descentes d'eaux pluviales adaptés.`,
-          "Façades représentées de façon simplifiée (ouvertures non relevées) ; hauteurs estimées d'après la BD TOPO (IGN).",
+          p.works === "menuiserie" ? "Cotes des baies (largeur × hauteur) saisies par l'installateur ; positions à vérifier sur place." : p.works === "pac" ? "Seule l'unité extérieure est ajoutée ; aucune autre modification de façade." : `Isolation par l'extérieur ${(p.ite ?? defaultIte()).thicknessCm} cm, ${ITE_FINISHES[(p.ite ?? defaultIte()).finish].toLowerCase()} ; appuis, tableaux et descentes d'eaux pluviales adaptés.`,
+          p.works === "menuiserie" ? "Façades simplifiées : seules les menuiseries concernées sont représentées ; hauteurs estimées d'après la BD TOPO (IGN)." : "Façades représentées de façon simplifiée (ouvertures non relevées) ; hauteurs estimées d'après la BD TOPO (IGN).",
         ],
       }),
     );

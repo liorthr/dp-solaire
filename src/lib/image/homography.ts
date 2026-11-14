@@ -175,3 +175,46 @@ export function renderFacadeFinish(ctx: CanvasRenderingContext2D, quad: Pt[], co
     return c.map((x) => Math.max(0, Math.min(255, x * light * k * grain)));
   });
 }
+
+/** menuiserie projetée (fenêtre, porte, volet) dans le quadrilatère de la baie */
+export function renderJoinery(ctx: CanvasRenderingContext2D, quad: Pt[], kind: string, colorHex: string) {
+  const c = hexRgb(colorHex);
+  const glass = (u: number, v: number) => {
+    const sky = 150 + 70 * (1 - v) + 25 * Math.sin(u * 3 + v * 2);
+    return [sky * 0.55, sky * 0.7, sky * 0.85];
+  };
+  warpShade(ctx, quad, (u, v) => {
+    const fw = 0.07, fh = 0.05;
+    const onFrame = u < fw || u > 1 - fw || v < fh || v > 1 - fh;
+    if (kind === "porte" || kind === "porte_garage") {
+      if (onFrame) return c.map((x) => x * 0.85);
+      if (kind === "porte_garage") return (v * 6) % 1 < 0.05 ? c.map((x) => x * 0.6) : c;
+      if (u > 0.3 && u < 0.7 && v > 0.12 && v < 0.42) return glass(u, v);
+      return c.map((x) => x * (0.95 + 0.05 * Math.sin(v * 40)));
+    }
+    if (kind === "volet_roulant") {
+      if (v < 0.14) return c; // coffre
+      return (v * 30) % 1 < 0.15 ? c.map((x) => x * 0.7) : c.map((x) => Math.min(255, x * 1.05));
+    }
+    if (kind === "volet_battant") {
+      const leaf = u < 0.5 ? u / 0.5 : (u - 0.5) / 0.5;
+      if (leaf < 0.03 || leaf > 0.97 || v < 0.03 || v > 0.97) return c.map((x) => x * 0.75);
+      return (v * 12) % 1 < 0.12 ? c.map((x) => x * 0.8) : c;
+    }
+    // fenêtre / porte-fenêtre : dormant, meneau central, 2 vantaux vitrés
+    if (onFrame || Math.abs(u - 0.5) < 0.035) return c;
+    return glass(u, v);
+  });
+}
+
+/** fenêtre de toit (cadre + vitrage reflétant le ciel), optionnellement coffre de volet en partie haute */
+export function renderRoofWindow(ctx: CanvasRenderingContext2D, quad: Pt[], frameHex: string, shutters: boolean) {
+  const c = hexRgb(frameHex);
+  warpShade(ctx, quad, (u, v) => {
+    if (shutters && v < 0.1) return c.map((x) => x * 0.9);
+    const top = shutters ? 0.1 : 0;
+    if (u < 0.08 || u > 0.92 || v < top + 0.07 || v > 0.93) return c;
+    const s = 120 + 90 * (1 - v) + 30 * (u - 0.5);
+    return [s * 0.5, s * 0.66, s * 0.85];
+  });
+}

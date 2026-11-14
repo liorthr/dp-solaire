@@ -15,6 +15,7 @@ import { DRAW, page, svgDoc, text, wrapText, n } from "@/lib/plans/svg";
 import { renderFacadeFinish, renderPacUnit, renderPanels, type Pt } from "@/lib/image/homography";
 import { asset, blobToImage, imageToJpegDataUrl } from "@/lib/image/browser";
 import { photoStore } from "@/lib/store/db";
+import { renderInsertionElements } from "@/lib/image/insertion";
 import { cerfaData, currentCerfa, fillCerfa } from "./cerfa";
 import { DISCLAIMER, coverLetterEmail, derogationNote, insertionImpact, insertionNotes, lrarLetter, mandateText, noticeDescriptive, parcelRefs, TEMPLATES_VERSION } from "./texts";
 import { fr } from "@/lib/instruction/deadlines";
@@ -66,7 +67,8 @@ export async function renderInsertion(project: Project, photoId: string, panel?:
   const after = mk();
   if (ins && ins.quad.length === 4) {
     const c2d = after.getContext("2d", { willReadFrequently: true })!;
-    if (project.works === "pac") renderPacUnit(c2d, ins.quad as Pt[], Boolean(project.pac?.cover));
+    if (project.works === "menuiserie" || project.works === "velux") renderInsertionElements(c2d, project, ins);
+    else if (project.works === "pac") renderPacUnit(c2d, ins.quad as Pt[], Boolean(project.pac?.cover));
     else if (project.works === "ite") renderFacadeFinish(c2d, ins.quad as Pt[], project.ite?.colorHex ?? "#d8cbb3", project.ite?.finish ?? "enduit");
     else renderPanels(c2d, ins.quad as Pt[], ins.rows, ins.cols, { frame: panel?.frameColor ?? "noir", cell: panel?.cellColor ?? "noir" });
   }
@@ -203,7 +205,8 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
       add("DP3", "Coupe de principe du mur isolé", "DP3_coupe_de_principe.pdf", await svgToPdfBytes([dp3Ite(ctx)]));
     }
     prog("Plans des façades", 36);
-    add("DP4", "Plan des façades avant / après", "DP4_plan_des_facades.pdf", await svgToPdfBytes(dp4Works(ctx)));
+    if (works === "velux") add("DP4", "Plan de la toiture et des façades", "DP4_plan_toiture.pdf", await svgToPdfBytes(dp4Works(ctx)));
+    else add("DP4", "Plan des façades avant / après", "DP4_plan_des_facades.pdf", await svgToPdfBytes(dp4Works(ctx)));
   }
 
   // ---------------------------------------------------------------- photos et insertion

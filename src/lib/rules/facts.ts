@@ -1,8 +1,8 @@
 // Construction des faits évalués par le moteur à partir du projet (une seule source de vérité).
 import type { Client, EnrichmentResult, PanelModel, Project } from "@/lib/types";
 import { evaluate, rulesetFor, type Facts } from "./engine";
-import { defaultPac, defaultIte, defaultPacUnits, ITE_FINISHES } from "@/data/works";
-import { distanceToLimit, iteMinDistance, pacPoint } from "@/lib/works/geom";
+import { defaultPac, defaultIte, defaultPacUnits, defaultJoinery, defaultVelux, ITE_FINISHES, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS } from "@/data/works";
+import { distanceToLimit, iteMinDistance, joineryMinDistance, pacPoint, roofWindowsMinDistance } from "@/lib/works/geom";
 import { layoutCapacity } from "@/lib/geo/calepinage";
 
 export interface FactsContext {
@@ -136,6 +136,35 @@ export function buildFacts(ctx: FactsContext): Facts {
     facts["ite.minDistanceLimitM"] = iteMinDistance(e, ite.facadeIndexes, ite.thicknessCm) ?? 99;
   }
 
+  if (p.works === "menuiserie") {
+    const m = p.menuiserie ?? defaultJoinery();
+    facts["menu.identical"] = m.identical;
+    facts["menu.changeOfUse"] = m.changeOfUse;
+    facts["menu.hasNew"] = m.items.some((i) => i.isNew);
+    facts["menu.view"] = m.view;
+    facts["menu.neighborAgreement"] = m.neighborAgreement;
+    facts["menu.minDistanceNewM"] = joineryMinDistance(e, m.items) ?? 99;
+    facts["menu.count"] = m.items.length;
+    facts["menu.hasRollerShutter"] = m.items.some((i) => i.kind === "volet_roulant");
+    facts["menu.materialAfterLabel"] = JOINERY_MATERIALS[m.materialAfter].toLowerCase();
+    facts["menu.colorName"] = m.colorName;
+    facts["pv.isGround"] = false;
+  }
+  if (p.works === "velux") {
+    const v = p.velux ?? defaultVelux();
+    facts["velux.identical"] = v.identical;
+    facts["velux.changeOfUse"] = v.changeOfUse;
+    facts["velux.attic"] = v.attic;
+    facts["velux.atticAreaM2"] = v.atticAreaM2 ?? 0;
+    facts["velux.count"] = v.items.length;
+    facts["velux.view"] = v.view;
+    facts["velux.neighborAgreement"] = v.neighborAgreement;
+    facts["velux.minDistanceM"] = roofWindowsMinDistance({ ...p, velux: v }) ?? 99;
+    facts["velux.modelLabel"] = (ROOF_WINDOW_MODELS.find((x) => x.id === v.modelId) ?? ROOF_WINDOW_MODELS[0]).label;
+    facts["velux.colorLabel"] = ROOF_WINDOW_COLORS[v.frameColor].label.toLowerCase();
+    facts["pv.isGround"] = false;
+  }
+
   // pièces requises / manquantes (selon le jeu de règles du type de travaux)
   const generated = new Set(ctx.generatedPieces ?? availablePieces(p));
   const missing = rulesetFor(p.works).pieces.filter((pc) => !pc.optional && evaluate(pc.required, facts) && !generated.has(pc.code));
@@ -146,7 +175,7 @@ export function buildFacts(ctx: FactsContext): Facts {
 
 /** pièces que l'application est en mesure de produire avec les données actuelles */
 export function availablePieces(p: Project): string[] {
-  const out = p.works === "pac" ? ["DP1", "DP2", "DP4", "DP11"] : ["DP1", "DP2", "DP3", "DP4", "DP11"];
+  const out = p.works === "pac" || p.works === "menuiserie" || p.works === "velux" ? ["DP1", "DP2", "DP4", "DP11"] : ["DP1", "DP2", "DP3", "DP4", "DP11"];
   if (p.works === "ite" && p.ite?.derogation) out.push("DP8-1");
   const hasFacade = p.photos.some((x) => x.kind === "facade");
   const hasInsertion = p.insertions.some((i) => i.quad.length === 4);
