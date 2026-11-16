@@ -58,7 +58,7 @@ export function buildFacts(ctx: FactsContext): Facts {
   const facts: Facts = {
     "commune.insee": p.address?.insee ?? "",
     "address.ok": Boolean(p.address?.label),
-    "parcels.count": e?.parcels?.length ?? 0,
+    "parcels.count": e?.parcels?.length || (p.overrides?.["cadastre.manual"] ? 1 : 0),
     "building.found": Boolean(e?.mainBuildingId) || Boolean(ov["building.manual"]),
     "client.complete": clientComplete,
     "mandate.signed": Boolean(p.mandate),

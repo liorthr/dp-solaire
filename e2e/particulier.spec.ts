@@ -1,0 +1,43 @@
+import { expect, test } from "@playwright/test";
+
+test("particulier : menu, compte et photos adaptés (aucun écran d'entreprise)", async ({ page }, info) => {
+  await page.goto("connexion/");
+  await expect(page.locator("button[type=submit]")).toBeEnabled({ timeout: 60_000 });
+  await page.fill("#email", "particulier@permizy.com");
+  await page.fill("#password", "Demo-2026!");
+  await page.click("button[type=submit]");
+  await page.waitForURL(/\/app\/?$/);
+  if (info.project.name === "mobile") await page.getByRole("button", { name: "Menu" }).click();
+  const nav = page.getByRole("navigation", { name: "Navigation principale" });
+  await expect(nav.locator("ul").getByRole("link")).toHaveText([/Mes projets/, /Nouveau projet/, /Mon compte/]);
+  await expect(page.getByText(/Entreprise|Santé des sources|Catalogue|Abonnement/)).toHaveCount(0);
+  await page.goto("app/parametres/");
+  await expect(page.getByRole("heading", { name: "Mon compte" })).toBeVisible();
+  await expect(page.getByText("Mes coordonnées")).toBeVisible();
+  await expect(page.getByText(/Journal d'audit|Utilisateurs|SIRET/)).toHaveCount(0);
+  await page.screenshot({ path: test.info().outputPath("compte.png") });
+  await page.goto("app/nouveau/");
+  await page.getByTestId("works-pac").check();
+  await page.fill("#address", "Allée des Tilleuls 80480 Pont-de-Metz");
+  await page.locator("#address-list button").first().click({ timeout: 30_000 });
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.fill("#ln", "Exemple");
+  await page.fill("#fn", "Camille");
+  await page.fill("#em", "camille@example.org");
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await expect(page.getByText("Prendre une photo").first()).toBeVisible();
+  await expect(page.getByText("Choisir dans la galerie").first()).toBeVisible();
+  await expect(page.getByTestId("photo-facade")).not.toHaveAttribute("capture", /.*/);
+  await page.getByTestId("photo-facade").setInputFiles("public/demo/sans-contrainte-facade.jpg");
+  await page.getByTestId("create-project").click();
+  await page.waitForURL(/\/app\/dossier\//, { timeout: 60_000 });
+  await page.getByTestId("step-dossier").click();
+  // le cerfa réclame l'état civil manquant avant le téléchargement
+  await expect(page.getByTestId("cerfa-completion")).toContainText("Il manque des informations");
+  await page.fill("#cg-birthDate", "1980-05-04");
+  await page.fill("#cg-birthPlace", "Amiens");
+  await page.getByTestId("cerfa-save").click();
+  await expect(page.getByTestId("cerfa-completion")).not.toContainText("Il manque des informations");
+  await page.screenshot({ path: test.info().outputPath("dossier.png"), fullPage: true });
+});

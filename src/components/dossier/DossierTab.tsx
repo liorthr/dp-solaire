@@ -9,6 +9,8 @@ import { simpleSignatureProvider } from "@/lib/providers/signature";
 import { projectDescription } from "@/lib/dossier/texts";
 import type { ProjectBundle } from "./useProject";
 import { useSaveProject } from "./useProject";
+import { CerfaCompletion } from "./CerfaCompletion";
+import { cerfaGaps } from "@/lib/dossier/cerfa";
 
 /** dernier dossier généré, par projet (session courante) */
 export const builtCache = new Map<string, { at: string; result: BuildResult }>();
@@ -34,6 +36,9 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
   const ev = analysis.evaluation;
   const kind: "DP" | "PC" = ev.regime.outcome === "PC" ? "PC" : "DP";
   const mustPay = paymentRequired();
+  const cerfaMissing = cerfaGaps(p, client).filter((g) => g.required);
+  // on ne fait pas payer un dossier qui ne peut pas être déposé en l'état
+  const readyToPay = ev.blocking.length === 0 && cerfaMissing.length === 0;
   const [paid, setPaid] = useState<boolean | null>(mustPay ? null : true);
   useEffect(() => {
     if (!mustPay) return;
@@ -83,7 +88,17 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
           ) : (
             <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">Aucun point bloquant : le dossier est prêt à être généré et déposé.</p>
           )}
-          {paid === false ? (
+          <CerfaCompletion b={b} self={Boolean(p.selfFiling)} />
+          {paid === false && !readyToPay ? (
+            <div className="rounded-3xl border-2 border-line bg-white p-5" data-testid="paywall">
+              <p className="flex items-center gap-2 text-lg font-extrabold">
+                <Lock className="h-5 w-5" /> Encore {ev.blocking.length + cerfaMissing.length} point(s) à régler avant le téléchargement
+              </p>
+              <p className="mt-1 text-sm">
+                Corrigez {ev.blocking.length && cerfaMissing.length ? "les points en rouge et complétez le cerfa ci-dessus" : ev.blocking.length ? "les points en rouge ci-dessus (souvent les photos ou le photomontage)" : "le cerfa ci-dessus"} : vous paierez ensuite <b>{PRICES[kind]} €</b> TTC une seule fois, pour un dossier complet et prêt à déposer.
+              </p>
+            </div>
+          ) : paid === false ? (
             <div className="rounded-3xl border-2 border-brand-600 bg-mint p-5" data-testid="paywall">
               <p className="flex items-center gap-2 text-lg font-extrabold">
                 <Lock className="h-5 w-5" /> Votre dossier est prêt à être téléchargé
@@ -100,13 +115,13 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
               <Button size="lg" className="mt-4 w-full sm:w-auto" onClick={() => payDossier(p, kind).catch((e) => setErr(e instanceof Error ? e.message : String(e)))} data-testid="pay">
                 Payer {PRICES[kind]} € et télécharger
               </Button>
-              <p className="mt-2 text-xs text-muted">Paiement sécurisé par Stripe. Les aperçus des plans restent gratuits dans l&apos;onglet Plans.</p>
+              <p className="mt-2 text-xs text-muted">Carte bancaire, Apple Pay ou Google Pay : paiement sécurisé par Stripe. Les aperçus des plans restent gratuits dans l&apos;onglet Plans.</p>
             </div>
           ) : paid === null ? (
             <p className="text-sm text-muted">Vérification du paiement…</p>
           ) : (
           <Button size="lg" variant="secondary" onClick={generate} disabled={Boolean(state)} data-testid="generate">
-            {state ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileText className="h-5 w-5" />} {ev.blocking.length ? "Générer un brouillon (PDF + ZIP)" : "Générer le dossier (PDF + ZIP)"}
+            {state ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileText className="h-5 w-5" />} {readyToPay ? "Générer le dossier (PDF + ZIP)" : "Générer un brouillon (PDF + ZIP)"}
           </Button>
           )}
           {state && (

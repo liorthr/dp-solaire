@@ -43,3 +43,20 @@ describe("cerfa 16702*03", () => {
     expect(report.truncated).toEqual([]);
   });
 });
+
+import { cerfaGaps } from "./cerfa";
+describe("cerfaGaps", () => {
+  const base = { enrichment: { parcels: [{ idu: "x", prefixe: "000", section: "AB", numero: "0012", contenanceM2: 500, geometry: { type: "Polygon", coordinates: [] } }] } } as unknown as Parameters<typeof cerfaGaps>[0];
+  it("signale l'état civil manquant comme obligatoire", () => {
+    const g = cerfaGaps(base, { id: "c", tenantId: "t", firstName: "Camille", lastName: "Exemple", createdAt: "" });
+    expect(g.filter((x) => x.required).map((x) => x.id)).toEqual(["birthDate", "birthPlace"]);
+  });
+  it("ne signale rien d'obligatoire quand tout est renseigné", () => {
+    const g = cerfaGaps(base, { id: "c", tenantId: "t", firstName: "Camille", lastName: "Exemple", birthDate: "1980-01-01", birthPlace: "Amiens", phone: "0600000000", email: "c@example.org", createdAt: "" });
+    expect(g).toEqual([]);
+  });
+  it("exige une parcelle si le cadastre n'a rien donné", () => {
+    const g = cerfaGaps({ enrichment: {} } as unknown as Parameters<typeof cerfaGaps>[0], { id: "c", tenantId: "t", firstName: "A", lastName: "B", birthDate: "1980-01-01", birthPlace: "X", phone: "1", email: "a@b.c", createdAt: "" });
+    expect(g.map((x) => x.id)).toEqual(["parcel"]);
+  });
+});

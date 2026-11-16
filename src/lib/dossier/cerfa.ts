@@ -21,6 +21,14 @@ export const cerfaVersions: CerfaMapping[] = [mapping16702 as CerfaMapping];
 export const currentCerfa = (date = new Date().toISOString().slice(0, 10)) =>
   cerfaVersions.find((c) => c.valid_from <= date && (!c.valid_to || date <= c.valid_to)) ?? cerfaVersions[0];
 
+/** parcelles du cadastre, ou celle saisie par le déclarant si le cadastre n'a rien donné */
+export function parcelsOf(p: Project): { prefixe: string; section: string; numero: string; contenanceM2: number }[] {
+  const found = (p.enrichment?.parcels ?? []).filter((x) => x.section && x.numero);
+  if (found.length) return found;
+  const m = p.overrides?.["cadastre.manual"] as { section: string; numero: string; contenanceM2: number } | undefined;
+  return m?.section && m.numero ? [{ prefixe: "000", ...m }] : [];
+}
+
 export function cerfaData(p: Project, client: Client | undefined, panel: PanelModel | undefined, pieces: string[]) {
   const e = p.enrichment;
   const h = e?.heritage;
@@ -43,8 +51,8 @@ export function cerfaData(p: Project, client: Client | undefined, panel: PanelMo
     // hypothèse V1 : le maître d'ouvrage réside sur le terrain (modifiable dans le PDF)
     declarantAddress: { housenumber: a?.housenumber ?? "", street: a?.street ?? a?.label ?? "", city: a?.city ?? "", postcode: a?.postcode ?? "" },
     terrain: { housenumber: a?.housenumber ?? "", street: a?.street ?? "", city: a?.city ?? "", postcode: a?.postcode ?? "" },
-    parcels: (e?.parcels ?? []).map((x) => ({ prefixe: x.prefixe, section: x.section, numero: x.numero, contenance: String(x.contenanceM2) })),
-    parcelsTotal: String((e?.parcels ?? []).reduce((s, x) => s + x.contenanceM2, 0) || ""),
+    parcels: parcelsOf(p).map((x) => ({ prefixe: x.prefixe, section: x.section, numero: x.numero, contenance: x.contenanceM2 ? String(x.contenanceM2) : "" })),
+    parcelsTotal: String(parcelsOf(p).reduce((s, x) => s + x.contenanceM2, 0) || ""),
     lotissement: { oui: lot === "oui", non: lot === "non", nsp: lot === "nsp" },
     description: projectDescription(p, panel),
     protection: {
@@ -151,4 +159,23 @@ export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: object
   doc.setTitle(`Cerfa ${mapping.cerfa}*${mapping.version} : ${mapping.cerfa === "13406" ? "demande de permis de construire" : "déclaration préalable"}`);
   doc.setProducer("Permizy");
   return { bytes: await doc.save(), report };
+}
+
+/** informations à demander au déclarant avant le téléchargement pour que le cerfa ne parte pas incomplet.
+ *  required : rubrique « identité du déclarant » et « terrain » du cerfa (notice 51434) ; recommended : utile à la mairie. */
+export interface CerfaGap {
+  id: "lastName" | "firstName" | "birthDate" | "birthPlace" | "phone" | "email" | "parcel";
+  label: string;
+  required: boolean;
+}
+export function cerfaGaps(p: Project, client: Client | undefined): CerfaGap[] {
+  const g: CerfaGap[] = [];
+  if (!client?.lastName?.trim()) g.push({ id: "lastName", label: "Nom du déclarant", required: true });
+  if (!client?.firstName?.trim()) g.push({ id: "firstName", label: "Prénom du déclarant", required: true });
+  if (!client?.birthDate) g.push({ id: "birthDate", label: "Date de naissance", required: true });
+  if (!client?.birthPlace?.trim()) g.push({ id: "birthPlace", label: "Commune de naissance", required: true });
+  if (!parcelsOf(p).length) g.push({ id: "parcel", label: "Référence cadastrale du terrain (section et numéro)", required: true });
+  if (!client?.phone?.trim()) g.push({ id: "phone", label: "Téléphone (la mairie peut vous appeler)", required: false });
+  if (!client?.email?.trim()) g.push({ id: "email", label: "Email", required: false });
+  return g;
 }

@@ -220,9 +220,20 @@ function translate(m: string): string {
   if (/email not confirmed/i.test(m)) return "Confirmez d'abord votre adresse email (lien reçu par email).";
   if (/already registered|already been registered/i.test(m)) return "Un compte existe déjà avec cet email : connectez-vous.";
   if (/email address .* is invalid|invalid email/i.test(m)) return "Adresse email invalide : vérifiez-la.";
-  if (/not authorized/i.test(m)) return "L'envoi d'emails n'est pas encore activé pour cette adresse : réessayez plus tard ou utilisez « Continuer avec Google ».";
+  if (/not authorized/i.test(m)) return "L'envoi d'emails n'est pas encore activé pour cette adresse : réessayez plus tard.";
   if (/rate limit/i.test(m)) return "Trop de tentatives : réessayez dans quelques minutes.";
   if (/provider is not enabled|unsupported provider/i.test(m)) return "La connexion Google n'est pas encore activée.";
   if (/password/i.test(m) && /least|short|weak/i.test(m)) return "Mot de passe trop faible : 8 caractères minimum, mélangez lettres et chiffres.";
   return m;
+}
+
+/** la connexion Google n'est proposée que si elle est réellement activée côté Supabase */
+let googleCache: Promise<boolean> | null = null;
+export function googleAvailable(): Promise<boolean> {
+  if (!cloudEnabled) return Promise.resolve(false);
+  googleCache ??= fetch(`${URL}/auth/v1/settings`, { headers: { apikey: KEY } })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => Boolean(j?.external?.google))
+    .catch(() => false);
+  return googleCache;
 }

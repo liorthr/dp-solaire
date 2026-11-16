@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Badge, Button, Card, Field, Input, Select } from "@/components/ui";
 import type { Role } from "@/lib/types";
-import { repo } from "@/lib/store/db";
+import { isHomeowner, repo } from "@/lib/store/db";
 import { useDbVersion, useSession } from "@/lib/store/hooks";
 import { download } from "@/components/dossier/DossierTab";
 
@@ -115,10 +115,58 @@ function Settings() {
   );
 }
 
+/** compte d'un particulier : ses coordonnées (recopiées dans le cerfa) et ses données, rien d'autre */
+function HomeownerAccount() {
+  useDbVersion();
+  const { session } = useSession();
+  const me = repo.clients()[0];
+  const [msg, setMsg] = useState("");
+  const upd = (k: "lastName" | "firstName" | "birthDate" | "birthPlace" | "phone" | "email") => (e: React.FocusEvent<HTMLInputElement>) => {
+    const v = e.target.value.trim();
+    if (me) repo.saveClient({ ...me, [k]: v });
+    else repo.saveClient({ firstName: "", lastName: "", [k]: v });
+    setMsg("Enregistré.");
+  };
+  return (
+    <div className="space-y-4">
+      <Card title="Mes coordonnées">
+        <p className="mb-3 text-sm text-muted">Elles sont recopiées dans le formulaire officiel (cerfa) de vos dossiers.</p>
+        <div className="grid gap-3 sm:grid-cols-2" key={me?.id ?? "none"}>
+          <Field label="Nom" htmlFor="me-ln"><Input id="me-ln" defaultValue={me?.lastName} onBlur={upd("lastName")} /></Field>
+          <Field label="Prénom" htmlFor="me-fn"><Input id="me-fn" defaultValue={me?.firstName} onBlur={upd("firstName")} /></Field>
+          <Field label="Date de naissance" htmlFor="me-bd"><Input id="me-bd" type="date" defaultValue={me?.birthDate} onBlur={upd("birthDate")} /></Field>
+          <Field label="Commune de naissance" htmlFor="me-bp"><Input id="me-bp" defaultValue={me?.birthPlace} onBlur={upd("birthPlace")} /></Field>
+          <Field label="Téléphone" htmlFor="me-ph"><Input id="me-ph" type="tel" defaultValue={me?.phone} onBlur={upd("phone")} /></Field>
+          <Field label="Email" htmlFor="me-em"><Input id="me-em" type="email" defaultValue={me?.email ?? session?.user.email} onBlur={upd("email")} /></Field>
+        </div>
+        {msg && <p className="mt-2 text-sm text-brand-700" aria-live="polite">{msg}</p>}
+      </Card>
+      <Card title="Mes données">
+        <p className="text-sm">Vous pouvez récupérer à tout moment une copie de vos projets et informations.</p>
+        <Button variant="outline" className="mt-3" onClick={async () => download(new Blob([JSON.stringify(await repo.exportTenantData(), null, 2)], { type: "application/json" }), `mes_donnees_permizy_${new Date().toISOString().slice(0, 10)}.json`)}>
+          Télécharger mes données
+        </Button>
+        <p className="mt-2 text-xs text-muted">Pour supprimer votre compte, supprimez vos projets depuis « Mes projets » puis écrivez-nous depuis l&apos;adresse de votre compte.</p>
+      </Card>
+    </div>
+  );
+}
+
+function Page_() {
+  const { session } = useSession();
+  return isHomeowner(session) ? <HomeownerAccount /> : <Settings />;
+}
+
 export default function Page() {
   return (
-    <AppShell title="Entreprise & RGPD">
-      <Settings />
+    <AppShell>
+      <Title />
+      <Page_ />
     </AppShell>
   );
+}
+
+function Title() {
+  const { session } = useSession();
+  return <h1 className="mb-4 text-xl font-bold sm:text-2xl">{isHomeowner(session) ? "Mon compte" : "Entreprise & RGPD"}</h1>;
 }

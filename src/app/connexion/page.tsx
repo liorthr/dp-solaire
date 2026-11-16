@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { cloudEnabled, cloudGoogle, cloudLogin, cloudResetPassword, cloudSignup, resumeCloud, supabase } from "@/lib/cloud/supabase";
+import { cloudEnabled, cloudGoogle, googleAvailable, cloudLogin, cloudResetPassword, cloudSignup, resumeCloud, supabase } from "@/lib/cloud/supabase";
 import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input } from "@/components/ui";
 import { DEMO_ACCOUNTS, login, resetAll, signup } from "@/lib/store/db";
@@ -23,6 +23,10 @@ function Connexion() {
   const [fullName, setFullName] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [google, setGoogle] = useState(false);
+  useEffect(() => {
+    void googleAvailable().then(setGoogle);
+  }, []);
 
   // retour d'un lien email (confirmation) ou de Google : la session est reprise puis on continue
   useEffect(() => {
@@ -34,7 +38,7 @@ function Connexion() {
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
   }, [sp, router, target]);
 
-  const isDemo = (m: string) => [DEMO_ACCOUNTS.installateur.email, DEMO_ACCOUNTS.admin.email].includes(m.trim().toLowerCase());
+  const isDemo = (m: string) => Object.values(DEMO_ACCOUNTS).map((a) => a.email).includes(m.trim().toLowerCase());
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +87,7 @@ function Connexion() {
         <Card>
           <form onSubmit={submit} className="space-y-4">
             <h1 className="text-2xl font-extrabold">{{ login: "Connexion", signup: "Créer mon espace", reset: "Mot de passe oublié", newpassword: "Nouveau mot de passe" }[mode]}</h1>
-            {cloudEnabled && (mode === "login" || mode === "signup") && (
+            {google && (mode === "login" || mode === "signup") && (
               <>
                 <button
                   type="button"
@@ -155,6 +159,10 @@ function Connexion() {
             <li>
               Installateur : <code>{DEMO_ACCOUNTS.installateur.email}</code> / <code>{DEMO_ACCOUNTS.installateur.password}</code>{" "}
               <button className="text-brand-700 underline" onClick={() => { setMode("login"); setEmail(DEMO_ACCOUNTS.installateur.email); setPassword(DEMO_ACCOUNTS.installateur.password); }}>remplir</button>
+            </li>
+            <li>
+              Particulier : <code>{DEMO_ACCOUNTS.particulier.email}</code> / <code>{DEMO_ACCOUNTS.particulier.password}</code>{" "}
+              <button className="text-brand-700 underline" onClick={() => { setMode("login"); setEmail(DEMO_ACCOUNTS.particulier.email); setPassword(DEMO_ACCOUNTS.particulier.password); }}>remplir</button>
             </li>
             <li>
               Super-admin : <code>{DEMO_ACCOUNTS.admin.email}</code> / <code>{DEMO_ACCOUNTS.admin.password}</code>{" "}

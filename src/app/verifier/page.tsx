@@ -12,7 +12,8 @@ import { QUICK_KEY } from "@/components/home/SentenceBuilder";
 import { WORKS } from "@/data/works";
 import { runEnrichment, STEPS, type StepId } from "@/lib/enrichment/run";
 import { DRAFT_KEY, quickVerdict, type QuickAnswers, type QuickVerdict } from "@/lib/verdict/quick";
-import { currentSession } from "@/lib/store/db";
+import { currentSession, isHomeowner } from "@/lib/store/db";
+import { isCloudSession } from "@/lib/cloud/supabase";
 import { cn } from "@/components/ui";
 
 
@@ -207,7 +208,9 @@ function Verifier() {
 
   const prepare = () => {
     localStorage.setItem(DRAFT_KEY, JSON.stringify({ works, address, answers, site: enr && "site" in enr ? (enr as { site: unknown }).site : undefined }));
-    router.push(currentSession() ? "/app/nouveau/?draft=1" : "/connexion/?mode=signup&next=draft");
+    // la simulation est le parcours particulier : une session de démo « installateur » restée ouverte ne doit pas l'emporter
+    const s = currentSession();
+    router.push(s && (isHomeowner(s) || isCloudSession(s)) ? "/app/nouveau/?draft=1" : "/connexion/?mode=signup&next=draft");
   };
 
   if (stage === "works")

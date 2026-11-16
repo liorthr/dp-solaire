@@ -52,6 +52,7 @@ export const SALT = "dp-solaire-demo";
 
 export const DEMO_ACCOUNTS = {
   installateur: { email: "demo@permizy.com", password: "Demo-2026!" },
+  particulier: { email: "particulier@permizy.com", password: "Demo-2026!" },
   admin: { email: "admin@permizy.com", password: "Admin-2026!" },
 };
 
@@ -444,9 +445,20 @@ export async function forgetLocalTenant(tenantId: string) {
 }
 
 // ----------------------------------------------------------------- seed
+/** compte de démo « particulier » (ajouté aussi aux navigateurs déjà initialisés) */
+async function seedHomeownerDemo(db: DB) {
+  if (db.users.some((u) => u.email === DEMO_ACCOUNTS.particulier.email)) return;
+  const t: Tenant = { id: "ten_demo_part", kind: "particulier", name: "Camille Exemple (démo)", siret: "", address: "", email: "", phone: "", retentionMonths: 60, plan: "pro", legalMentions: "" };
+  db.tenants.push(t);
+  db.users.push({ id: "usr_demo_part", email: DEMO_ACCOUNTS.particulier.email, fullName: "Camille Exemple", passwordHash: await hashPassword(DEMO_ACCOUNTS.particulier.password) });
+  db.memberships.push({ tenantId: t.id, userId: "usr_demo_part", role: "admin" });
+  db.subscriptions[t.id] = { plan: "pro", status: "active", dossiersUsed: 0, periodEnd: addDaysIso(30) };
+  save();
+}
+
 export async function ensureSeed(seedDemoProjects: (tenantId: string, userId: string) => Promise<Project[]>) {
   const db = load();
-  if (db.users.length) return;
+  if (db.users.length) return seedHomeownerDemo(db);
   const t: Tenant = { id: "ten_demo", kind: "professionnel", name: "Soleil Picard Énergie (démo)", siret: "000 000 000 00000", address: "1 rue de l'Exemple, 80000 Amiens", email: "contact@example.org", phone: "03 00 00 00 00", retentionMonths: 60, plan: "pro", legalMentions: "SAS fictive de démonstration. RGE n° EXEMPLE." };
   const demo: UserRecord = { id: "usr_demo", email: DEMO_ACCOUNTS.installateur.email, fullName: "Alex Démo", passwordHash: await hashPassword(DEMO_ACCOUNTS.installateur.password) };
   const admin: UserRecord = { id: "usr_admin", email: DEMO_ACCOUNTS.admin.email, fullName: "Super Admin", isSuperAdmin: true, passwordHash: await hashPassword(DEMO_ACCOUNTS.admin.password) };
@@ -465,6 +477,7 @@ export async function ensureSeed(seedDemoProjects: (tenantId: string, userId: st
     fresh.projects.push(...projects);
     fresh.subscriptions[t.id].dossiersUsed = projects.length;
     save();
+    await seedHomeownerDemo(fresh);
   } finally {
     window.localStorage.removeItem(SESSION);
   }

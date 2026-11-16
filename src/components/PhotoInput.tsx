@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Camera, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Camera, CheckCircle2, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import type { Photo, WorksType } from "@/lib/types";
 import { analyzePhoto, asset } from "@/lib/image/browser";
 import { photoStore } from "@/lib/store/db";
@@ -63,10 +63,17 @@ export function PhotoInput({ kind, photo, onChange, works }: { kind: Photo["kind
             {g.title} {g.required ? <Badge tone="alerte">obligatoire</Badge> : <Badge>recommandée</Badge>}
           </p>
           <p className="text-xs text-stone-600">{g.tips}</p>
-          <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 px-3 py-1.5 text-sm font-medium hover:bg-stone-50">
-            <Camera className="h-4 w-4" /> {photo ? "Remplacer" : "Prendre / choisir"}
-            <input data-testid={`photo-${kind}`} type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
-          </label>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 px-3 py-1.5 text-sm font-medium hover:bg-stone-50">
+              <Camera className="h-4 w-4" /> {photo ? "Reprendre une photo" : "Prendre une photo"}
+              <input data-testid={`photo-${kind}-camera`} type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
+            </label>
+            {/* sans « capture » : le téléphone propose la galerie (et les fichiers) */}
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 px-3 py-1.5 text-sm font-medium hover:bg-stone-50">
+              <ImageIcon className="h-4 w-4" /> Choisir dans la galerie
+              <input data-testid={`photo-${kind}`} type="file" accept="image/*" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
+            </label>
+          </div>
           {busy && <span className="ml-2 text-xs text-stone-500">Analyse de la qualité…</span>}
         </div>
       </div>
