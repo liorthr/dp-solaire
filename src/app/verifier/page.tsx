@@ -20,11 +20,39 @@ interface Question {
   id: keyof QuickAnswers;
   title: string;
   hint: string;
-  options: { label: string; sub?: string; value: string | boolean }[];
+  options: { label: string; sub?: string; value: string | boolean | undefined }[];
+  /** question à réponse chiffrée (m²) */
+  number?: { unit: string; min: number; max: number; placeholder: string };
 }
 
 function questionsFor(works: WorksType): Question[] {
   const qs: Question[] = [];
+  if (works === "extension") {
+    qs.push({
+      id: "extKind",
+      title: "Qu'allez-vous construire ?",
+      hint: "Accolé à la maison existante.",
+      options: [
+        { label: "Une pièce en plus", sub: "agrandissement, extension", value: "agrandissement" },
+        { label: "Un garage accolé", value: "garage" },
+        { label: "Une véranda", value: "veranda" },
+      ],
+    });
+    qs.push({
+      id: "extAreaM2",
+      title: "Quelle surface allez-vous créer ?",
+      hint: "L'emprise au sol, débords de toit compris. Une estimation suffit pour le verdict : vous préciserez ensuite.",
+      options: [],
+      number: { unit: "m²", min: 1, max: 300, placeholder: "ex. 25" },
+    });
+    qs.push({
+      id: "extExistingM2",
+      title: "Quelle est la surface actuelle de la maison ?",
+      hint: "Surface de plancher (habitable) : elle figure sur l'acte de vente ou l'avis de taxe foncière. Au-delà de 150 m² après travaux, un architecte peut être obligatoire.",
+      options: [{ label: "Je ne sais pas", sub: "on l'estime d'après le bâtiment", value: undefined }],
+      number: { unit: "m²", min: 10, max: 1000, placeholder: "ex. 110" },
+    });
+  }
   if (works === "pac")
     qs.push({
       id: "pacPlacement",
@@ -216,7 +244,7 @@ function Verifier() {
 
   if (stage === "questions" && works) {
     const q = qs[qi];
-    const pick = (v: string | boolean) => {
+    const pick = (v: string | boolean | number | undefined) => {
       const a = { ...answers, [q.id]: v };
       setAnswers(a);
       if (qi + 1 < qs.length) setQi(qi + 1);
@@ -226,6 +254,7 @@ function Verifier() {
       <Phone step={2 + qi} total={total} back={() => (qi > 0 ? setQi(qi - 1) : setStage("address"))}>
         <h1 className="text-3xl font-extrabold leading-tight">{q.title}</h1>
         <Bubble icon="💬">{q.hint}</Bubble>
+        {q.number && <NumberAnswer key={q.id} q={q} initial={answers[q.id] as number | undefined} onSubmit={(v) => pick(v)} />}
         {q.options.map((o) => (
           <Choice key={o.label} selected={answers[q.id] === o.value && o.label !== "Je ne sais pas"} onClick={() => pick(o.value)} testid={`quick-answer-${q.id}`}>
             {o.label}
@@ -261,10 +290,12 @@ function Verifier() {
     );
 
   if (stage === "verdict" && verdict && works && address) {
-    const ok = verdict.outcome === "DP" || verdict.outcome === "AUCUNE";
+    const pcOk = verdict.outcome === "PC" && works === "extension";
+    const doable = verdict.outcome === "DP" || pcOk;
+    const ok = verdict.outcome === "DP" || verdict.outcome === "AUCUNE" || pcOk;
     return (
       <Phone>
-        <div className={cn("relative overflow-hidden rounded-[28px] p-6 text-white", verdict.outcome === "PC" ? "bg-[#9a3b2a]" : verdict.outcome === "HORS_PERIMETRE" ? "bg-ink" : "bg-brand-600")} data-testid="verdict">
+        <div className={cn("relative overflow-hidden rounded-[28px] p-6 text-white", verdict.outcome === "PC" ? (pcOk ? "bg-[#2b5d8a]" : "bg-[#9a3b2a]") : verdict.outcome === "HORS_PERIMETRE" ? "bg-ink" : "bg-brand-600")} data-testid="verdict">
           <div className="absolute -bottom-8 -right-7 grid h-32 w-32 rotate-[-14deg] place-items-center rounded-full border-[5px] border-white/35 text-2xl font-black text-white/55" aria-hidden>
             {ok ? "OUI" : "?"}
           </div>
@@ -272,7 +303,7 @@ function Verifier() {
           <h1 className="mt-3 text-[28px] font-extrabold leading-tight">{verdict.headline}</h1>
           <p className="mt-2 leading-snug opacity-90">{verdict.message}</p>
         </div>
-        {verdict.outcome === "DP" && (
+        {doable && (
           <div className="mt-4 grid grid-cols-2 gap-2.5">
             <Fact big={`${verdict.months} mois`} small="délai de la mairie" />
             <Fact big={`${verdict.pieces} pièces`} small="préparées par Permizy" />
@@ -293,7 +324,12 @@ function Verifier() {
             ))}
           </div>
         )}
-        {verdict.outcome === "DP" && (
+        {verdict.surfaces && (
+          <p className="mt-3 text-xs text-muted">
+            Calcul fait avec {verdict.surfaces.created} m² créés et {verdict.surfaces.existing} m² existants{verdict.surfaces.estimated ? " (surface actuelle estimée d'après le bâtiment : à confirmer)" : ""}. Les seuils de 20, 40 et 150 m² décident du régime : vérifiez vos mesures.
+          </p>
+        )}
+        {doable && !verdict.architectRequired && (
           <div className="mt-4 rounded-2xl bg-sun-soft p-4 text-sm leading-relaxed">
             <b className="text-[15px]">Ce qu&apos;il nous faut de vous :</b>
             <br />📷 3 photos de la maison (on vous guide)
@@ -302,7 +338,8 @@ function Verifier() {
           </div>
         )}
         {verdict.outcome === "AUCUNE" && <p className="mt-4 rounded-2xl bg-white p-4 text-sm">Pensez quand même à respecter le règlement de lotissement ou de copropriété, et les règles de voisinage. Bon chantier&nbsp;!</p>}
-        {verdict.outcome === "PC" && <p className="mt-4 rounded-2xl bg-white p-4 text-sm">Le permis de construire arrive bientôt sur Permizy. En attendant, le service urbanisme de votre mairie{verdict.mairie ? ` (${verdict.mairie})` : ""} peut vous accompagner.</p>}
+        {verdict.architectRequired && <p className="mt-4 rounded-2xl bg-white p-4 text-sm"><b>Un architecte est obligatoire</b> pour ce permis : la maison dépasserait 150 m² après travaux. Permizy peut lui transmettre l&apos;analyse du terrain ; c&apos;est lui qui signe les plans.</p>}
+        {verdict.outcome === "PC" && !pcOk && <p className="mt-4 rounded-2xl bg-white p-4 text-sm">Le permis de construire pour ce type de travaux arrive bientôt sur Permizy. En attendant, le service urbanisme de votre mairie{verdict.mairie ? ` (${verdict.mairie})` : ""} peut vous accompagner.</p>}
         <p className="mt-3 text-xs text-muted">
           Source :{" "}
           <a href={verdict.source_url} target="_blank" rel="noreferrer" className="underline">
@@ -311,10 +348,10 @@ function Verifier() {
           . Verdict indicatif calculé à partir des données publiques ; la décision appartient à la mairie.
         </p>
         <div className="mt-auto pt-6">
-          {verdict.outcome === "DP" ? (
+          {doable && !verdict.architectRequired ? (
             <>
               <button onClick={prepare} className="w-full rounded-full bg-brand-600 py-4 text-lg font-bold text-white shadow-[0_8px_20px_rgba(31,107,74,.25)]" data-testid="quick-prepare">
-                Préparer mon dossier →
+                {pcOk ? "Préparer mon permis de construire →" : "Préparer mon dossier →"}
               </button>
               <p className="mt-2.5 text-center text-sm text-muted">Rien n&apos;est envoyé à la mairie sans votre accord.</p>
             </>
@@ -328,6 +365,29 @@ function Verifier() {
     );
   }
   return null;
+}
+
+function NumberAnswer({ q, initial, onSubmit }: { q: Question; initial?: number; onSubmit: (v: number) => void }) {
+  const [v, setV] = useState(initial ? String(initial) : "");
+  const n = Number(v.replace(",", "."));
+  const ok = v !== "" && n >= q.number!.min && n <= q.number!.max;
+  return (
+    <form
+      className="mt-5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (ok) onSubmit(n);
+      }}
+    >
+      <label className="flex items-center gap-3 rounded-[18px] border-2 border-brand-600 bg-white p-4 text-2xl font-bold">
+        <input autoFocus inputMode="decimal" value={v} onChange={(e) => setV(e.target.value)} placeholder={q.number!.placeholder} aria-label={q.title} className="w-full bg-transparent outline-none" data-testid={`quick-number-${q.id}`} />
+        <span className="text-muted">{q.number!.unit}</span>
+      </label>
+      <button disabled={!ok} className="mt-3 w-full rounded-full bg-ink py-4 text-lg font-bold text-white disabled:opacity-40" data-testid={`quick-number-ok-${q.id}`}>
+        Continuer
+      </button>
+    </form>
+  );
 }
 
 const Fact = ({ big, small }: { big: string; small: string }) => (

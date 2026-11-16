@@ -10,13 +10,13 @@ const AVAILABLE: { id: WorksType; title: string; desc: string }[] = [
   { id: "menuiserie", title: "Fenêtres, portes, volets", desc: "Matériaux, couleurs, vues" },
   { id: "velux", title: "Fenêtres de toit", desc: "Combles et distances" },
   { id: "ite", title: "Isolation extérieure", desc: "Teinte, surplomb, ABF" },
+  { id: "extension", title: "Agrandissement, garage, véranda", desc: "Déclaration ou permis de construire" },
 ];
 const SOON = [
   { title: "Piscine", desc: "Bassin, abri, plage" },
-  { title: "Extension, véranda", desc: "DP ou permis selon la surface" },
   { title: "Abri, carport, pergola", desc: "Surface et hauteur" },
   { title: "Clôture, portail", desc: "Selon votre commune" },
-  { title: "Permis de construire", desc: "Maison, garage, agrandissement", green: true },
+  { title: "Maison neuve", desc: "Permis de construire, avec votre architecte", green: true },
 ];
 
 function HouseArt() {

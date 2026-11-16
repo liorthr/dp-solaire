@@ -11,8 +11,9 @@ import { runEnrichment } from "@/lib/enrichment/run";
 import { dp2, dp4, type PlanContext } from "@/lib/plans/dp";
 import { dp2Works, dp3Ite, dp4Works } from "@/lib/works/plans";
 import { projectFacades } from "@/lib/works/geom";
-import { IteEditor, JoineryEditor, PacEditor, VeluxEditor } from "@/components/WorksEditor";
-import { defaultIte, defaultJoinery, defaultPac, defaultVelux } from "@/data/works";
+import { ExtensionEditor, IteEditor, JoineryEditor, PacEditor, VeluxEditor } from "@/components/WorksEditor";
+import { dp2Extension, dp3Extension, dp4Extension } from "@/lib/works/extension-plans";
+import { defaultExtension, defaultIte, defaultJoinery, defaultPac, defaultVelux } from "@/data/works";
 import { defaultJoineryItems, defaultRoofWindows } from "@/lib/works/geom";
 import { parcelRefs } from "@/lib/dossier/texts";
 import { fr } from "@/lib/instruction/deadlines";
@@ -160,6 +161,7 @@ export function PlansTab({ b }: { b: ProjectBundle }) {
   );
   const svg = useMemo(() => {
     if (works === "pv") return preview === "dp4" ? dp4(ctx)[0] : dp2(ctx);
+    if (works === "extension") return preview === "dp3" ? dp3Extension(ctx, "Coupe") : preview === "dp4" ? dp4Extension(ctx, "Façades") : dp2Extension(ctx, "Masse");
     if (preview === "dp3" && works === "ite") return dp3Ite(ctx);
     return preview === "dp4" ? dp4Works(ctx)[0] : dp2Works(ctx);
   }, [ctx, preview, works]);
@@ -193,6 +195,11 @@ export function PlansTab({ b }: { b: ProjectBundle }) {
             onChange={(v) => save({ ...p, pac: v }, "edition_pac")}
             facades={facades}
           />
+        </Card>
+      )}
+      {works === "extension" && (
+        <Card title="Agrandissement : position, dimensions, surfaces">
+          <ExtensionEditor value={p.extension ?? defaultExtension()} onChange={(v) => save({ ...p, extension: v }, "edition_extension")} facades={facades} />
         </Card>
       )}
       {works === "menuiserie" && (
@@ -420,7 +427,7 @@ export function PlansTab({ b }: { b: ProjectBundle }) {
             >
               DP2
             </Button>
-            {works === "ite" && (
+            {(works === "ite" || works === "extension") && (
               <Button
                 size="sm"
                 variant={preview === "dp3" ? "primary" : "outline"}

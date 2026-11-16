@@ -1,6 +1,9 @@
 // Remplissage du cerfa officiel (pdf-lib) à partir du mapping versionné src/data/cerfa/<cerfa>-<version>.mapping.json
 import { PDFDocument, PDFCheckBox, PDFTextField } from "pdf-lib";
 import mapping16702 from "@/data/cerfa/16702-03.mapping.json";
+import mapping13406 from "@/data/cerfa/13406-17.mapping.json";
+import { defaultExtension } from "@/data/works";
+import { existingFootprintM2 } from "@/lib/works/geom";
 import type { Client, PanelModel, Project, SignatureRecord } from "@/lib/types";
 import { projectDescription } from "./texts";
 import { fr } from "@/lib/instruction/deadlines";
@@ -54,6 +57,30 @@ export function cerfaData(p: Project, client: Client | undefined, panel: PanelMo
   };
 }
 
+/** permis de construire une maison individuelle et/ou ses annexes (cerfa 13406) */
+export const cerfaPC = mapping13406 as CerfaMapping;
+
+/** données du cerfa 13406 : identité et terrain identiques à la DP, plus surfaces, annexes et dispense d'architecte */
+export function cerfaDataPC(p: Project, client: Client | undefined, pieces: string[]) {
+  const base = cerfaData(p, client, undefined, []);
+  const x = p.extension ?? defaultExtension();
+  const emprise = Math.round(x.widthM * x.depthM * 10) / 10;
+  const fmt = (v: number) => String(Math.round(v * 10) / 10).replace(".", ",");
+  const total = x.floorAreaExistingM2 + x.floorAreaCreatedM2;
+  const before = existingFootprintM2(p.enrichment);
+  return {
+    ...base,
+    architectWaiver: !x.architect && total <= 150,
+    annex: { garage: x.kind === "garage", veranda: x.kind === "veranda" },
+    works: { extension: x.kind === "agrandissement" },
+    levels: x.levels ? String(x.levels) : "",
+    rooms: x.rooms ? String(x.rooms) : "",
+    emprise: { before: before ? fmt(before) : "", created: fmt(emprise) },
+    sdp: { existing: fmt(x.floorAreaExistingM2), created: fmt(x.floorAreaCreatedM2), total: fmt(total) },
+    pieces: Object.fromEntries(pieces.map((c) => [c, true])),
+  };
+}
+
 export function resolvePath(obj: unknown, path: string): unknown {
   if (path === "const.true") return true;
   return path.split(".").reduce<unknown>((acc, k) => (acc == null ? undefined : (acc as Record<string, unknown>)[k]), obj);
@@ -63,12 +90,14 @@ export interface FillReport {
   filled: string[];
   missingInPdf: string[];
   empty: string[];
+  /** valeurs trop longues pour la case, tronquées : à corriger à la main */
+  truncated: string[];
 }
 
-export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: ReturnType<typeof cerfaData>, mapping: CerfaMapping = currentCerfa(), signature?: SignatureRecord): Promise<{ bytes: Uint8Array; report: FillReport }> {
+export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: object, mapping: CerfaMapping = currentCerfa(), signature?: SignatureRecord): Promise<{ bytes: Uint8Array; report: FillReport }> {
   const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const form = doc.getForm();
-  const report: FillReport = { filled: [], missingInPdf: [], empty: [] };
+  const report: FillReport = { filled: [], missingInPdf: [], empty: [], truncated: [] };
   for (const m of mapping.fields) {
     const v = resolvePath(data, m.value);
     let field;
@@ -90,7 +119,10 @@ export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: Return
         field.acroField.setDefaultAppearance("/Helv 9 Tf 0 g");
       }
       const max = field.getMaxLength();
-      field.setText(max ? s.slice(0, max) : s);
+      // cases « une par caractère » (dates jjmmaaaa, téléphone, codes) : on retire séparateurs et espaces avant de vérifier la longueur
+      const t = max && s.length > max ? s.replace(/[\s/.\-]/g, "") : s;
+      if (max && t.length > max) report.truncated.push(m.field);
+      field.setText(max ? t.slice(0, max) : t);
       report.filled.push(m.field);
     } else if (m.type === "checkbox" && field instanceof PDFCheckBox) {
       if (v === true) {
@@ -116,7 +148,7 @@ export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: Return
     }
   }
   form.updateFieldAppearances();
-  doc.setTitle(`Cerfa ${mapping.cerfa}*${mapping.version} : déclaration préalable`);
+  doc.setTitle(`Cerfa ${mapping.cerfa}*${mapping.version} : ${mapping.cerfa === "13406" ? "demande de permis de construire" : "déclaration préalable"}`);
   doc.setProducer("Permizy");
   return { bytes: await doc.save(), report };
 }

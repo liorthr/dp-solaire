@@ -20,7 +20,7 @@ describe("cerfa 16702*03", () => {
     const p = newProject("t", "u", d.address);
     p.pv = { ...p.pv, panelCount: 8, powerKwc: 3.6 };
     p.enrichment = { parcels: [{ idu: "80021000AE0026", prefixe: "000", section: "AE", numero: "0026", contenanceM2: 101, geometry: { type: "Polygon", coordinates: [] } }], buildings: [], zones: [], servitudes: [], prescriptions: [], risks: [], sources: {}, heritage: { inAbordsMH: true, inSPR: false, inSiteClasseOuInscrit: false, monuments: [], abfConsultation: "oui", confidence: "haute", explanation: [], divergences: [] } };
-    const client = { id: "c", tenantId: "t", firstName: "Louis", lastName: "Fictif-Martin", email: "louis.fictif@example.org", phone: "06 00 00 00 02", createdAt: "" };
+    const client = { id: "c", tenantId: "t", firstName: "Louis", lastName: "Fictif-Martin", email: "louis.fictif@example.org", phone: "06 00 00 00 02", birthDate: "1980-04-23", createdAt: "" };
     const data = cerfaData(p, client, defaultPanels[2], ["DP1", "DP2", "DP4", "DP5", "DP6", "DP7", "DP8", "DP11"]);
     const { bytes, report } = await fillCerfa(readFileSync("public/cerfa/cerfa_16702-03.pdf"), data);
     expect(report.missingInPdf).toEqual([]);
@@ -36,5 +36,10 @@ describe("cerfa 16702*03", () => {
     expect(f.getCheckBox("P3GH1").isChecked()).toBe(true); // DPC8
     expect(f.getCheckBox("P3GE1").isChecked()).toBe(false); // DPC3 non coché
     expect(f.getCheckBox("T3S_lotnc").isChecked()).toBe(true);
+    // cases à caractère unique : ni séparateurs ni troncature
+    expect(f.getTextField("D3T_telephone").getText()).toBe("0600000002");
+    expect(f.getTextField("D1A_naissance").getText()).toBe("23041980");
+    expect(f.getTextField("E1D_date").getText()).toMatch(/^\d{8}$/);
+    expect(report.truncated).toEqual([]);
   });
 });

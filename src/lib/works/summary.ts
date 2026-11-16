@@ -1,8 +1,12 @@
 import type { Project } from "@/lib/types";
-import { defaultIte, defaultJoinery, defaultPac, defaultPacUnits, defaultVelux, ITE_FINISHES, JOINERY_MATERIALS, ROOF_WINDOW_MODELS } from "@/data/works";
+import { defaultExtension, EXTENSION_KINDS, defaultIte, defaultJoinery, defaultPac, defaultPacUnits, defaultVelux, ITE_FINISHES, JOINERY_MATERIALS, ROOF_WINDOW_MODELS } from "@/data/works";
 
 /** résumé d'une ligne du projet (en-tête de dossier, tableau de bord) */
 export function worksSummary(p: Project): string {
+  if (p.works === "extension") {
+    const x = p.extension ?? defaultExtension();
+    return `${EXTENSION_KINDS[x.kind].split(" (")[0]} de ${String(Math.round(x.widthM * x.depthM * 10) / 10).replace(".", ",")} m²`;
+  }
   if (p.works === "menuiserie") {
     const m = p.menuiserie ?? defaultJoinery();
     return `${m.items.length} menuiserie(s) ${JOINERY_MATERIALS[m.materialAfter].toLowerCase()}, ${m.colorName}`;

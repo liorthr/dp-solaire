@@ -9,14 +9,16 @@ import type { Client, InverterModel, PanelModel, Project, Tenant } from "@/lib/t
 import { buildFacts } from "@/lib/rules/facts";
 import { evaluateProject, paperCopies, requiredPieces, rulesetFor } from "@/lib/rules/engine";
 import { dp2Works, dp3Ite, dp4Works } from "@/lib/works/plans";
+import { dp2Extension, dp3Extension, dp4Extension } from "@/lib/works/extension-plans";
+import { DP_AUTH, PC_AUTH } from "@/lib/works/authorization";
 import { dp1, dp2, dp3, dp4, shotPoints, type PlanContext } from "@/lib/plans/dp";
 import { buildBasemap } from "@/lib/plans/basemap";
 import { DRAW, page, svgDoc, text, wrapText, n } from "@/lib/plans/svg";
-import { renderFacadeFinish, renderPacUnit, renderPanels, type Pt } from "@/lib/image/homography";
+import { renderExtensionFront, renderFacadeFinish, renderPacUnit, renderPanels, type Pt } from "@/lib/image/homography";
 import { asset, blobToImage, imageToJpegDataUrl } from "@/lib/image/browser";
 import { photoStore } from "@/lib/store/db";
 import { renderInsertionElements } from "@/lib/image/insertion";
-import { cerfaData, currentCerfa, fillCerfa } from "./cerfa";
+import { cerfaData, cerfaDataPC, cerfaPC, currentCerfa, fillCerfa } from "./cerfa";
 import { DISCLAIMER, coverLetterEmail, derogationNote, insertionImpact, insertionNotes, lrarLetter, mandateText, noticeDescriptive, parcelRefs, TEMPLATES_VERSION } from "./texts";
 import { fr } from "@/lib/instruction/deadlines";
 
@@ -68,6 +70,7 @@ export async function renderInsertion(project: Project, photoId: string, panel?:
   if (ins && ins.quad.length === 4) {
     const c2d = after.getContext("2d", { willReadFrequently: true })!;
     if (project.works === "menuiserie" || project.works === "velux") renderInsertionElements(c2d, project, ins);
+    else if (project.works === "extension") renderExtensionFront(c2d, ins.quad as Pt[], project.extension?.kind ?? "agrandissement", project.extension?.wallColorHex ?? "#e8dcc4");
     else if (project.works === "pac") renderPacUnit(c2d, ins.quad as Pt[], Boolean(project.pac?.cover));
     else if (project.works === "ite") renderFacadeFinish(c2d, ins.quad as Pt[], project.ite?.colorHex ?? "#d8cbb3", project.ite?.finish ?? "enduit");
     else renderPanels(c2d, ins.quad as Pt[], ins.rows, ins.cols, { frame: panel?.frameColor ?? "noir", cell: panel?.cellColor ?? "noir" });
@@ -171,7 +174,14 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   const rs = rulesetFor(p.works);
   const works = p.works ?? "pv";
   const ev = evaluateProject(facts, undefined, rs);
-  if (ev.regime.outcome !== "DP") throw new Error(`Aucun dossier DP généré : ${ev.regime.message}`);
+  if (!ev.canGenerate) throw new Error(`Aucun dossier généré : ${ev.regime.message}`);
+  // permis de construire (extension) : mêmes dessins, numérotés selon le bordereau du cerfa 13406
+  const isPC = ev.regime.outcome === "PC";
+  const auth = isPC ? PC_AUTH : DP_AUTH;
+  const PCMAP: Record<string, string> = { DP1: "PCMI1", DP2: "PCMI2", DP3: "PCMI3", DP4: "PCMI5", DP5: "PCMI6", DP6: "PCMI6", DP7: "PCMI7", DP8: "PCMI8", DP11: "PCMI4" };
+  const C = (c: string) => (isPC ? (PCMAP[c] ?? c) : c);
+  const relabel = (svg: string) => (isPC ? svg.replace(/>(DP\d+)</g, (_, c: string) => `>${PCMAP[c] ?? c}<`).replace(/\b(DP)([78]) \/ DP([78])\b/g, "PCMI$2 / PCMI$3") : svg);
+  const pdf = (svgs: string[]) => svgToPdfBytes(svgs.map(relabel));
   const req = requiredPieces(facts, rs).filter((x) => x.isRequired || x.code === "DP3");
   const cart: PlanContext["cartouche"] = {
     reference: p.reference,
@@ -183,7 +193,7 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   };
   const ctx: PlanContext = { project: p, panel, cartouche: cart, site: s };
   const files: BuiltFile[] = [];
-  const add = (code: string, label: string, name: string, bytes: Uint8Array) => files.push({ code, label, name, bytes });
+  const add = (code: string, label: string, name: string, bytes: Uint8Array) => files.push({ code: C(code), label, name: isPC ? name.replace(/^DP\d+/, C(code)) : name, bytes });
 
   // ---------------------------------------------------------------- plans
   prog("Plan de situation (fonds IGN)", 8);
@@ -191,22 +201,30 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   const scaleMain = zoneRural ? 5000 : 2000;
   const [main, inset] = input.noBasemap ? [null, null] : await Promise.all([buildBasemap(s.lon, s.lat, scaleMain, DRAW.w, DRAW.h, "plan"), buildBasemap(s.lon, s.lat, 25000, 62, 44, "plan")]);
   if (!main && !input.noBasemap) warnings.push("Fond IGN indisponible pour DP1 : plan simplifié généré.");
-  add("DP1", "Plan de situation", "DP1_plan_de_situation.pdf", await svgToPdfBytes([dp1(ctx, main, inset, scaleMain, 25000)]));
+  add("DP1", "Plan de situation", "DP1_plan_de_situation.pdf", await pdf([dp1(ctx, main, inset, scaleMain, 25000)]));
   prog("Plan de masse", 20);
-  add("DP2", "Plan de masse", "DP2_plan_de_masse.pdf", await svgToPdfBytes([works === "pv" ? dp2(ctx) : dp2Works(ctx)]));
-  if (works === "pv") {
+  if (works === "extension") {
+    add("DP2", "Plan de masse", "DP2_plan_de_masse.pdf", await pdf([dp2Extension(ctx, "DP2")]));
     prog("Plan en coupe", 28);
-    add("DP3", "Plan en coupe", "DP3_plan_en_coupe.pdf", await svgToPdfBytes([dp3(ctx)]));
+    add("DP3", "Plan en coupe", "DP3_plan_en_coupe.pdf", await pdf([dp3Extension(ctx, "DP3")]));
+    prog("Plans des façades et des toitures", 36);
+    add("DP4", "Plan des façades et des toitures", "DP4_plan_des_facades_et_toitures.pdf", await pdf([dp4Extension(ctx, "DP4")]));
+  } else add("DP2", "Plan de masse", "DP2_plan_de_masse.pdf", await pdf([works === "pv" ? dp2(ctx) : dp2Works(ctx)]));
+  if (works === "extension") {
+    /* plans déjà produits */
+  } else if (works === "pv") {
+    prog("Plan en coupe", 28);
+    add("DP3", "Plan en coupe", "DP3_plan_en_coupe.pdf", await pdf([dp3(ctx)]));
     prog("Plans des façades et toitures", 36);
-    add("DP4", "Plan des façades et des toitures", "DP4_plan_des_facades_et_toitures.pdf", await svgToPdfBytes(dp4(ctx)));
+    add("DP4", "Plan des façades et des toitures", "DP4_plan_des_facades_et_toitures.pdf", await pdf(dp4(ctx)));
   } else {
     if (works === "ite") {
       prog("Coupe de principe", 28);
-      add("DP3", "Coupe de principe du mur isolé", "DP3_coupe_de_principe.pdf", await svgToPdfBytes([dp3Ite(ctx)]));
+      add("DP3", "Coupe de principe du mur isolé", "DP3_coupe_de_principe.pdf", await pdf([dp3Ite(ctx)]));
     }
     prog("Plans des façades", 36);
-    if (works === "velux") add("DP4", "Plan de la toiture et des façades", "DP4_plan_toiture.pdf", await svgToPdfBytes(dp4Works(ctx)));
-    else add("DP4", "Plan des façades avant / après", "DP4_plan_des_facades.pdf", await svgToPdfBytes(dp4Works(ctx)));
+    if (works === "velux") add("DP4", "Plan de la toiture et des façades", "DP4_plan_toiture.pdf", await pdf(dp4Works(ctx)));
+    else add("DP4", "Plan des façades avant / après", "DP4_plan_des_facades.pdf", await pdf(dp4Works(ctx)));
   }
 
   // ---------------------------------------------------------------- photos et insertion
@@ -217,11 +235,13 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
     if (r && p.insertions.some((i) => i.photoId === facade.id && i.quad.length === 4)) {
       const before = await imageToJpegDataUrl(r.before, 1400);
       const after = await imageToJpegDataUrl(r.after, 1400);
-      add("DP5", "Représentation de l'aspect extérieur", "DP5_aspect_exterieur.pdf", await svgToPdfBytes([photoPage(cart, "DP5", "Aspect extérieur : avant / après", [{ ...before, caption: "État initial" }, { ...after, caption: "État projeté (photomontage)" }], insertionNotes(p, panel))]));
+      const beforeAfter = photoPage(cart, "DP5", "Aspect extérieur : avant / après", [{ ...before, caption: "État initial" }, { ...after, caption: "État projeté (photomontage)" }], insertionNotes(p, panel));
+      if (!isPC) add("DP5", "Représentation de l'aspect extérieur", "DP5_aspect_exterieur.pdf", await pdf([beforeAfter]));
       const afterBig = await imageToJpegDataUrl(r.after, 2000);
       const proche = p.photos.find((x) => x.kind === "proche");
       const imgs = [{ ...afterBig, caption: "Insertion du projet dans son environnement" }];
-      add("DP6", "Document graphique d'insertion", "DP6_insertion_paysagere.pdf", await svgToPdfBytes([photoPage(cart, "DP6", "Insertion dans l'environnement", imgs, [insertionImpact(p), proche ? "Voir aussi DP7 (environnement proche)." : ""])]));
+      const insertionPage = photoPage(cart, "DP6", "Insertion dans l'environnement", imgs, [insertionImpact(p), proche ? `Voir aussi ${C("DP7")} (environnement proche).` : ""]);
+      add("DP6", "Document graphique d'insertion", "DP6_insertion_paysagere.pdf", await pdf(isPC ? [beforeAfter, insertionPage] : [insertionPage]));
     } else warnings.push("Insertion non positionnée : DP5/DP6 non générées.");
   }
   prog("Photographies DP7 / DP8", 58);
@@ -233,7 +253,7 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
     const img = await blobToImage(blob);
     const j = await imageToJpegDataUrl(img, 2000);
     const sp = shotPoints(p, s).find((x) => x.kind === kind);
-    add(code, title, file, await svgToPdfBytes([photoPage(cart, code, title, [{ ...j, caption: ph.caption || title }], [`Point de prise de vue repéré « ${code === "DP7" ? "7" : "8"} » sur DP1 et DP2${sp?.estimated ? " (position estimée)" : ""}.`, "Photographie originale (non photocopiée)."], true)]));
+    add(code, title, file, await pdf([photoPage(cart, code, title, [{ ...j, caption: ph.caption || title }], [`Point de prise de vue repéré « ${code === "DP7" ? "7" : "8"} » sur ${C("DP1")} et ${C("DP2")}${sp?.estimated ? " (position estimée)" : ""}.`, "Photographie originale (non photocopiée)."], true)]));
   }
 
   if (works === "ite" && p.ite?.derogation) {
@@ -242,9 +262,9 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
 
   // ---------------------------------------------------------------- textes
   prog("Notice descriptive (DP11) et mandat", 66);
-  add("DP11", "Notice des matériaux et modalités d'exécution", "DP11_notice_materiaux.pdf", textPdf("DP11 : Notice descriptive du projet", [{ lines: noticeDescriptive(p, panel, inverter) }, { heading: "Contexte réglementaire relevé", lines: ev.results.filter((r) => r.category === "contexte" && r.severity !== "ok").map((r) => `${r.title} : ${r.message} (source : ${r.source_label ?? r.source_url})`) }], DISCLAIMER));
+  add("DP11", "Notice des matériaux et modalités d'exécution", "DP11_notice_materiaux.pdf", textPdf(isPC ? "PCMI4 : Notice décrivant le terrain et présentant le projet" : "DP11 : Notice descriptive du projet", [{ lines: noticeDescriptive(p, panel, inverter) }, { heading: "Contexte réglementaire relevé", lines: ev.results.filter((r) => r.category === "contexte" && r.severity !== "ok").map((r) => `${r.title} : ${r.message} (source : ${r.source_label ?? r.source_url})`) }], DISCLAIMER));
   const mText = mandateText(p, client, tenant);
-  add("MANDAT", "Mandat du maître d'ouvrage", "Mandat_depot_DP.pdf", textPdf("Mandat", [{ lines: mText.split("\n").slice(1) }], DISCLAIMER, (doc, y) => {
+  add("MANDAT", "Mandat du maître d'ouvrage", isPC ? "Mandat_depot_PC.pdf" : "Mandat_depot_DP.pdf", textPdf("Mandat", [{ lines: mText.split("\n").slice(1) }], DISCLAIMER, (doc, y) => {
     if (p.mandate) {
       try {
         doc.addImage(p.mandate.imageDataUrl, "PNG", 15, y + 2, 60, 18);
@@ -261,14 +281,16 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   }));
 
   // ---------------------------------------------------------------- cerfa
-  prog("Cerfa 16702*03 pré-rempli", 76);
-  const generatedCodes = files.map((f) => f.code).filter((c) => /^DP\d+(-1)?$/.test(c));
-  const mapping = currentCerfa();
+  prog(`Cerfa ${auth.cerfa} pré-rempli`, 76);
+  const generatedCodes = files.map((f) => f.code).filter((c) => /^(DP|PCMI)\d+(-1)?$/.test(c));
+  const mapping = isPC ? cerfaPC : currentCerfa();
   try {
     const res = await fetch(asset(mapping.pdf));
-    const { bytes, report } = await fillCerfa(await res.arrayBuffer(), cerfaData(p, client, panel, generatedCodes), mapping, p.declarationSignature);
-    add("CERFA", `Cerfa ${mapping.cerfa}*${mapping.version}`, `Cerfa_${mapping.cerfa}-${mapping.version}_declaration_prealable.pdf`, bytes);
+    const data = isPC ? cerfaDataPC(p, client, generatedCodes) : cerfaData(p, client, panel, generatedCodes);
+    const { bytes, report } = await fillCerfa(await res.arrayBuffer(), data, mapping, p.declarationSignature);
+    add("CERFA", `Cerfa ${mapping.cerfa}*${mapping.version}`, `Cerfa_${mapping.cerfa}-${mapping.version}_${isPC ? "demande_permis_de_construire" : "declaration_prealable"}.pdf`, bytes);
     if (report.empty.length) warnings.push(`Champs du cerfa laissés vides (à compléter si nécessaire) : ${report.empty.join(", ")}`);
+    if (report.truncated.length) warnings.push(`Valeurs trop longues tronquées dans le cerfa (à vérifier) : ${report.truncated.join(", ")}`);
   } catch (e) {
     warnings.push(`Cerfa non rempli : ${e instanceof Error ? e.message : e}`);
   }
@@ -280,9 +302,9 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   const bordereau = textPdf(
     `Bordereau des pièces : ${p.reference}`,
     [
-      { lines: [`Déclaration préalable : ${p.address.label}`, `Cadastre : ${parcelRefs(p.enrichment)}`, `Maître d'ouvrage : ${client ? `${client.firstName} ${client.lastName}` : ""} : mandataire : ${tenant.name}`, `Régime : ${ev.regime.message}`] },
+      { lines: [`${isPC ? "Demande de permis de construire (maison individuelle)" : "Déclaration préalable"} : ${p.address.label}`, `Cadastre : ${parcelRefs(p.enrichment)}`, `Maître d'ouvrage : ${client ? `${client.firstName} ${client.lastName}` : ""} : mandataire : ${tenant.name}`, `Régime : ${ev.regime.message}`] },
       { heading: "Pièces jointes", lines: rs.pieces.filter((pc) => generatedCodes.includes(pc.code)).map((pc) => `[x] ${pc.code} (${pc.cerfaCode} au cerfa) : ${pc.label} : ${pc.article}`) },
-      { heading: "Autres documents", lines: ["[x] Cerfa n° 16702*03 rempli", "[x] Mandat du maître d'ouvrage"] },
+      { heading: "Autres documents", lines: [`[x] Cerfa n° ${auth.cerfa} rempli`, "[x] Mandat du maître d'ouvrage", ...(isPC && p.extension?.kind !== "garage" ? ["[ ] PCMI14-1 : attestation de prise en compte de la RE 2020, établie par un professionnel (non produite par Permizy)"] : [])] },
       ...(missing.length ? [{ heading: "Pièces manquantes à compléter", lines: missing.map((m) => `[ ] ${m.code} : ${m.label} (${m.why})`) }] : []),
       { heading: "Dépôt papier", lines: [`${copies.label} (source : ${copies.source_url}).`] },
       { heading: "Contrôles automatiques", lines: [`Score indicatif : ${ev.blocking.length ? "dossier non déposable en l'état" : `${ev.score}/100`} (règles ${rs.ruleset} ${rs.version}, modèles ${TEMPLATES_VERSION}). Ce score n'est pas une garantie.`, ...ev.results.filter((r) => r.severity !== "ok").map((r) => `${r.severity.toUpperCase()} : ${r.title} : ${r.message}`)] },
@@ -291,16 +313,16 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   );
   add("BORDEREAU", "Bordereau des pièces", "00_Bordereau_des_pieces.pdf", bordereau);
 
-  const pieceNames = files.filter((f) => /^DP\d+(-1)?$/.test(f.code)).map((f) => f.code);
-  const mail = coverLetterEmail(p, client, tenant, p.enrichment?.mairie, [...pieceNames, "cerfa 16702*03", "mandat"]);
-  const letter = lrarLetter(p, client, tenant, p.enrichment?.mairie, [...pieceNames, "cerfa 16702*03", "mandat"], copies.copies);
+  const pieceNames = files.filter((f) => /^(DP|PCMI)\d+(-1)?$/.test(f.code)).map((f) => f.code);
+  const mail = coverLetterEmail(p, client, tenant, p.enrichment?.mairie, [...pieceNames, `cerfa ${auth.cerfa}`, "mandat"]);
+  const letter = lrarLetter(p, client, tenant, p.enrichment?.mairie, [...pieceNames, `cerfa ${auth.cerfa}`, "mandat"], copies.copies);
   add("COURRIER", "Courrier LRAR", "Courrier_LRAR_mairie.pdf", textPdf("Courrier de dépôt", [{ lines: letter.split("\n") }], DISCLAIMER));
 
   // ---------------------------------------------------------------- PDF unique
   prog("Assemblage du PDF unique", 90);
-  const order = ["BORDEREAU", "CERFA", "DP1", "DP2", "DP3", "DP4", "DP5", "DP6", "DP7", "DP8", "DP8-1", "DP11", "MANDAT"];
+  const order = isPC ? ["BORDEREAU", "CERFA", "PCMI1", "PCMI2", "PCMI3", "PCMI4", "PCMI5", "PCMI6", "PCMI7", "PCMI8", "MANDAT"] : ["BORDEREAU", "CERFA", "DP1", "DP2", "DP3", "DP4", "DP5", "DP6", "DP7", "DP8", "DP8-1", "DP11", "MANDAT"];
   const merged = await PDFDocument.create();
-  merged.setTitle(`Dossier DP ${p.reference}`);
+  merged.setTitle(`Dossier ${auth.short} ${p.reference}`);
   merged.setAuthor(tenant.name);
   merged.setProducer("Permizy");
   for (const code of order) {

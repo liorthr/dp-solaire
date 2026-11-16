@@ -1,0 +1,361 @@
+{
+ "cerfa": "13406",
+ "version": "17",
+ "pdf": "/cerfa/cerfa_13406-17.pdf",
+ "source_url": "https://www.formulaires.service-public.gouv.fr/gf/cerfa_13406.do",
+ "notice_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700",
+ "valid_from": "2026-11-16",
+ "valid_to": null,
+ "notes": "Champs relevés dans le PDF officiel 13406*17 (AcroForm) le 16/11/2026, vérifiés visuellement page par page. Les champs d'identité, de terrain, de protection et d'engagement portent les mêmes noms que le cerfa 16702. Les cases de la pièce PCMI14-1 ne sont cochées que si l'attestation est réellement jointe.",
+ "fields": [
+  {
+   "field": "D1N_nom",
+   "type": "text",
+   "value": "declarant.lastName",
+   "label": "1.1 Particulier : nom"
+  },
+  {
+   "field": "D1P_prenom",
+   "type": "text",
+   "value": "declarant.firstName",
+   "label": "1.1 Particulier : prénom"
+  },
+  {
+   "field": "D1A_naissance",
+   "type": "text",
+   "value": "declarant.birthDate",
+   "label": "Date de naissance"
+  },
+  {
+   "field": "D1C_commune",
+   "type": "text",
+   "value": "declarant.birthPlace",
+   "label": "Commune de naissance"
+  },
+  {
+   "field": "D3N_numero",
+   "type": "text",
+   "value": "declarantAddress.housenumber",
+   "label": "2 Coordonnées : numéro"
+  },
+  {
+   "field": "D3V_voie",
+   "type": "text",
+   "value": "declarantAddress.street",
+   "label": "Voie"
+  },
+  {
+   "field": "D3L_localite",
+   "type": "text",
+   "value": "declarantAddress.city",
+   "label": "Localité"
+  },
+  {
+   "field": "D3C_code",
+   "type": "text",
+   "value": "declarantAddress.postcode",
+   "label": "Code postal"
+  },
+  {
+   "field": "D3T_telephone",
+   "type": "text",
+   "value": "declarant.phone",
+   "label": "Téléphone"
+  },
+  {
+   "field": "D5GE1_email",
+   "type": "text",
+   "value": "declarant.emailLocal",
+   "label": "Email (partie avant @)"
+  },
+  {
+   "field": "D5GE2_email",
+   "type": "text",
+   "value": "declarant.emailDomain",
+   "label": "Email (domaine)"
+  },
+  {
+   "field": "D5A_acceptation",
+   "type": "checkbox",
+   "value": "declarant.acceptsEmail",
+   "label": "Accepte les réponses par voie électronique"
+  },
+  {
+   "field": "T2Q_numero",
+   "type": "text",
+   "value": "terrain.housenumber",
+   "label": "3 Terrain : numéro"
+  },
+  {
+   "field": "T2V_voie",
+   "type": "text",
+   "value": "terrain.street",
+   "label": "Terrain : voie"
+  },
+  {
+   "field": "T2L_localite",
+   "type": "text",
+   "value": "terrain.city",
+   "label": "Terrain : localité"
+  },
+  {
+   "field": "T2C_code",
+   "type": "text",
+   "value": "terrain.postcode",
+   "label": "Terrain : code postal"
+  },
+  {
+   "field": "T2F_prefixe",
+   "type": "text",
+   "value": "parcels.0.prefixe",
+   "label": "Parcelle 1 : préfixe"
+  },
+  {
+   "field": "T2S_section",
+   "type": "text",
+   "value": "parcels.0.section",
+   "label": "Parcelle 1 : section"
+  },
+  {
+   "field": "T2N_numero",
+   "type": "text",
+   "value": "parcels.0.numero",
+   "label": "Parcelle 1 : numéro"
+  },
+  {
+   "field": "T2T_superficie",
+   "type": "text",
+   "value": "parcels.0.contenance",
+   "label": "Parcelle 1 : superficie (m²)"
+  },
+  {
+   "field": "T2FP2_prefixe",
+   "type": "text",
+   "value": "parcels.1.prefixe",
+   "label": "Parcelle 2 : préfixe"
+  },
+  {
+   "field": "T2SP2_section",
+   "type": "text",
+   "value": "parcels.1.section",
+   "label": "Parcelle 2 : section"
+  },
+  {
+   "field": "T2NP2_numero",
+   "type": "text",
+   "value": "parcels.1.numero",
+   "label": "Parcelle 2 : numéro"
+  },
+  {
+   "field": "T2TP2_superficie",
+   "type": "text",
+   "value": "parcels.1.contenance",
+   "label": "Parcelle 2 : superficie"
+  },
+  {
+   "field": "D5T_total",
+   "type": "text",
+   "value": "parcelsTotal",
+   "label": "Superficie totale du terrain (m²)"
+  },
+  {
+   "field": "T3I_lotoui",
+   "type": "checkbox",
+   "value": "lotissement.oui",
+   "label": "Lotissement : oui"
+  },
+  {
+   "field": "T3L_lotnon",
+   "type": "checkbox",
+   "value": "lotissement.non",
+   "label": "Lotissement : non"
+  },
+  {
+   "field": "T3S_lotnc",
+   "type": "checkbox",
+   "value": "lotissement.nsp",
+   "label": "Lotissement : je ne sais pas"
+  },
+  {
+   "field": "X2R_remarquable",
+   "type": "checkbox",
+   "value": "protection.spr",
+   "label": "5 Périmètre d'un site patrimonial remarquable"
+  },
+  {
+   "field": "X2H_historique",
+   "type": "checkbox",
+   "value": "protection.abordsMH",
+   "label": "5 Abords d'un monument historique"
+  },
+  {
+   "field": "X2C_classe",
+   "type": "checkbox",
+   "value": "protection.siteClasse",
+   "label": "5 Site classé ou en instance de classement"
+  },
+  {
+   "field": "E1L_lieu",
+   "type": "text",
+   "value": "engagement.lieu",
+   "label": "7 Engagement : lieu"
+  },
+  {
+   "field": "E1D_date",
+   "type": "text",
+   "value": "engagement.date",
+   "label": "7 Engagement : date"
+  },
+  {
+   "field": "C2ZB1_existante",
+   "type": "checkbox",
+   "value": "const.true",
+   "label": "4.2 Travaux sur construction existante"
+  },
+  {
+   "field": "C2ZD1_description",
+   "type": "text",
+   "value": "description",
+   "label": "4.2 Courte description du projet",
+   "multiline": true
+  },
+  {
+   "field": "H1H_honneur",
+   "type": "checkbox",
+   "value": "architectWaiver",
+   "label": "4.1 Déclaration sur l'honneur : recours à l'architecte non obligatoire"
+  },
+  {
+   "field": "C5ZE2_garage",
+   "type": "checkbox",
+   "value": "annex.garage",
+   "label": "4.3 Type d'annexe : garage"
+  },
+  {
+   "field": "C5ZE3_veranda",
+   "type": "checkbox",
+   "value": "annex.veranda",
+   "label": "4.3 Type d'annexe : véranda"
+  },
+  {
+   "field": "C5ZK1_extension",
+   "type": "checkbox",
+   "value": "works.extension",
+   "label": "4.3 Travaux comprenant une extension"
+  },
+  {
+   "field": "C5ZB2_niveaux",
+   "type": "text",
+   "value": "levels",
+   "label": "4.3 Nombre de niveaux de la maison"
+  },
+  {
+   "field": "C5ZB1_pieces",
+   "type": "text",
+   "value": "rooms",
+   "label": "4.3 Nombre de pièces de la maison"
+  },
+  {
+   "field": "W3ES1_avanttravaux",
+   "type": "text",
+   "value": "emprise.before",
+   "label": "4.4 Emprise au sol avant travaux (m²)"
+  },
+  {
+   "field": "W3ES2_creee",
+   "type": "text",
+   "value": "emprise.created",
+   "label": "4.4 Emprise au sol créée (m²)"
+  },
+  {
+   "field": "W2LA1",
+   "type": "text",
+   "value": "sdp.existing",
+   "label": "4.5 Logement : surface existante (A)"
+  },
+  {
+   "field": "W2LB1",
+   "type": "text",
+   "value": "sdp.created",
+   "label": "4.5 Logement : surface créée (B)"
+  },
+  {
+   "field": "W2LF1",
+   "type": "text",
+   "value": "sdp.total",
+   "label": "4.5 Logement : surface totale"
+  },
+  {
+   "field": "W2SA1",
+   "type": "text",
+   "value": "sdp.existing",
+   "label": "4.5 Surfaces totales : existante (A)"
+  },
+  {
+   "field": "W2SB1",
+   "type": "text",
+   "value": "sdp.created",
+   "label": "4.5 Surfaces totales : créée (B)"
+  },
+  {
+   "field": "W2SF1",
+   "type": "text",
+   "value": "sdp.total",
+   "label": "4.5 Surfaces totales : total"
+  },
+  {
+   "field": "P3GA1",
+   "type": "checkbox",
+   "value": "pieces.PCMI1",
+   "label": "PCMI1 Plan de situation"
+  },
+  {
+   "field": "P3GC1",
+   "type": "checkbox",
+   "value": "pieces.PCMI2",
+   "label": "PCMI2 Plan de masse"
+  },
+  {
+   "field": "P3GE1",
+   "type": "checkbox",
+   "value": "pieces.PCMI3",
+   "label": "PCMI3 Plan en coupe"
+  },
+  {
+   "field": "P3GB1",
+   "type": "checkbox",
+   "value": "pieces.PCMI4",
+   "label": "PCMI4 Notice"
+  },
+  {
+   "field": "P3GD1",
+   "type": "checkbox",
+   "value": "pieces.PCMI5",
+   "label": "PCMI5 Plan des façades et des toitures"
+  },
+  {
+   "field": "P3GF1",
+   "type": "checkbox",
+   "value": "pieces.PCMI6",
+   "label": "PCMI6 Document graphique d'insertion"
+  },
+  {
+   "field": "P3GG1",
+   "type": "checkbox",
+   "value": "pieces.PCMI7",
+   "label": "PCMI7 Photographie proche"
+  },
+  {
+   "field": "P3GH1",
+   "type": "checkbox",
+   "value": "pieces.PCMI8",
+   "label": "PCMI8 Photographie lointaine"
+  },
+  {
+   "field": "P4EK1",
+   "type": "checkbox",
+   "value": "pieces.PCMI14-1",
+   "label": "PCMI14-1 Attestation RT / RE 2020 (si jointe)"
+  }
+ ]
+}

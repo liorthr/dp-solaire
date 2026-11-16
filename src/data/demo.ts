@@ -1,9 +1,9 @@
 // Dossiers de démonstration : adresses de voies publiques réelles, bâtiments repérés dans la BD TOPO,
 // clients FICTIFS. Utilisés pour la démo et les tests E2E.
-import type { AddressResult, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
+import type { AddressResult, ExtensionInfo, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
 
 export interface DemoCase {
-  key: "sans-contrainte" | "abf" | "plu-restrictif" | "pac" | "ite" | "menuiserie" | "velux";
+  key: "sans-contrainte" | "abf" | "plu-restrictif" | "pac" | "ite" | "menuiserie" | "velux" | "extension";
   works?: WorksType;
   /** jeu de photos d'illustration (par défaut : key) */
   photos?: "sans-contrainte" | "abf" | "plu-restrictif";
@@ -11,6 +11,7 @@ export interface DemoCase {
   ite?: IteInfo;
   menuiserie?: JoineryInfo;
   velux?: RoofWindowInfo;
+  extension?: ExtensionInfo;
   title: string;
   description: string;
   address: AddressResult;
@@ -102,5 +103,18 @@ export const demoCases: DemoCase[] = [
     panelId: "gen-430-fb",
     panelCount: 0,
     velux: { modelId: "rw-78x118", frameColor: "gris_anthracite", identical: false, items: [], view: "droite", neighborAgreement: false, attic: true, atticAreaM2: 18, changeOfUse: false, shutters: false },
+  },
+  {
+    key: "extension",
+    works: "extension",
+    photos: "sans-contrainte",
+    title: "Agrandissement de 45 m² : permis de construire",
+    description: "Pont-de-Metz (80), zone UC : pièce de vie de 7 × 6,5 m accolée à la maison ; au-delà de 40 m² en zone urbaine, un permis est nécessaire.",
+    address: { label: "Allée des Tilleuls 80480 Pont-de-Metz", street: "Allée des Tilleuls", postcode: "80480", city: "Pont-de-Metz", insee: "80632", lon: 2.238677, lat: 49.880359, score: 0.65, type: "street" },
+    site: { lon: 2.238535, lat: 49.880454 },
+    client: { civility: "Mme", firstName: "Nora", lastName: "Exemple-Garcia", email: "nora.exemple@example.org", phone: "06 00 00 00 08" },
+    panelId: "gen-430-fb",
+    panelCount: 0,
+    extension: { kind: "agrandissement", facadeIndex: 0, positionRatio: 0.5, widthM: 7, depthM: 6.5, heightM: 3, roof: "monopente", roofTiltDeg: 12, floorAreaCreatedM2: 40, floorAreaExistingM2: 95, wallFinish: "Enduit gratté", wallColorHex: "#e8dcc4", roofCovering: "Tuiles terre cuite identiques à l'existant", architect: false, levels: 1, rooms: 5 },
   },
 ];

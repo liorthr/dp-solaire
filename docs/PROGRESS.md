@@ -64,3 +64,11 @@ Qualité au dernier commit : lint 0 erreur ; typecheck OK ; Vitest 51/51 ; Playw
 - Création d'espace particulier ou professionnel ; le projet commencé est repris dans l'assistant (client pré-rempli).
 - Suivi « façon colis » : compte à rebours jusqu'à la décision tacite, étapes cochées, écran « C'est accordé ! ».
 - Tests : Vitest 91/91, Playwright desktop 13/13.
+
+## 16/11/2026 : permis de construire (agrandissement, garage, véranda) et favicon
+- Correction : les cases « un caractère par case » du cerfa (dates, téléphone) étaient tronquées (« 16/11/20 ») ; séparateurs retirés, et la troncature est désormais signalée.
+- Nouveau type de travaux « Agrandissement, garage, véranda » : régime DP ou permis calculé (seuils 20/40/150 m², zone U du PLU), architecte obligatoire au-delà de 150 m², délais de 2 ou 3 mois, 4 dossiers + 5 plans.
+- Dossier de permis : PCMI1 à PCMI8, cerfa 13406*17 rempli (surfaces, emprise, annexe, dispense d'architecte, bordereau), courriers et mandat adaptés.
+- Parcours public : questions chiffrées (surface créée, surface actuelle) et verdict « permis de construire ».
+- Favicon, icône iPhone et Android, manifeste.
+- Tests : Vitest 105/105, Playwright desktop 15/15. Questions ouvertes Q29 à Q32.

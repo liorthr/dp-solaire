@@ -32,7 +32,7 @@ export function analyze(p: Project, client: Client | undefined, panel: PanelMode
   const evaluation = evaluateProject(facts, undefined, rs);
   const months = deadlineMonths(facts, rs);
   const instruction = computeInstruction(p.events, months.months, today);
-  const status: ProjectStatus = p.events.some((e) => e.type === "depot") ? instruction.status : evaluation.blocking.length === 0 && evaluation.regime.outcome === "DP" ? "pret" : "brouillon";
+  const status: ProjectStatus = p.events.some((e) => e.type === "depot") ? instruction.status : evaluation.blocking.length === 0 && evaluation.canGenerate ? "pret" : "brouillon";
   return { facts, evaluation, months, instruction, status };
 }
 

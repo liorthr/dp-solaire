@@ -11,7 +11,7 @@ import { simpleSignatureProvider } from "@/lib/providers/signature";
 import { mandateText } from "@/lib/dossier/texts";
 import { addDays } from "@/lib/instruction/deadlines";
 import { photoStore } from "./db";
-import { bestPacFacade, defaultRoofWindows, projectFacades } from "@/lib/works/geom";
+import { bestExtensionFacade, bestPacFacade, defaultRoofWindows, projectFacades } from "@/lib/works/geom";
 import type { JoineryItem } from "@/lib/types";
 
 /** quadrilatère du champ de panneaux sur les photos d'illustration 2000×1500 (pan avant, en perspective) */
@@ -21,6 +21,7 @@ const DEMO_QUADS: Record<string, [number, number][]> = {
   "plu-restrictif": [[800, 400], [1162, 400], [1200, 562], [769, 562]],
   pac: [[1240, 990], [1360, 990], [1360, 1083], [1240, 1083]],
   ite: [[414, 653], [1586, 653], [1586, 1124], [414, 1124]],
+  extension: [[1560, 840], [1930, 880], [1930, 1180], [1560, 1135]],
 };
 
 /** photo d'illustration (2000×1500) : 3 fenêtres et la porte, de gauche à droite ; mur de x = 413 à 1587 */
@@ -68,6 +69,7 @@ export async function seedDemoProjects(tenantId: string, userId: string): Promis
             }),
           };
         }
+        if (d.extension) p.extension = { ...d.extension, facadeIndex: bestExtensionFacade(enrichment, d.extension) };
         if (d.velux) p.velux = { ...d.velux, items: defaultRoofWindows(p, d.velux.modelId, 2) };
       } else {
         p.pv = { ...p.pv, panelId: panel.id, panelCount: d.panelCount, powerKwc: (d.panelCount * panel.powerWc) / 1000, inverterId: "gen-micro-400" };

@@ -177,3 +177,67 @@ export function defaultRoofWindows(p: Project, modelId: string, count = 2): Roof
   const w = m.widthMm / 1000;
   return Array.from({ length: count }, (_, i) => ({ id: `w${i + 1}`, roofPlaneId: rp.id, x: Math.round(((rp.widthM * (i + 1)) / (count + 1) - w / 2) * 100) / 100, y: Math.round(rp.slopeLengthM * 0.3 * 100) / 100 }));
 }
+
+/** aire (m²) d'un anneau L93 */
+export function ringAreaL93(ring: [number, number][] | number[][]): number {
+  let a = 0;
+  for (let i = 0; i < ring.length - 1; i++) a += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1];
+  return Math.abs(a) / 2;
+}
+
+/** emprise au sol du bâtiment principal (m², BD TOPO) */
+export function existingFootprintM2(e?: EnrichmentResult): number | undefined {
+  const b = mainBuildingOf(e);
+  return b ? Math.round(ringAreaL93(outerRing(b.geometry).map(toL93))) : undefined;
+}
+
+/** estimation de la surface de plancher existante : emprise × niveaux (hauteur à l'égout / 2,7 m) × 0,8 (murs, combles) ; à confirmer par le demandeur */
+export function estimateExistingFloorArea(e?: EnrichmentResult): number | undefined {
+  const b = mainBuildingOf(e);
+  const fp = existingFootprintM2(e);
+  if (!b || !fp) return undefined;
+  const h = b.heightM ?? 6;
+  const levels = Math.max(1, Math.round((h * 0.7) / 2.7));
+  return Math.round(fp * levels * 0.8);
+}
+
+/** emprise (anneau L93 fermé) de l'extension accolée à la façade choisie */
+export function extensionRing(e: EnrichmentResult | undefined, x: { facadeIndex: number; positionRatio: number; widthM: number; depthM: number }): [number, number][] | undefined {
+  const f = projectFacades(e)[x.facadeIndex];
+  if (!f) return undefined;
+  const [L, R] = facadeLeftRight(f);
+  const ux = [(R[0] - L[0]) / (f.lengthM || 1), (R[1] - L[1]) / (f.lengthM || 1)];
+  const nv = outward(f);
+  const c = Math.max(x.widthM / 2, Math.min(f.lengthM - x.widthM / 2, f.lengthM * x.positionRatio));
+  const P = (a: number, d: number): [number, number] => [L[0] + ux[0] * a + nv[0] * d, L[1] + ux[1] * a + nv[1] * d];
+  const p0 = P(c - x.widthM / 2, 0), p1 = P(c + x.widthM / 2, 0), p2 = P(c + x.widthM / 2, x.depthM), p3 = P(c - x.widthM / 2, x.depthM);
+  return [p0, p1, p2, p3, p0];
+}
+
+/** distance minimale de l'extension aux limites de la parcelle */
+export function extensionMinDistance(e: EnrichmentResult | undefined, x: { facadeIndex: number; positionRatio: number; widthM: number; depthM: number }): number | undefined {
+  const r = extensionRing(e, x);
+  if (!r) return undefined;
+  let best: number | undefined;
+  for (let i = 0; i < 4; i++)
+    for (let k = 0; k <= 4; k++) {
+      const p: [number, number] = [r[i][0] + ((r[i + 1][0] - r[i][0]) * k) / 4, r[i][1] + ((r[i + 1][1] - r[i][1]) * k) / 4];
+      const d = distanceToLimit(e, p);
+      if (d !== undefined) best = best === undefined ? d : Math.min(best, d);
+    }
+  return best;
+}
+
+/** façade proposée pour l'extension : celle qui laisse le plus de place jusqu'aux limites */
+export function bestExtensionFacade(e: EnrichmentResult | undefined, x: { positionRatio: number; widthM: number; depthM: number }): number {
+  let best = 0, bd = -1;
+  for (const f of projectFacades(e)) {
+    if (f.lengthM < x.widthM) continue;
+    const d = extensionMinDistance(e, { ...x, facadeIndex: f.index }) ?? 0;
+    if (d > bd) {
+      bd = d;
+      best = f.index;
+    }
+  }
+  return best;
+}

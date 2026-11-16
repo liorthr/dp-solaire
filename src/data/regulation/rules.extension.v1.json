@@ -1,0 +1,805 @@
+{
+ "ruleset": "autorisation-extension",
+ "version": "2026.11.1",
+ "published_at": "2026-11-16",
+ "regimes": [
+  {
+   "code": "REGIME_EXT_MH_PC",
+   "outcome": "PC",
+   "when": {
+    "fact": "answers.buildingIsListedMH",
+    "op": "eq",
+    "value": true
+   },
+   "message": "Le bâtiment est inscrit au titre des monuments historiques : les travaux relèvent d'un permis de construire.",
+   "source_url": "https://www.formulaires.service-public.gouv.fr/gf/getNotice.do?cerfaNotice=51434&cerfaFormulaire=16700",
+   "source_label": "Notice cerfa 51434, §2.2 5)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_EXT_PC_HORS_U",
+   "outcome": "PC",
+   "when": {
+    "all": [
+     {
+      "fact": "plu.isUrban",
+      "op": "neq",
+      "value": true
+     },
+     {
+      "fact": "ext.surfaceCreatedM2",
+      "op": "gt",
+      "value": 20
+     }
+    ]
+   },
+   "message": "En dehors d'une zone urbaine d'un PLU, un agrandissement de plus de 20 m² (surface de plancher ou emprise au sol) nécessite un permis de construire.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36768",
+   "source_label": "Service-public F36768 (vérifiée le 13/11/2026) ; F36961 (garage)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_EXT_PC_U_40",
+   "outcome": "PC",
+   "when": {
+    "all": [
+     {
+      "fact": "plu.isUrban",
+      "op": "eq",
+      "value": true
+     },
+     {
+      "fact": "ext.surfaceCreatedM2",
+      "op": "gt",
+      "value": 40
+     }
+    ]
+   },
+   "message": "En zone urbaine d'un PLU, un agrandissement de plus de 40 m² nécessite un permis de construire.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36768",
+   "source_label": "Service-public F36768 (vérifiée le 13/11/2026)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_EXT_PC_U_150",
+   "outcome": "PC",
+   "when": {
+    "all": [
+     {
+      "fact": "plu.isUrban",
+      "op": "eq",
+      "value": true
+     },
+     {
+      "fact": "ext.sdpCreatedM2",
+      "op": "gt",
+      "value": 20
+     },
+     {
+      "fact": "ext.sdpTotalM2",
+      "op": "gt",
+      "value": 150
+     }
+    ]
+   },
+   "message": "En zone urbaine d'un PLU, l'agrandissement crée plus de 20 m² de surface de plancher et porte le total au-delà de 150 m² : un permis de construire est nécessaire.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36768",
+   "source_label": "Service-public F36768 (vérifiée le 13/11/2026), « Attention »",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_EXT_DP",
+   "outcome": "DP",
+   "when": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "message": "L'agrandissement reste sous les seuils du permis : une déclaration préalable suffit.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36768",
+   "source_label": "Service-public F36768 (vérifiée le 13/11/2026) ; F36961 (garage)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null
+  }
+ ],
+ "pieces": [
+  {
+   "code": "DP1",
+   "cerfaCode": "DP1",
+   "label": "Plan de situation du terrain",
+   "file": "DP1_plan_de_situation",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "DP"
+   },
+   "why": "Obligatoire pour tous les projets",
+   "article": "R. 431-36 a)"
+  },
+  {
+   "code": "DP2",
+   "cerfaCode": "DP2",
+   "label": "Plan de masse",
+   "file": "DP2_plan_de_masse",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "DP"
+   },
+   "why": "Une construction est créée",
+   "article": "R. 431-36 b)"
+  },
+  {
+   "code": "DP3",
+   "cerfaCode": "DP3",
+   "label": "Plan en coupe",
+   "file": "DP3_plan_en_coupe",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "DP"
+   },
+   "why": "Fourni pour montrer les hauteurs de l'extension",
+   "article": "R. 431-10 b)",
+   "optional": true
+  },
+  {
+   "code": "DP4",
+   "cerfaCode": "DP4",
+   "label": "Plan des façades et des toitures",
+   "file": "DP4_plan_des_facades",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "DP"
+   },
+   "why": "Les façades sont modifiées",
+   "article": "R. 431-10 a)"
+  },
+  {
+   "code": "DP5",
+   "cerfaCode": "DP5",
+   "label": "Représentation de l'aspect extérieur",
+   "file": "DP5_aspect_exterieur",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "DP"
+   },
+   "why": "L'aspect extérieur est modifié",
+   "article": "R. 431-36 c)"
+  },
+  {
+   "code": "DP6",
+   "cerfaCode": "DP6",
+   "label": "Document graphique d'insertion",
+   "file": "DP6_insertion",
+   "required": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "DP"
+     },
+     {
+      "any": [
+       {
+        "fact": "answers.visibleFromPublicSpace",
+        "op": "neq",
+        "value": false
+       },
+       {
+        "fact": "heritage.protected",
+        "op": "eq",
+        "value": true
+       }
+      ]
+     }
+    ]
+   },
+   "why": "Visible depuis l'espace public ou secteur protégé",
+   "article": "R. 431-10 c)"
+  },
+  {
+   "code": "DP7",
+   "cerfaCode": "DP7",
+   "label": "Photographie de l'environnement proche",
+   "file": "DP7_photo_environnement_proche",
+   "required": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "DP"
+     },
+     {
+      "any": [
+       {
+        "fact": "answers.visibleFromPublicSpace",
+        "op": "neq",
+        "value": false
+       },
+       {
+        "fact": "heritage.protected",
+        "op": "eq",
+        "value": true
+       }
+      ]
+     }
+    ]
+   },
+   "why": "Idem DP6",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "DP8",
+   "cerfaCode": "DP8",
+   "label": "Photographie du paysage lointain",
+   "file": "DP8_photo_paysage_lointain",
+   "required": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "DP"
+     },
+     {
+      "any": [
+       {
+        "fact": "answers.visibleFromPublicSpace",
+        "op": "neq",
+        "value": false
+       },
+       {
+        "fact": "heritage.protected",
+        "op": "eq",
+        "value": true
+       }
+      ]
+     }
+    ]
+   },
+   "why": "Idem DP6",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "DP11",
+   "cerfaCode": "DP11",
+   "label": "Notice des matériaux",
+   "file": "DP11_notice_materiaux",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "DP"
+   },
+   "why": "Matériaux et couleurs de l'extension",
+   "article": "R. 431-14"
+  },
+  {
+   "code": "PCMI1",
+   "cerfaCode": "PCMI1",
+   "label": "Plan de situation du terrain",
+   "file": "PCMI1_plan_de_situation",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire de tout permis (bordereau du cerfa 13406)",
+   "article": "R. 431-7 a)"
+  },
+  {
+   "code": "PCMI2",
+   "cerfaCode": "PCMI2",
+   "label": "Plan de masse des constructions à édifier ou à modifier",
+   "file": "PCMI2_plan_de_masse",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire",
+   "article": "R. 431-9"
+  },
+  {
+   "code": "PCMI3",
+   "cerfaCode": "PCMI3",
+   "label": "Plan en coupe du terrain et de la construction",
+   "file": "PCMI3_plan_en_coupe",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire",
+   "article": "R. 431-10 b)"
+  },
+  {
+   "code": "PCMI4",
+   "cerfaCode": "PCMI4",
+   "label": "Notice décrivant le terrain et présentant le projet",
+   "file": "PCMI4_notice",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire",
+   "article": "R. 431-8"
+  },
+  {
+   "code": "PCMI5",
+   "cerfaCode": "PCMI5",
+   "label": "Plan des façades et des toitures",
+   "file": "PCMI5_plan_des_facades_et_toitures",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire",
+   "article": "R. 431-10 a)"
+  },
+  {
+   "code": "PCMI6",
+   "cerfaCode": "PCMI6",
+   "label": "Document graphique d'insertion",
+   "file": "PCMI6_insertion",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire (sauf lotissement avec permis d'aménager)",
+   "article": "R. 431-10 c)"
+  },
+  {
+   "code": "PCMI7",
+   "cerfaCode": "PCMI7",
+   "label": "Photographie de l'environnement proche",
+   "file": "PCMI7_photo_environnement_proche",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire (idem)",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "PCMI8",
+   "cerfaCode": "PCMI8",
+   "label": "Photographie du paysage lointain",
+   "file": "PCMI8_photo_paysage_lointain",
+   "required": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "why": "Pièce obligatoire (idem)",
+   "article": "R. 431-10 d)"
+  },
+  {
+   "code": "PCMI14-1",
+   "cerfaCode": "PCMI14-1",
+   "label": "Attestation de respect de la réglementation environnementale (RE 2020)",
+   "file": "PCMI14-1_attestation_RE2020",
+   "required": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "PC"
+     },
+     {
+      "fact": "ext.kind",
+      "op": "neq",
+      "value": "garage"
+     }
+    ]
+   },
+   "why": "Construction ou extension soumise à la RE 2020 : attestation établie par un professionnel (non produite par Permizy)",
+   "article": "R. 431-16 j)",
+   "optional": true
+  }
+ ],
+ "deadlines": [
+  {
+   "code": "DELAI_DP",
+   "months": 1,
+   "when": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "DP"
+   },
+   "label": "Déclaration préalable : 1 mois",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578",
+   "verification": "VERIFIE"
+  },
+  {
+   "code": "DELAI_PC_MAISON",
+   "months": 2,
+   "when": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "label": "Permis de construire une maison individuelle : 2 mois",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986",
+   "verification": "VERIFIE"
+  },
+  {
+   "code": "DELAI_SECTEUR_PROTEGE",
+   "months": 1,
+   "when": {
+    "fact": "heritage.protected",
+    "op": "eq",
+    "value": true
+   },
+   "label": "Secteur protégé : +1 mois (DP : 2 mois ; PC maison : 3 mois)",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986",
+   "verification": "VERIFIE"
+  }
+ ],
+ "copies": [
+  {
+   "when": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "PC"
+     },
+     {
+      "fact": "heritage.protected",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "copies": 5,
+   "extraSituationPlans": 5,
+   "label": "Permis, secteur protégé : 4 dossiers + 1 exemplaire supplémentaire, et 5 exemplaires supplémentaires des plans de situation, de masse et en coupe",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986"
+  },
+  {
+   "when": {
+    "fact": "regime.outcome",
+    "op": "eq",
+    "value": "PC"
+   },
+   "copies": 4,
+   "extraSituationPlans": 5,
+   "label": "Permis : 4 dossiers complets + 5 exemplaires supplémentaires du plan de situation, du plan de masse et du plan en coupe",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986"
+  },
+  {
+   "when": {
+    "fact": "heritage.protected",
+    "op": "eq",
+    "value": true
+   },
+   "copies": 3,
+   "extraSituationPlans": 2,
+   "label": "Secteur protégé : 3 exemplaires + 2 plans de situation supplémentaires",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578"
+  },
+  {
+   "when": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "copies": 2,
+   "extraSituationPlans": 0,
+   "label": "Cas général : 2 exemplaires",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17578"
+  }
+ ],
+ "generic": [
+  "ADRESSE_ABSENTE",
+  "PARCELLE_ABSENTE",
+  "MANDAT_NON_SIGNE",
+  "CLIENT_INCOMPLET",
+  "PHOTO_FACADE_MANQUANTE",
+  "PHOTO_QUALITE",
+  "INSERTION_NON_FAITE",
+  "BATI_NON_IDENTIFIE",
+  "ABF_DIVERGENCE",
+  "LOTISSEMENT",
+  "MAIRIE_SANS_EMAIL",
+  "DEPOT_ELECTRONIQUE_PM",
+  "PIECES_MANQUANTES"
+ ],
+ "rules": [
+  {
+   "code": "EXT_ARCHITECTE",
+   "version": 1,
+   "category": "completude",
+   "title": "Recours obligatoire à un architecte",
+   "condition": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "PC"
+     },
+     {
+      "fact": "ext.sdpTotalM2",
+      "op": "gt",
+      "value": 150
+     },
+     {
+      "fact": "ext.architect",
+      "op": "eq",
+      "value": false
+     }
+    ]
+   },
+   "severity": "bloquant",
+   "weight": 0,
+   "message": "Après travaux, la surface de plancher totale ({{ext.sdpTotalM2}} m²) dépasse 150 m² : les plans du permis doivent être établis par un architecte.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986",
+   "source_label": "F1986, étape 3 ; cerfa 13406, note [6]",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Faites appel à un architecte ; Permizy peut lui fournir l'analyse du terrain et les relevés."
+  },
+  {
+   "code": "EXT_ARCHITECTE_DISPENSE",
+   "version": 1,
+   "category": "info",
+   "title": "Dispense d'architecte",
+   "condition": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "PC"
+     },
+     {
+      "fact": "ext.sdpTotalM2",
+      "op": "lte",
+      "value": 150
+     }
+    ]
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Surface de plancher totale après travaux : {{ext.sdpTotalM2}} m² (≤ 150 m²). En tant que particulier, vous pouvez déposer sans architecte ; la case de déclaration sur l'honneur du cerfa est cochée.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986",
+   "source_label": "Cerfa 13406*17, cadre 4.1 et note [6]",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null
+  },
+  {
+   "code": "EXT_RE2020",
+   "version": 1,
+   "category": "completude",
+   "title": "Attestation RE 2020",
+   "condition": {
+    "all": [
+     {
+      "fact": "regime.outcome",
+      "op": "eq",
+      "value": "PC"
+     },
+     {
+      "fact": "ext.kind",
+      "op": "neq",
+      "value": "garage"
+     }
+    ]
+   },
+   "severity": "alerte",
+   "weight": 10,
+   "message": "Les travaux d'extension doivent respecter la réglementation environnementale 2020 : une attestation de prise en compte (PCMI14-1) est à joindre. Elle est établie par un bureau d'études ou un professionnel ; Permizy ne la produit pas.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986",
+   "source_label": "F1986, étape 3 ; R46960",
+   "verification": "A_VERIFIER",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Commandez l'attestation (formulaire sur service-public, R46960) ; certaines petites extensions peuvent relever d'exigences allégées (À_VÉRIFIER, Q30)."
+  },
+  {
+   "code": "EXT_ZONE_INCONNUE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Zonage du PLU inconnu",
+   "condition": {
+    "fact": "plu.zoneKnown",
+    "op": "eq",
+    "value": false
+   },
+   "severity": "alerte",
+   "weight": 10,
+   "message": "Le zonage n'a pas été trouvé sur le Géoportail de l'Urbanisme : les seuils prudents (hors zone urbaine : permis au-delà de 20 m²) sont appliqués.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36768",
+   "source_label": "Service-public F36768 (vérifiée le 13/11/2026)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Vérifiez auprès de la mairie si le terrain est en zone urbaine (U) d'un PLU ; le seuil passe alors à 40 m²."
+  },
+  {
+   "code": "EXT_SEUIL_PROCHE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Proche d'un seuil",
+   "condition": {
+    "all": [
+     {
+      "fact": "ext.surfaceCreatedM2",
+      "op": "gte",
+      "value": 18
+     },
+     {
+      "fact": "ext.surfaceCreatedM2",
+      "op": "lte",
+      "value": 22
+     }
+    ]
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "La surface créée ({{ext.surfaceCreatedM2}} m²) est proche du seuil de 20 m² : quelques dizaines de centimètres peuvent faire basculer le dossier en permis de construire.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36768",
+   "source_label": "Service-public F36768 (vérifiée le 13/11/2026)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Mesurez précisément l'emprise (débords de toiture compris) et la surface de plancher."
+  },
+  {
+   "code": "EXT_EMPRISE_DEBORDS",
+   "version": 1,
+   "category": "info",
+   "title": "Emprise au sol : débords compris",
+   "condition": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Emprise au sol créée : {{ext.empriseCreatedM2}} m² ; surface de plancher créée : {{ext.sdpCreatedM2}} m². L'emprise au sol est la projection verticale du volume, débords et surplombs inclus.",
+   "source_url": "https://www.formulaires.service-public.gouv.fr/gf/cerfa_13406.do",
+   "source_label": "Cerfa 13406*17, cadre 4.4, note [8] (art. R. 420-1)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Ajoutez les débords de toiture importants à l'emprise saisie."
+  },
+  {
+   "code": "EXT_GARAGE_SDP",
+   "version": 1,
+   "category": "info",
+   "title": "Garage et surface de plancher",
+   "condition": {
+    "fact": "ext.kind",
+    "op": "eq",
+    "value": "garage"
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Pour un garage, les surfaces aménagées pour le stationnement ne sont en principe pas comptées dans la surface de plancher : le seuil s'apprécie alors sur l'emprise au sol.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36961",
+   "source_label": "F36961 (seuils en emprise au sol) ; déduction des surfaces de stationnement : À_VÉRIFIER (Q31)",
+   "verification": "A_VERIFIER",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Vérifiez la surface de plancher saisie."
+  },
+  {
+   "code": "EXT_LIMITE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Distance aux limites",
+   "condition": {
+    "fact": "ext.minDistanceLimitM",
+    "op": "lt",
+    "value": 3
+   },
+   "severity": "alerte",
+   "weight": 8,
+   "message": "L'extension serait à environ {{ext.minDistanceLimitM}} m de la limite de propriété : le PLU fixe en général un recul minimal ou impose l'implantation en limite.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36777",
+   "source_label": "F36777 (règles du PLU) ; seuil d'alerte interne de 3 m, À_VÉRIFIER",
+   "verification": "A_VERIFIER",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Lisez l'article « implantation par rapport aux limites séparatives » de la zone {{plu.zone}} ; adaptez la position ou la profondeur."
+  },
+  {
+   "code": "EXT_REGLES_PLU",
+   "version": 1,
+   "category": "contexte",
+   "title": "Règles du PLU à respecter",
+   "condition": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Zone {{plu.zone}} : hauteur, emprise au sol maximale, implantation et aspect sont fixés par le règlement du PLU (ou le règlement national d'urbanisme).",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36777",
+   "source_label": "F36777, vérifiée le 11/12/2024",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Consultez le règlement de la zone (lien dans l'onglet Synthèse) avant de finaliser les dimensions."
+  },
+  {
+   "code": "EXT_SECTEUR_PROTEGE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Secteur protégé : avis de l'ABF",
+   "condition": {
+    "fact": "heritage.protected",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "alerte",
+   "weight": 15,
+   "message": "Projet en secteur protégé ({{heritage.label}}) : l'architecte des Bâtiments de France est consulté et le délai est allongé d'un mois.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986",
+   "source_label": "F1986 (secteur protégé) ; F17578",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Soignez matériaux et teintes ; un rendez-vous préalable avec l'UDAP est conseillé."
+  },
+  {
+   "code": "EXT_TAXES",
+   "version": 1,
+   "category": "info",
+   "title": "Taxe d'aménagement et déclaration fiscale",
+   "condition": {
+    "fact": "const.true",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "info",
+   "weight": 0,
+   "message": "Une surface créée peut être soumise à la taxe d'aménagement ; une déclaration doit être faite dans les 90 jours suivant l'achèvement sur impots.gouv.fr (« Biens immobiliers »).",
+   "source_url": "https://www.formulaires.service-public.gouv.fr/gf/cerfa_13406.do",
+   "source_label": "Cerfa 13406*17, cadre 8 (engagement)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Simulez la taxe sur impots.gouv.fr (simulateur des taxes d'urbanisme)."
+  },
+  {
+   "code": "EXT_COPROPRIETE",
+   "version": 1,
+   "category": "contexte",
+   "title": "Copropriété",
+   "condition": {
+    "fact": "answers.copropriete",
+    "op": "eq",
+    "value": true
+   },
+   "severity": "alerte",
+   "weight": 10,
+   "message": "En copropriété, un agrandissement touche les parties communes : autorisation de l'assemblée générale nécessaire.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F36762",
+   "source_label": "F36762, étape 6 (parties communes)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-16",
+   "valid_to": null,
+   "suggestion": "Obtenez le procès-verbal d'AG avant de déposer."
+  }
+ ]
+}

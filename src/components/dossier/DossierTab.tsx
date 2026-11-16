@@ -49,13 +49,13 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
 
   const signDeclaration = async () => {
     if (!sig || !client) return;
-    const rec = await simpleSignatureProvider.sign({ signerName: `${client.firstName} ${client.lastName}`, document: `Cerfa 16702*03 : ${p.reference} : ${projectDescription(p, panel)}`, imageDataUrl: sig });
+    const rec = await simpleSignatureProvider.sign({ signerName: `${client.firstName} ${client.lastName}`, document: `Cerfa ${ev.regime.outcome === "PC" ? "13406*17" : "16702*03"} : ${p.reference} : ${projectDescription(p, panel)}`, imageDataUrl: sig });
     save({ ...p, declarationSignature: rec }, "signature_declaration");
   };
 
-  if (ev.regime.outcome !== "DP")
+  if (!ev.canGenerate)
     return (
-      <Card title="Aucun dossier DP ne sera généré">
+      <Card title={ev.regime.outcome === "PC" ? "Permis de construire nécessaire (hors périmètre pour ces travaux)" : "Aucun dossier DP ne sera généré"}>
         <p className="text-sm">{ev.regime.message}</p>
         <a className="text-sm text-brand-700 underline" href={ev.regime.source_url} target="_blank" rel="noreferrer">Source</a>
       </Card>

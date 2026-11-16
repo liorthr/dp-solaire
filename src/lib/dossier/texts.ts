@@ -4,7 +4,10 @@ import { fr } from "@/lib/instruction/deadlines";
 import { panelAreaM2 } from "@/lib/geo/calepinage";
 import { orientationLabel } from "@/lib/geo/roof";
 import { defaultIte, defaultJoinery, defaultPac, defaultPacUnits, defaultVelux, ITE_FINISHES, JOINERY_KINDS, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS } from "@/data/works";
-import { projectFacades } from "@/lib/works/geom";
+import { existingFootprintM2, projectFacades } from "@/lib/works/geom";
+import { authorizationOf } from "@/lib/works/authorization";
+import { defaultExtension, EXTENSION_KINDS } from "@/data/works";
+import { extensionRidgeM } from "@/lib/works/extension-plans";
 
 export const TEMPLATES_VERSION = "2026.11.1";
 
@@ -26,6 +29,7 @@ export function worksObject(p: Project): string {
   if (p.works === "ite") return "isolation thermique par l'extérieur";
   if (p.works === "menuiserie") return "remplacement de menuiseries extérieures (fenêtres, portes, volets)";
   if (p.works === "velux") return "installation de fenêtres de toit";
+  if (p.works === "extension") return `construction d'${{ agrandissement: "un agrandissement", garage: "un garage accolé", veranda: "une véranda" }[(p.extension ?? defaultExtension()).kind]}`;
   return "installation de panneaux photovoltaïques";
 }
 
@@ -85,7 +89,20 @@ function veluxDescription(p: Project): string {
   );
 }
 
+function extensionDescription(p: Project): string {
+  const x = p.extension ?? defaultExtension();
+  const f = projectFacades(p.enrichment)[x.facadeIndex];
+  const roof = { plat: "toiture plate", monopente: `toiture monopente (${x.roofTiltDeg}°)`, deux_pentes: `toiture à deux pentes (${x.roofTiltDeg}°)` }[x.roof];
+  return (
+    `${EXTENSION_KINDS[x.kind]} accolé${x.kind === "veranda" ? "e" : ""} à la maison existante${f ? `, ${f.label.toLowerCase()}` : ""} : ${String(x.widthM).replace(".", ",")} × ${String(x.depthM).replace(".", ",")} m, ` +
+    `emprise au sol créée ${String(Math.round(x.widthM * x.depthM * 10) / 10).replace(".", ",")} m², surface de plancher créée ${String(x.floorAreaCreatedM2).replace(".", ",")} m². ` +
+    `Hauteur ${String(x.heightM).replace(".", ",")} m à l'égout, ${String(extensionRidgeM(x)).replace(".", ",")} m au faîtage, ${roof}. ` +
+    `Murs : ${x.wallFinish.toLowerCase()} ; couverture : ${x.roofCovering.toLowerCase()}.`
+  );
+}
+
 export function projectDescription(p: Project, panel?: PanelModel): string {
+  if (p.works === "extension") return extensionDescription(p);
   if (p.works === "menuiserie") return menuDescription(p);
   if (p.works === "velux") return veluxDescription(p);
   if (p.works === "pac") return pacDescription(p);
@@ -105,11 +122,11 @@ export function projectDescription(p: Project, panel?: PanelModel): string {
 
 export function mandateText(p: Project, c: Client | undefined, t: Tenant): string {
   return [
-    "MANDAT DE DÉPÔT D'UNE DÉCLARATION PRÉALABLE DE TRAVAUX",
+    authorizationOf(p).kind === "PC" ? "MANDAT DE DÉPÔT D'UNE DEMANDE DE PERMIS DE CONSTRUIRE" : "MANDAT DE DÉPÔT D'UNE DÉCLARATION PRÉALABLE DE TRAVAUX",
     "",
     `Je soussigné(e) ${fullName(c)}, propriétaire (ou titulaire du droit de construire) du terrain situé ${p.address?.label ?? "(adresse)"} (parcelle(s) ${parcelRefs(p.enrichment)}),`,
     `donne mandat à ${t.name}${t.siret ? ` (SIRET ${t.siret})` : ""}, ${t.address ?? ""},`,
-    "pour constituer, signer pour mon compte le cas échéant et déposer auprès de la mairie compétente la déclaration préalable relative aux travaux décrits ci-après, recevoir les correspondances du service instructeur et y répondre (pièces complémentaires), et demander le certificat de non-opposition.",
+    `pour constituer, signer pour mon compte le cas échéant et déposer auprès de la mairie compétente la ${authorizationOf(p).name} relative aux travaux décrits ci-après, recevoir les correspondances du service instructeur et y répondre (pièces complémentaires), et demander le certificat de non-opposition.`,
     "",
     `Projet : ${projectDescription(p)}`,
     `Référence dossier : ${p.reference}`,
@@ -127,6 +144,21 @@ export function noticeDescriptive(p: Project, panel: PanelModel | undefined, inv
     `Références cadastrales : ${parcelRefs(e)} : superficie ${e?.parcels.reduce((s, x) => s + x.contenanceM2, 0) ?? "?"} m²`,
     `Document d'urbanisme : ${zone ? `${zone.docType} ${zone.docName}, zone ${zone.libelle}${zone.libelong ? ` (${zone.libelong})` : ""}` : "non identifié sur le Géoportail de l'Urbanisme"}`,
   ];
+  if (p.works === "extension") {
+    const x = p.extension ?? defaultExtension();
+    const fp = existingFootprintM2(e);
+    return [
+      ...head,
+      `1. État initial du terrain et de ses abords : parcelle bâtie d'une maison individuelle${fp ? ` (emprise au sol d'environ ${fp} m²)` : ""}${zone ? `, en zone ${zone.libelle} du ${zone.docType}` : ""}. Constructions voisines visibles sur le plan de masse et les photographies.`,
+      `2. Projet : ${projectDescription(p)}`,
+      "3. Implantation : l'extension est accolée à la maison, dans la continuité de la façade indiquée ; sa position et les distances aux limites figurent sur le plan de masse.",
+      "4. Aménagement du terrain : le profil du terrain naturel est conservé ; aucun arbre de haute tige n'est abattu (à préciser le cas échéant).",
+      "5. Accès et stationnement : accès existant au terrain conservé" + (x.kind === "garage" ? " ; le garage crée une place de stationnement couverte." : " ; stationnement existant inchangé."),
+      `6. Matériaux et couleurs : murs en ${x.wallFinish.toLowerCase()} (teinte ${x.wallColorHex}), couverture en ${x.roofCovering.toLowerCase()} ; menuiseries assorties à l'existant.`,
+      "7. Plantations : les espaces verts existants sont conservés autour de l'extension.",
+      "Raccordements : l'extension est raccordée aux réseaux de la maison existante ; eaux pluviales dirigées vers le dispositif existant.",
+    ];
+  }
   if (p.works === "menuiserie") {
     const m = p.menuiserie ?? defaultJoinery();
     return [
@@ -189,11 +221,12 @@ export function noticeDescriptive(p: Project, panel: PanelModel | undefined, inv
 }
 
 export function coverLetterEmail(p: Project, c: Client | undefined, t: Tenant, mairie: MairieInfo | undefined, pieces: string[]) {
-  const subject = `Déclaration préalable : ${worksObject(p)} : ${p.address?.label ?? ""} : ${fullName(c)}`;
+  const auth = authorizationOf(p);
+  const subject = `${auth.kind === "PC" ? "Demande de permis de construire" : "Déclaration préalable"} : ${worksObject(p)} : ${p.address?.label ?? ""} : ${fullName(c)}`;
   const body = [
     `Madame, Monsieur,`,
     "",
-    `Pour le compte de ${fullName(c)}, nous vous adressons une déclaration préalable de travaux (cerfa n° 16702*03) relative à ${p.works && p.works !== "pv" ? `l'${worksObject(p).replace(/^l'|^/, "")}` : `l'installation de ${p.pv.panelCount} panneaux photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc) sur la toiture`} de la maison située ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
+    `Pour le compte de ${fullName(c)}, nous vous adressons une ${auth.kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} (cerfa n° ${auth.cerfa}) relative à ${p.works && p.works !== "pv" ? `l'${worksObject(p).replace(/^l'|^/, "")}` : `l'installation de ${p.pv.panelCount} panneaux photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc) sur la toiture`} de la maison située ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
     "",
     `Pièces jointes : ${pieces.join(", ")}.`,
     "",
@@ -221,12 +254,12 @@ export function lrarLetter(p: Project, c: Client | undefined, t: Tenant, mairie:
     `Lettre recommandée avec demande d'avis de réception`,
     `Le ${today()}`,
     "",
-    `Objet : dépôt d'une déclaration préalable de travaux : ${worksObject(p)}`,
+    `Objet : dépôt d'une ${authorizationOf(p).kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} : ${worksObject(p)}`,
     `Terrain : ${p.address?.label} : ${parcelRefs(p.enrichment)}`,
     "",
     "Madame, Monsieur,",
     "",
-    `Agissant en qualité de mandataire de ${fullName(c)}, nous vous prions de trouver ci-joint, en ${copies} exemplaires, la déclaration préalable (cerfa n° 16702*03) et ses pièces : ${pieces.join(", ")}.`,
+    `Agissant en qualité de mandataire de ${fullName(c)}, nous vous prions de trouver ci-joint, en ${copies} exemplaires, la ${authorizationOf(p).name} (cerfa n° ${authorizationOf(p).cerfa}) et ses pièces : ${pieces.join(", ")}.`,
     "",
     "Nous vous remercions de bien vouloir nous adresser le récépissé de dépôt mentionnant le numéro d'enregistrement du dossier.",
     "",
@@ -278,6 +311,7 @@ export function piecesResponseLetter(p: Project, t: Tenant, requested: string[])
 }
 
 export function insertionNotes(p: Project, panel?: PanelModel): string[] {
+  if (p.works === "extension") return ["Photomontage réalisé à partir de la photographie de la façade : volume de l'extension positionné en perspective (homographie 4 points), teinte des murs d'après le projet (rendu indicatif)."];
   if (p.works === "menuiserie") {
     const m = p.menuiserie ?? defaultJoinery();
     return ["Photomontage réalisé à partir de la photographie de la façade : menuiseries projetées positionnées en perspective (homographie 4 points).", `Menuiseries ${JOINERY_MATERIALS[m.materialAfter].toLowerCase()}, teinte « ${m.colorName} » (rendu indicatif).`];
@@ -292,6 +326,7 @@ export function insertionNotes(p: Project, panel?: PanelModel): string[] {
 }
 
 export function insertionImpact(p: Project): string {
+  if (p.works === "extension") return "L'extension s'adosse à la maison existante, dans des matériaux et teintes cohérents avec elle ; sa hauteur reste inférieure à celle de la maison.";
   if (p.works === "menuiserie") return "Le projet ne modifie ni le volume ni la hauteur de la construction ; seules les menuiseries changent d'aspect.";
   if (p.works === "velux") return "Le projet ne modifie ni le volume ni la hauteur de la construction ; les fenêtres de toit sont posées dans le plan de la couverture.";
   if (p.works === "pac") return "Le projet ne modifie ni le volume ni la hauteur de la construction ; seule l'unité extérieure est ajoutée.";

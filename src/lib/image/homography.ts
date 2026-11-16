@@ -218,3 +218,23 @@ export function renderRoofWindow(ctx: CanvasRenderingContext2D, quad: Pt[], fram
     return [s * 0.5, s * 0.66, s * 0.85];
   });
 }
+
+/** face avant de l'extension : murs teintés, bandeau de toiture, porte / porte de garage / vitrages de véranda */
+export function renderExtensionFront(ctx: CanvasRenderingContext2D, quad: Pt[], kind: string, wallHex: string) {
+  const c = hexRgb(wallHex);
+  const roof = [154, 107, 85];
+  warpShade(ctx, quad, (u, v) => {
+    if (v < 0.12) return roof.map((x) => x * (0.9 + 0.1 * Math.sin(u * 60)));
+    if (v < 0.14) return [60, 50, 45];
+    if (kind === "veranda") {
+      const post = (u * 4) % 1 < 0.05 || u > 0.97 || v > 0.95;
+      if (post) return [235, 235, 235];
+      const s = 140 + 80 * (1 - v);
+      return [s * 0.6, s * 0.75, s * 0.88];
+    }
+    if (kind === "garage" && u > 0.2 && u < 0.8 && v > 0.32) return (v * 10) % 1 < 0.08 ? [150, 150, 150] : [214, 211, 209];
+    if (kind !== "garage" && u > 0.38 && u < 0.62 && v > 0.3) return u > 0.4 && u < 0.6 && v > 0.33 && v < 0.6 ? [125, 160, 191] : [90, 90, 95];
+    const grain = 1 + 0.03 * Math.sin(u * 430 + v * 270);
+    return c.map((x) => Math.min(255, x * grain));
+  });
+}

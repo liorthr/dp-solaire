@@ -30,3 +30,7 @@
 | Q26 | Fenêtre de toit remplacée par un modèle identique : dispense de DP | F36766 vise la création ou le changement « pour un autre modèle » ; l'identique n'est pas cité explicitement | Confirmer auprès d'un service instructeur |
 | Q27 | Fenêtres de toit + combles : seuils de surface de plancher au-delà desquels un PC est exigé | F36766 indique une DP sans seuil ; seuil de 20 m² utilisé comme alerte prudente | Lire R. 421-14 et R. 421-17 sur Légifrance |
 | Q28 | Coffres de volets roulants extérieurs | Règles propres à chaque PLU ; pratique UDAP | Relever l'article « aspect extérieur » des PLU des communes clientes |
+| Q29 | Agrandissement ≤ 5 m² : dispense de formalité | Non relu dans F36777 ; l'application applique la DP par prudence | Lire R. 421-2 et R. 421-17 |
+| Q30 | RE 2020 et petites extensions : exigences et attestation | F1986 : attestation exigée pour les constructions et extensions ; seuils non précisés | Lire R. 172-1 et suivants du CCH, et l'arrêté du 9/12/2021 |
+| Q31 | Garage : déduction des surfaces de stationnement dans la surface de plancher | Principe connu (R. 111-22) non relu dans cette session | Lire R. 111-22 du code de l'urbanisme |
+| Q32 | Permis en secteur protégé : nombre exact d'exemplaires | Cerfa 13406, cadre 8 : +1 exemplaire (SPR, abords MH) ; l'application retient 5 dossiers | Confirmer avec un service instructeur |

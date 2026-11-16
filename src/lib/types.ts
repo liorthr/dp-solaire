@@ -230,7 +230,34 @@ export interface InstructionEvent {
 }
 
 /** type de travaux couvert par le dossier */
-export type WorksType = "pv" | "pac" | "ite" | "menuiserie" | "velux";
+export type WorksType = "pv" | "pac" | "ite" | "menuiserie" | "velux" | "extension";
+
+/** agrandissement accolé à la maison (extension, garage, véranda) : DP ou permis de construire selon les surfaces */
+export interface ExtensionInfo {
+  kind: "agrandissement" | "garage" | "veranda";
+  facadeIndex: number;
+  /** position du centre le long de la façade (0 = gauche vu de dehors, 1 = droite) */
+  positionRatio: number;
+  /** largeur le long de la façade, profondeur perpendiculaire (m) */
+  widthM: number;
+  depthM: number;
+  /** hauteur à l'égout ou à l'acrotère (m) */
+  heightM: number;
+  roof: "plat" | "monopente" | "deux_pentes";
+  roofTiltDeg: number;
+  /** surface de plancher créée (m²) : saisie par le demandeur */
+  floorAreaCreatedM2: number;
+  /** surface de plancher existante (m²) : saisie, estimation proposée */
+  floorAreaExistingM2: number;
+  wallFinish: string;
+  wallColorHex: string;
+  roofCovering: string;
+  /** un architecte établit le projet */
+  architect: boolean;
+  /** nombre de niveaux de la maison et de pièces (cerfa) */
+  levels?: number;
+  rooms?: number;
+}
 
 export type JoineryKind = "fenetre" | "porte_fenetre" | "porte" | "volet_battant" | "volet_roulant" | "porte_garage";
 export type JoineryMaterial = "bois" | "pvc" | "alu" | "mixte" | "acier";
@@ -340,6 +367,7 @@ export interface Project {
   ite?: IteInfo;
   menuiserie?: JoineryInfo;
   velux?: RoofWindowInfo;
+  extension?: ExtensionInfo;
   tenantId: ID;
   reference: string;
   clientId?: ID;

@@ -49,8 +49,8 @@ export function SyntheseTab({ b }: { b: ProjectBundle }) {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2" title="Régime et conformité">
           <div className="space-y-3">
-            <div className={`rounded-lg p-3 ${ev.regime.outcome === "DP" ? "bg-emerald-50" : "bg-red-50"}`}>
-              <p className="font-semibold">{ev.regime.outcome === "DP" ? "Déclaration préalable" : ev.regime.outcome === "PC" ? "Permis de construire : hors périmètre DP" : ev.regime.outcome === "AUCUNE" ? "Aucune formalité d'urbanisme" : "Hors périmètre V1"}</p>
+            <div className={`rounded-lg p-3 ${ev.canGenerate || ev.regime.outcome === "AUCUNE" ? "bg-emerald-50" : "bg-red-50"}`}>
+              <p className="font-semibold">{ev.regime.outcome === "DP" ? "Déclaration préalable" : ev.regime.outcome === "PC" ? (ev.canGenerate ? "Permis de construire (maison individuelle, cerfa 13406)" : "Permis de construire : hors périmètre DP") : ev.regime.outcome === "AUCUNE" ? "Aucune formalité d'urbanisme" : "Hors périmètre V1"}</p>
               <p className="text-sm">{ev.regime.message}</p>
               <a href={ev.regime.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-brand-700 underline">
                 Source : {ev.regime.source_label ?? ev.regime.source_url} <ExternalLink className="h-3 w-3" />

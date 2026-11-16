@@ -7,6 +7,7 @@ export const WORKS_STYLE: Record<WorksType, { bg: string; stroke: string; path: 
   pac: { bg: "bg-sky", stroke: "#2b5d8a", sub: "unité extérieure", path: <><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="10" cy="12" r="4" /><path d="M16 9h3M16 12h3M16 15h3" /></> },
   menuiserie: { bg: "bg-mint", stroke: "#1f6b4a", sub: "changer ou créer", path: <><rect x="5" y="3" width="14" height="18" rx="1" /><path d="M12 3v18M5 12h14" /></> },
   velux: { bg: "bg-[#ece5f7]", stroke: "#5b3f8f", sub: "avec ou sans combles", path: <><path d="M3 15L12 5l9 10" /><rect x="9.5" y="9.5" width="5" height="5" /></> },
+  extension: { bg: "bg-[#e6efe0]", stroke: "#3f6212", sub: "DP ou permis de construire", path: <><path d="M3 20V10l6-5 6 5v10" /><path d="M15 20v-6h6v6" /><path d="M3 20h18" /></> },
   ite: { bg: "bg-[#fde3dc]", stroke: "#c4472f", sub: "enduit ou bardage", path: <><path d="M4 20V8l8-5 8 5v12" /><path d="M4 12h16M4 16h16" /></> },
 };
 

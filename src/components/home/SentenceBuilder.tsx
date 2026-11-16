@@ -11,6 +11,7 @@ export const VERBS: Record<WorksType, string> = {
   menuiserie: "changer mes fenêtres, portes ou volets",
   velux: "poser des fenêtres de toit",
   ite: "isoler mes murs par l'extérieur",
+  extension: "agrandir ma maison (extension, garage, véranda)",
 };
 export const QUICK_KEY = "permizy:quick";
 

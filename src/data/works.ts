@@ -1,11 +1,12 @@
 // Types de travaux et catalogue de départ (modèles GÉNÉRIQUES représentatifs, à remplacer par vos fiches fabricants).
-import type { IteInfo, JoineryInfo, JoineryKind, JoineryMaterial, PacInfo, PacUnitModel, RoofWindowInfo, RoofWindowModel, WorksType } from "@/lib/types";
+import type { ExtensionInfo, IteInfo, JoineryInfo, JoineryKind, JoineryMaterial, PacInfo, PacUnitModel, RoofWindowInfo, RoofWindowModel, WorksType } from "@/lib/types";
 
 export const WORKS: { id: WorksType; label: string; short: string; emoji: string; desc: string }[] = [
   { id: "pv", label: "Panneaux solaires en toiture", short: "Solaire", emoji: "☀", desc: "Photovoltaïque sur toiture existante : DP mairie, puis raccordement et Consuel." },
   { id: "pac", label: "Pompe à chaleur / climatisation", short: "PAC", emoji: "❄", desc: "Unité extérieure en façade, en toiture ou au sol : DP si l'aspect extérieur change." },
   { id: "ite", label: "Isolation des murs par l'extérieur", short: "ITE", emoji: "▦", desc: "Isolant et nouvelle finition (enduit, bardage) : DP obligatoire." },
   { id: "menuiserie", label: "Fenêtres, portes et volets", short: "Menuiseries", emoji: "⊞", desc: "Changement de matériau ou de couleur, nouvelle ouverture : DP si l'aspect change." },
+  { id: "extension", label: "Agrandissement, garage, véranda", short: "Extension", emoji: "▣", desc: "Déclaration préalable ou permis de construire selon la surface : on vous dit lequel et on le prépare." },
   { id: "velux", label: "Fenêtres de toit", short: "Fenêtres de toit", emoji: "◩", desc: "Création ou changement de modèle : DP ; distances de vue sur le voisin vérifiées." },
 ];
 
@@ -87,3 +88,22 @@ export const ROOF_WINDOW_COLORS: Record<RoofWindowInfo["frameColor"], { label: s
 };
 
 export const defaultVelux = (): RoofWindowInfo => ({ modelId: "rw-78x118", frameColor: "gris_anthracite", identical: false, items: [], view: "droite", neighborAgreement: false, attic: false, changeOfUse: false, shutters: false });
+
+export const EXTENSION_KINDS: Record<ExtensionInfo["kind"], string> = { agrandissement: "Agrandissement (pièce en plus)", garage: "Garage accolé", veranda: "Véranda" };
+
+export const defaultExtension = (): ExtensionInfo => ({
+  kind: "agrandissement",
+  facadeIndex: 0,
+  positionRatio: 0.5,
+  widthM: 5,
+  depthM: 4,
+  heightM: 3,
+  roof: "monopente",
+  roofTiltDeg: 15,
+  floorAreaCreatedM2: 17,
+  floorAreaExistingM2: 100,
+  wallFinish: "Enduit",
+  wallColorHex: "#e8dcc4",
+  roofCovering: "Tuiles identiques à l'existant",
+  architect: false,
+});

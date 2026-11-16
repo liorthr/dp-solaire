@@ -20,9 +20,9 @@ async function login(page: Page) {
   await expect(page.getByTestId("project-row").first()).toBeVisible({ timeout: 60_000 });
 }
 
-test("connexion et tableau de bord avec les 7 dossiers de démo", async ({ page }) => {
+test("connexion et tableau de bord avec les 8 dossiers de démo", async ({ page }) => {
   await login(page);
-  await expect(page.getByTestId("project-row")).toHaveCount(7);
+  await expect(page.getByTestId("project-row")).toHaveCount(8);
   await expect(page.getByText("DEMO-2-ABF")).toBeVisible();
 });
 
@@ -313,4 +313,41 @@ test("suivi façon colis : compte à rebours et étapes", async ({ page }, info)
   await page.getByRole("tab", { name: "Suivi" }).click();
   await expect(page.getByTestId("tracker")).toContainText("Feu vert au plus tard le");
   await expect(page.getByTestId("tracker")).toContainText("Récépissé reçu");
+});
+
+test("permis de construire : verdict public pour un agrandissement de 45 m² en zone urbaine", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await page.goto("verifier/?w=extension");
+  await page.evaluate(() => window.localStorage.setItem("dp:providerMode", "fixtures"));
+  await page.fill("#address", "Allée des Tilleuls 80480 Pont-de-Metz");
+  await page.locator("#address-list button").first().click();
+  await page.getByTestId("quick-next").click();
+  await page.getByTestId("quick-answer-extKind").first().click();
+  await page.getByTestId("quick-number-extAreaM2").fill("45");
+  await page.getByTestId("quick-number-ok-extAreaM2").click();
+  await page.getByTestId("quick-number-extExistingM2").fill("95");
+  await page.getByTestId("quick-number-ok-extExistingM2").click();
+  await page.getByTestId("quick-answer-visible").first().click();
+  await page.getByTestId("quick-answer-copropriete").first().click();
+  await expect(page.getByTestId("verdict")).toContainText("permis de construire", { timeout: 60_000 });
+  await expect(page.getByText("2 mois")).toBeVisible();
+  await expect(page.getByTestId("quick-prepare")).toContainText("Préparer mon permis de construire");
+});
+
+test("permis de construire : dossier démo → pièces PCMI1 à PCMI8, cerfa 13406 et courrier", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.getByTestId("project-row").filter({ hasText: "DEMO-8-EXTENSION" }).click();
+  await expect(page.getByText("Permis de construire (maison individuelle, cerfa 13406)")).toBeVisible();
+  await expect(page.getByText(/Délai d'instruction attendu/)).toContainText("2 mois");
+  await page.getByRole("tab", { name: "Dossier" }).click();
+  await page.getByTestId("generate").click();
+  await expect(page.getByTestId("downloads")).toBeVisible({ timeout: 120_000 });
+  const [zipDl] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-zip").click()]);
+  const zip = await JSZip.loadAsync(readFileSync((await zipDl.path())!));
+  const names = Object.keys(zip.files).map((n) => n.split("/").pop());
+  for (const f of ["PCMI1_plan_de_situation.pdf", "PCMI2_plan_de_masse.pdf", "PCMI3_plan_en_coupe.pdf", "PCMI4_notice_materiaux.pdf", "PCMI5_plan_des_facades_et_toitures.pdf", "PCMI6_insertion_paysagere.pdf", "PCMI7_photo_environnement_proche.pdf", "PCMI8_photo_paysage_lointain.pdf", "Cerfa_13406-17_demande_permis_de_construire.pdf", "Mandat_depot_PC.pdf"]) expect(names).toContain(f);
+  const mail = await zip.file(/Email_mairie.txt/)[0].async("string");
+  expect(mail).toContain("Demande de permis de construire");
+  expect(mail).toContain("13406*17");
 });

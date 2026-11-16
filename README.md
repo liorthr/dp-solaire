@@ -20,7 +20,7 @@ SaaS B2B pour installateurs : **panneaux photovoltaïques** (avec raccordement E
 | Installateur | `demo@permizy.com` / `Demo-2026!` |
 | Super-admin (back-office) | `admin@permizy.com` / `Admin-2026!` |
 
-Sept dossiers de démonstration sont créés au premier lancement : adresses publiques réelles, clients **fictifs**, photos de **synthèse** marquées « ILLUSTRATION DÉMO ».
+Huit dossiers de démonstration sont créés au premier lancement : adresses publiques réelles, clients **fictifs**, photos de **synthèse** marquées « ILLUSTRATION DÉMO ».
 
 | Dossier | Adresse | Cas |
 |---|---|---|
@@ -30,6 +30,7 @@ Sept dossiers de démonstration sont créés au premier lancement : adresses pub
 | DEMO-4-PAC | Allée des Tilleuls, 80480 Pont-de-Metz | pompe à chaleur en façade : distance au voisin, DP4 avec détail coté |
 | DEMO-5-ITE | Rue Cormont, 80000 Amiens | isolation par l'extérieur en périmètre ABF : surplomb du trottoir, alignement |
 | DEMO-6-MENUISERIE | Chemin du Marais, 80470 Ailly-sur-Somme | 3 fenêtres + porte, bois → aluminium gris anthracite, photomontage multi-éléments |
+| DEMO-8-EXTENSION | Allée des Tilleuls, 80480 Pont-de-Metz | agrandissement de 45,5 m² en zone UC : **permis de construire**, pièces PCMI1 à PCMI8, cerfa 13406 |
 | DEMO-7-VELUX | Rue Cormont, 80000 Amiens | 2 fenêtres de toit en périmètre ABF, combles aménagés, vue droite à 1,50 m du voisin (alerte) |
 
 **Mode démo** : sans serveur ni base, comptes et dossiers sont stockés dans le navigateur (localStorage, photos en IndexedDB). Le bouton « Réinitialiser la démo » est sur la page de connexion.
@@ -116,5 +117,5 @@ Principes :
 - **IA étiquetée, sourcée, éditable**.
 
 ## Documentation
-- `docs/regulation/` : régime, cerfa et pièces, délais, patrimoine/ABF, exemple PLU, raccordement/Consuel, PAC et ITE (`07-pac-ite.md`), menuiseries et fenêtres de toit (`08-menuiseries-fenetres-de-toit.md`) (sources et dates)
+- `docs/regulation/` : régime, cerfa et pièces, délais, patrimoine/ABF, exemple PLU, raccordement/Consuel, PAC et ITE (`07-pac-ite.md`), menuiseries et fenêtres de toit (`08-menuiseries-fenetres-de-toit.md`), permis de construire (`09-permis-de-construire.md`) (sources et dates)
 - `docs/providers.md`, `docs/competition.md`, `docs/PLAN.md`, `docs/open-questions.md`, `docs/PROGRESS.md`

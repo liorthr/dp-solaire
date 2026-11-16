@@ -4,7 +4,7 @@ import { Plus, Sparkles, Trash2 } from "lucide-react";
 import type { Insertion } from "@/lib/types";
 import { Badge, Button, Card, Field, Input } from "@/components/ui";
 import { PhotoInput } from "@/components/PhotoInput";
-import { isConvexQuad, renderFacadeFinish, renderPacUnit, renderPanels, type Pt } from "@/lib/image/homography";
+import { isConvexQuad, renderExtensionFront, renderFacadeFinish, renderPacUnit, renderPanels, type Pt } from "@/lib/image/homography";
 import { renderInsertionElements } from "@/lib/image/insertion";
 import { blobToImage } from "@/lib/image/browser";
 import { photoStore } from "@/lib/store/db";
@@ -19,6 +19,7 @@ function defaultQuad(works: string, w: number, h: number, i = 0): Pt[] {
   const r = (x0: number, y0: number, x1: number, y1: number): Pt[] => [[w * x0, h * y0], [w * x1, h * y0], [w * x1, h * y1], [w * x0, h * y1]];
   if (works === "pac") return r(0.62, 0.66, 0.74, 0.8);
   if (works === "ite") return r(0.2, 0.4, 0.8, 0.85);
+  if (works === "extension") return [[w * 0.66, h * 0.5], [w * 0.86, h * 0.53], [w * 0.86, h * 0.8], [w * 0.66, h * 0.76]];
   if (works === "menuiserie") return r(0.29 + 0.08 * i, 0.5, 0.36 + 0.08 * i, 0.59);
   if (works === "velux") return [[w * (0.4 + 0.1 * i), h * 0.27], [w * (0.46 + 0.1 * i), h * 0.27], [w * (0.465 + 0.1 * i), h * 0.36], [w * (0.395 + 0.1 * i), h * 0.36]];
   return [[w * 0.35, h * 0.28], [w * 0.65, h * 0.28], [w * 0.68, h * 0.42], [w * 0.32, h * 0.42]];
@@ -66,6 +67,7 @@ export function InsertionTab({ b }: { b: ProjectBundle }) {
     if (drag !== null || !allValid) return;
     const quad = quads[0];
     if (multi) renderInsertionElements(ctx, p, { quad: quads[0], extraQuads: quads.slice(1) });
+    else if (works === "extension") renderExtensionFront(ctx, quad, p.extension?.kind ?? "agrandissement", p.extension?.wallColorHex ?? "#e8dcc4");
     else if (works === "pac") renderPacUnit(ctx, quad, Boolean(p.pac?.cover));
     else if (works === "ite") renderFacadeFinish(ctx, quad, p.ite?.colorHex ?? "#d8cbb3", p.ite?.finish ?? "enduit");
     else renderPanels(ctx, quad, rows, cols, { frame: panel?.frameColor ?? "noir", cell: panel?.cellColor ?? "noir" });
@@ -101,6 +103,7 @@ export function InsertionTab({ b }: { b: ProjectBundle }) {
     ite: "Insertion de la façade isolée (DP5 / DP6)",
     menuiserie: "Insertion des menuiseries (DP5 / DP6)",
     velux: "Insertion des fenêtres de toit (DP5 / DP6)",
+    extension: "Insertion de l'extension (photomontage)",
     pv: "Insertion du champ de panneaux (DP5 / DP6)",
   }[works];
   const where = {
@@ -108,6 +111,7 @@ export function InsertionTab({ b }: { b: ProjectBundle }) {
     ite: "sur la surface de mur à isoler",
     menuiserie: "sur chaque baie (fenêtre, porte, volet) : un cadre par menuiserie",
     velux: "à l'emplacement de chaque fenêtre de toit, en suivant la pente du toit",
+    extension: "pour dessiner la face avant de l'extension (de la toiture au sol), à sa taille réelle en perspective",
     pv: "sur le pan de toiture",
   }[works];
 

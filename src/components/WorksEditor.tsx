@@ -1,8 +1,8 @@
 "use client";
 // Saisie des caractéristiques PAC / ITE (assistant de création et onglet Plans).
-import type { IteInfo, JoineryInfo, JoineryItem, JoineryKind, JoineryMaterial, PacInfo, RoofPlane, RoofWindowInfo, WorksType } from "@/lib/types";
+import type { ExtensionInfo, IteInfo, JoineryInfo, JoineryItem, JoineryKind, JoineryMaterial, PacInfo, RoofPlane, RoofWindowInfo, WorksType } from "@/lib/types";
 import { Field, Input, Select, cn } from "@/components/ui";
-import { defaultPacUnits, ITE_COLORS, ITE_FINISHES, JOINERY_COLORS, JOINERY_KINDS, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS, WORKS } from "@/data/works";
+import { EXTENSION_KINDS, defaultPacUnits, ITE_COLORS, ITE_FINISHES, JOINERY_COLORS, JOINERY_KINDS, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS, WORKS } from "@/data/works";
 import { Button } from "@/components/ui";
 import { orientationLabel } from "@/lib/geo/roof";
 import type { Facade } from "@/lib/geo/facades";
@@ -347,6 +347,91 @@ export function VeluxEditor({ value, onChange, planes, onCount }: { value: RoofW
           <input type="checkbox" checked={value.changeOfUse} onChange={(e) => onChange({ ...value, changeOfUse: e.target.checked })} /> Avec changement de destination (grange, commerce… transformé en logement)
         </label>
       </div>
+    </div>
+  );
+}
+
+const EXT_COLORS = [
+  { name: "Ton pierre", hex: "#d8cbb3" },
+  { name: "Sable", hex: "#e8dcc4" },
+  { name: "Blanc cassé", hex: "#efeae0" },
+  { name: "Gris clair", hex: "#c9c9c4" },
+  { name: "Gris anthracite", hex: "#4a4d50" },
+  { name: "Bois naturel", hex: "#a97c50" },
+];
+
+export function ExtensionEditor({ value, onChange, facades }: { value: ExtensionInfo; onChange: (v: ExtensionInfo) => void; facades?: Facade[] }) {
+  const emprise = Math.round(value.widthM * value.depthM * 10) / 10;
+  const set = (patch: Partial<ExtensionInfo>) => onChange({ ...value, ...patch });
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Field label="Type de construction" htmlFor="ext-kind">
+        <Select
+          id="ext-kind"
+          value={value.kind}
+          onChange={(e) => {
+            const kind = e.target.value as ExtensionInfo["kind"];
+            set({ kind, floorAreaCreatedM2: kind === "garage" ? 0 : Math.round(emprise * 0.85), wallFinish: kind === "veranda" ? "Structure aluminium vitrée" : "Enduit", roof: kind === "veranda" ? "monopente" : value.roof });
+          }}
+        >
+          {Object.entries(EXTENSION_KINDS).map(([k, l]) => (
+            <option key={k} value={k}>{l}</option>
+          ))}
+        </Select>
+      </Field>
+      {facades && facades.length > 0 && (
+        <Field label="Contre quelle façade ?" htmlFor="ext-facade">
+          <FacadeSelect id="ext-facade" facades={facades} value={value.facadeIndex} onChange={(i) => set({ facadeIndex: i })} />
+        </Field>
+      )}
+      <Field label="Largeur le long de la façade (m)" htmlFor="ext-w">
+        <Input id="ext-w" type="number" step="0.1" min={1} max={30} value={value.widthM} onChange={(e) => set({ widthM: Number(e.target.value) })} />
+      </Field>
+      <Field label="Profondeur (m)" htmlFor="ext-d">
+        <Input id="ext-d" type="number" step="0.1" min={1} max={30} value={value.depthM} onChange={(e) => set({ depthM: Number(e.target.value) })} />
+      </Field>
+      {facades && facades.length > 0 && (
+        <Field label={`Position le long de la façade : ${Math.round(value.positionRatio * 100)} %`} htmlFor="ext-pos">
+          <input id="ext-pos" type="range" min={0} max={100} value={Math.round(value.positionRatio * 100)} onChange={(e) => set({ positionRatio: Number(e.target.value) / 100 })} className="w-full" />
+        </Field>
+      )}
+      <Field label="Hauteur à l'égout (m)" htmlFor="ext-h" help="Hauteur du mur, du sol jusqu'au bas de la toiture.">
+        <Input id="ext-h" type="number" step="0.1" min={2} max={9} value={value.heightM} onChange={(e) => set({ heightM: Number(e.target.value) })} />
+      </Field>
+      <Field label="Toiture" htmlFor="ext-roof">
+        <Select id="ext-roof" value={value.roof} onChange={(e) => set({ roof: e.target.value as ExtensionInfo["roof"] })}>
+          <option value="monopente">Monopente (appentis)</option>
+          <option value="deux_pentes">Deux pentes</option>
+          <option value="plat">Toit plat</option>
+        </Select>
+      </Field>
+      {value.roof !== "plat" && (
+        <Field label="Pente du toit (°)" htmlFor="ext-tilt">
+          <Input id="ext-tilt" type="number" min={3} max={60} value={value.roofTiltDeg} onChange={(e) => set({ roofTiltDeg: Number(e.target.value) })} />
+        </Field>
+      )}
+      <Field label="Surface de plancher créée (m²)" htmlFor="ext-sdp" help="Surface intérieure close et couverte de plus de 1,80 m de hauteur, mesurée au nu intérieur des murs. Pour un garage, les surfaces de stationnement ne sont en principe pas comptées.">
+        <Input id="ext-sdp" type="number" step="0.5" min={0} value={value.floorAreaCreatedM2} onChange={(e) => set({ floorAreaCreatedM2: Number(e.target.value) })} />
+      </Field>
+      <Field label="Surface de plancher actuelle de la maison (m²)" htmlFor="ext-sdp0" help="Indiquée sur l'acte de vente ou la taxe foncière. Une estimation est proposée d'après l'emprise du bâtiment : corrigez-la, elle décide du recours à l'architecte (150 m²).">
+        <Input id="ext-sdp0" type="number" step="1" min={0} value={value.floorAreaExistingM2} onChange={(e) => set({ floorAreaExistingM2: Number(e.target.value) })} />
+      </Field>
+      <Field label="Matériau des murs" htmlFor="ext-wall">
+        <Input id="ext-wall" value={value.wallFinish} onChange={(e) => set({ wallFinish: e.target.value })} />
+      </Field>
+      <Field label="Couverture" htmlFor="ext-cover">
+        <Input id="ext-cover" value={value.roofCovering} onChange={(e) => set({ roofCovering: e.target.value })} />
+      </Field>
+      <fieldset className="sm:col-span-2">
+        <legend className="mb-1 text-sm font-medium">Teinte des murs (rendu indicatif)</legend>
+        <ColorSwatches colors={EXT_COLORS} value={value.wallColorHex} onPick={(c) => set({ wallColorHex: c.hex })} />
+      </fieldset>
+      <label className="flex items-start gap-2 text-sm sm:col-span-2">
+        <input type="checkbox" checked={value.architect} onChange={(e) => set({ architect: e.target.checked })} /> Un architecte établit le projet (obligatoire si la maison dépasse 150 m² de surface de plancher après travaux, en cas de permis)
+      </label>
+      <p className="rounded-lg bg-stone-100 p-2 text-sm text-stone-700 sm:col-span-2" data-testid="ext-summary">
+        Emprise au sol créée : <b>{String(emprise).replace(".", ",")} m²</b> · surface de plancher après travaux : <b>{String(value.floorAreaExistingM2 + value.floorAreaCreatedM2).replace(".", ",")} m²</b>. Le régime (déclaration préalable ou permis) est calculé automatiquement.
+      </p>
     </div>
   );
 }

@@ -14,10 +14,10 @@ import { applyEnrichment, newProject, relayout } from "@/lib/project/factory";
 import { runEnrichment, STEPS, type StepId } from "@/lib/enrichment/run";
 import { simpleSignatureProvider } from "@/lib/providers/signature";
 import { mandateText } from "@/lib/dossier/texts";
-import { IteEditor, JoineryEditor, PacEditor, VeluxEditor, WorksPicker } from "@/components/WorksEditor";
-import { defaultIte, defaultJoinery, defaultPac, defaultVelux } from "@/data/works";
-import { bestPacFacade, defaultJoineryItems, defaultRoofWindows } from "@/lib/works/geom";
-import type { IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
+import { ExtensionEditor, IteEditor, JoineryEditor, PacEditor, VeluxEditor, WorksPicker } from "@/components/WorksEditor";
+import { defaultExtension, defaultIte, defaultJoinery, defaultPac, defaultVelux } from "@/data/works";
+import { bestExtensionFacade, bestPacFacade, defaultJoineryItems, defaultRoofWindows, estimateExistingFloorArea } from "@/lib/works/geom";
+import type { ExtensionInfo, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
 
 const STEP_LABELS = ["Adresse", "Client & mandat", "Projet", "Photos"];
 
@@ -26,13 +26,15 @@ function Wizard() {
   const [step, setStep] = useState(0);
   const [works, setWorks] = useState<WorksType>(() => {
     const w = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("works") : null;
-    return w === "pac" || w === "ite" || w === "menuiserie" || w === "velux" ? w : "pv";
+    return w === "pac" || w === "ite" || w === "menuiserie" || w === "velux" || w === "extension" ? w : "pv";
   });
   const [pac, setPac] = useState<PacInfo>(defaultPac);
   const [ite, setIte] = useState<IteInfo>(defaultIte);
   const [menu, setMenu] = useState<JoineryInfo>(defaultJoinery);
   const [velux, setVelux] = useState<RoofWindowInfo>(defaultVelux);
   const [veluxCount, setVeluxCount] = useState(2);
+  const [ext, setExt] = useState<ExtensionInfo>(defaultExtension);
+  const [extExistingTouched, setExtExistingTouched] = useState(false);
   const [address, setAddress] = useState<AddressResult>();
   const [answers, setAnswers] = useState<ProjectAnswers>({ visibleFromPublicSpace: true, inLotissement: "nsp", copropriete: false, buildingIsListedMH: false });
   const clients = repo.clients();
@@ -65,6 +67,12 @@ function Wizard() {
       setAddress(d.address);
       setAnswers((x) => ({ ...x, visibleFromPublicSpace: d.answers.visible ?? true, copropriete: Boolean(d.answers.copropriete) }));
       if (d.answers.pacPlacement) setPac((x) => ({ ...x, placement: d.answers.pacPlacement! }));
+      if (d.works === "extension") {
+        const area = d.answers.extAreaM2 ?? 20;
+        const depth = Math.min(5, Math.max(2.5, Math.sqrt(area)));
+        setExt((x) => ({ ...x, kind: d.answers.extKind ?? x.kind, depthM: Math.round(depth * 10) / 10, widthM: Math.round((area / depth) * 10) / 10, floorAreaCreatedM2: d.answers.extKind === "garage" ? 0 : area, floorAreaExistingM2: d.answers.extExistingM2 ?? x.floorAreaExistingM2 }));
+        if (d.answers.extExistingM2 !== undefined) setExtExistingTouched(true);
+      }
       if (d.answers.identical !== undefined) {
         setMenu((x) => ({ ...x, identical: Boolean(d.answers.identical) }));
         setVelux((x) => ({ ...x, identical: Boolean(d.answers.identical) }));
@@ -105,6 +113,7 @@ function Wizard() {
       if (works === "ite") p.ite = ite;
       if (works === "menuiserie") p.menuiserie = menu;
       if (works === "velux") p.velux = velux;
+      if (works === "extension") p.extension = ext;
       p.photos = Object.values(photos).filter(Boolean) as Photo[];
       if (sig && mandateOk) p.mandate = await simpleSignatureProvider.sign({ signerName: `${client.firstName} ${client.lastName}`, document: mandateText(p, client, s), imageDataUrl: sig });
       p = repo.saveProject(p);
@@ -116,6 +125,7 @@ function Wizard() {
       if (works === "pac") p.pac = { ...pac, facadeIndex: bestPacFacade(enrichment, pac) };
       if (works === "menuiserie") p.menuiserie = { ...menu, items: defaultJoineryItems(enrichment) };
       if (works === "velux") p.velux = { ...velux, items: defaultRoofWindows(p, velux.modelId, veluxCount) };
+      if (works === "extension") p.extension = { ...ext, facadeIndex: bestExtensionFacade(enrichment, ext), floorAreaExistingM2: extExistingTouched ? ext.floorAreaExistingM2 : (estimateExistingFloorArea(enrichment) ?? ext.floorAreaExistingM2) };
       p.overrides = { ...p.overrides, site };
       repo.saveProject(p, "enrichissement");
       router.push(`/app/dossier/?id=${p.id}`);
@@ -270,6 +280,12 @@ function Wizard() {
         <Card title="Fenêtres, portes et volets">
           <JoineryEditor value={menu} onChange={setMenu} />
           <p className="mt-2 text-xs text-stone-600">Après l&apos;analyse du terrain, les menuiseries de la façade principale sont pré-placées ; vous ajusterez leur nombre, leurs cotes et les ouvertures créées dans l&apos;onglet Plans.</p>
+        </Card>
+      )}
+      {step === 2 && works === "extension" && (
+        <Card title="Votre agrandissement">
+          <ExtensionEditor value={ext} onChange={(v) => { if (v.floorAreaExistingM2 !== ext.floorAreaExistingM2) setExtExistingTouched(true); setExt(v); }} />
+          <p className="mt-2 text-xs text-stone-600">La façade est choisie automatiquement (celle qui laisse le plus de place jusqu&apos;aux limites) ; vous l&apos;ajusterez dans l&apos;onglet Plans. Si vous ne la connaissez pas, la surface actuelle de la maison sera estimée d&apos;après le bâti : vérifiez-la.</p>
         </Card>
       )}
       {step === 2 && works === "velux" && (

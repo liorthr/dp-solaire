@@ -1,8 +1,8 @@
 // Construction des faits évalués par le moteur à partir du projet (une seule source de vérité).
 import type { Client, EnrichmentResult, PanelModel, Project } from "@/lib/types";
-import { evaluate, rulesetFor, type Facts } from "./engine";
-import { defaultPac, defaultIte, defaultPacUnits, defaultJoinery, defaultVelux, ITE_FINISHES, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS } from "@/data/works";
-import { distanceToLimit, iteMinDistance, joineryMinDistance, pacPoint, roofWindowsMinDistance } from "@/lib/works/geom";
+import { determineRegime, evaluate, rulesetFor, type Facts } from "./engine";
+import { defaultExtension, defaultPac, defaultIte, defaultPacUnits, defaultJoinery, defaultVelux, ITE_FINISHES, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS } from "@/data/works";
+import { distanceToLimit, extensionMinDistance, iteMinDistance, joineryMinDistance, pacPoint, roofWindowsMinDistance } from "@/lib/works/geom";
 import { layoutCapacity } from "@/lib/geo/calepinage";
 
 export interface FactsContext {
@@ -98,6 +98,10 @@ export function buildFacts(ctx: FactsContext): Facts {
     "plu.libelle": zone?.libelle ?? "",
     "plu.libelong": zone?.libelong ?? "",
     "plu.docName": zone ? `${zone.docType} ${zone.docName}` : "",
+    "plu.zoneKnown": Boolean(zone),
+    // zone urbaine d'un PLU (typezone U) ; inconnu → seuils prudents (hors zone urbaine)
+    "plu.isUrban": zone ? /^U/i.test(zone.typezone ?? "") : undefined,
+    "plu.zone": zone?.libelle ?? "?",
 
     "sup.pm1": Boolean(pm1),
     "sup.pm1Name": pm1?.name ?? "",
@@ -165,6 +169,23 @@ export function buildFacts(ctx: FactsContext): Facts {
     facts["pv.isGround"] = false;
   }
 
+  if (p.works === "extension") {
+    const x = p.extension ?? defaultExtension();
+    const emprise = Math.round(x.widthM * x.depthM * 10) / 10;
+    facts["ext.kind"] = x.kind;
+    facts["ext.empriseCreatedM2"] = emprise;
+    facts["ext.sdpCreatedM2"] = x.floorAreaCreatedM2;
+    facts["ext.sdpExistingM2"] = x.floorAreaExistingM2;
+    facts["ext.sdpTotalM2"] = Math.round((x.floorAreaExistingM2 + x.floorAreaCreatedM2) * 10) / 10;
+    facts["ext.surfaceCreatedM2"] = Math.max(emprise, x.floorAreaCreatedM2);
+    facts["ext.architect"] = x.architect;
+    facts["ext.minDistanceLimitM"] = extensionMinDistance(e, x) ?? 99;
+    facts["pv.isGround"] = false;
+  }
+
+  // régime calculé à partir des règles versionnées du type de travaux (utilisé par les pièces, délais et exemplaires)
+  facts["regime.outcome"] = determineRegime(facts, new Date().toISOString().slice(0, 10), rulesetFor(p.works)).outcome;
+
   // pièces requises / manquantes (selon le jeu de règles du type de travaux)
   const generated = new Set(ctx.generatedPieces ?? availablePieces(p));
   const missing = rulesetFor(p.works).pieces.filter((pc) => !pc.optional && evaluate(pc.required, facts) && !generated.has(pc.code));
@@ -175,6 +196,15 @@ export function buildFacts(ctx: FactsContext): Facts {
 
 /** pièces que l'application est en mesure de produire avec les données actuelles */
 export function availablePieces(p: Project): string[] {
+  if (p.works === "extension") {
+    // mêmes dessins, numérotés DP ou PCMI selon le régime
+    const base = ["DP1", "DP2", "DP3", "DP4", "DP11", "PCMI1", "PCMI2", "PCMI3", "PCMI4", "PCMI5"];
+    const hasFacade = p.photos.some((x) => x.kind === "facade") && p.insertions.some((i) => i.quad.length === 4);
+    if (hasFacade) base.push("DP5", "DP6", "PCMI6");
+    if (p.photos.some((x) => x.kind === "proche")) base.push("DP7", "PCMI7");
+    if (p.photos.some((x) => x.kind === "lointain")) base.push("DP8", "PCMI8");
+    return base;
+  }
   const out = p.works === "pac" || p.works === "menuiserie" || p.works === "velux" ? ["DP1", "DP2", "DP4", "DP11"] : ["DP1", "DP2", "DP3", "DP4", "DP11"];
   if (p.works === "ite" && p.ite?.derogation) out.push("DP8-1");
   const hasFacade = p.photos.some((x) => x.kind === "facade");
