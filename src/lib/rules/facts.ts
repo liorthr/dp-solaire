@@ -115,6 +115,7 @@ export function buildFacts(ctx: FactsContext): Facts {
     "mairie.hasEmail": Boolean(e?.mairie?.email || ov["mairie.email"]),
     "filing.byLegalEntity": Boolean(ctx.filingByLegalEntity),
     "filing.paper": p.filingMode === "lrar" || p.filingMode === "main_propre",
+    "filing.self": Boolean(p.selfFiling),
   };
 
   // faits propres aux autres types de travaux

@@ -9,7 +9,7 @@ import { SignaturePad } from "@/components/SignaturePad";
 import { PhotoInput } from "@/components/PhotoInput";
 import { Badge, Button, Card, Field, Input, Progress, Select, cn } from "@/components/ui";
 import type { AddressResult, Client, MountingType, Photo, Project, ProjectAnswers } from "@/lib/types";
-import { currentSession, repo } from "@/lib/store/db";
+import { currentSession, isHomeowner, repo } from "@/lib/store/db";
 import { applyEnrichment, newProject, relayout } from "@/lib/project/factory";
 import { runEnrichment, STEPS, type StepId } from "@/lib/enrichment/run";
 import { simpleSignatureProvider } from "@/lib/providers/signature";
@@ -20,6 +20,7 @@ import { bestExtensionFacade, bestPacFacade, defaultJoineryItems, defaultRoofWin
 import type { ExtensionInfo, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
 
 const STEP_LABELS = ["Adresse", "Client & mandat", "Projet", "Photos"];
+const HOME_STEP_LABELS = ["Où et quoi", "Vous", "Votre projet", "Photos"];
 
 function Wizard() {
   const router = useRouter();
@@ -79,7 +80,7 @@ function Wizard() {
       }
       // particulier : le maître d'ouvrage, c'est lui
       const s = currentSession();
-      if (s && s.tenant.name === s.user.fullName) {
+      if (s && (s.tenant.kind === "particulier" || s.tenant.name === s.user.fullName)) {
         const [first, ...rest] = s.user.fullName.trim().split(/\s+/);
         setC((x) => ({ ...x, firstName: first, lastName: rest.join(" ") || first, email: s.user.email }));
       }
@@ -89,7 +90,9 @@ function Wizard() {
     }
   }, []);
 
-  const existingClient = clients.find((x) => x.id === clientId);
+  const homeowner = isHomeowner(currentSession());
+  // un particulier est son propre client : on réutilise sa fiche s'il en a déjà une
+  const existingClient = homeowner ? clients[0] : clients.find((x) => x.id === clientId);
   const canNext = useMemo(() => {
     if (step === 0) return Boolean(address);
     if (step === 1) return Boolean(existingClient || (c.lastName && c.firstName && (c.email || c.phone)));
@@ -106,6 +109,7 @@ function Wizard() {
       const client = existingClient ?? repo.saveClient({ civility: c.civility, firstName: c.firstName!, lastName: c.lastName!, email: c.email, phone: c.phone, birthDate: c.birthDate, birthPlace: c.birthPlace });
       let p: Project = newProject(s.id, currentSession()!.user.id, address);
       p.clientId = client.id;
+      p.selfFiling = homeowner;
       p.answers = answers;
       p.works = works;
       if (works === "pv") p.pv = { ...p.pv, panelId, panelCount: count, powerKwc: power ? Number(power.replace(",", ".")) : computed, mounting, inverterId };
@@ -163,8 +167,9 @@ function Wizard() {
 
   return (
     <div className="space-y-4">
+      <h1 className="text-xl font-extrabold sm:text-2xl">{homeowner ? "Mon nouveau projet" : "Nouveau dossier"}</h1>
       <ol className="flex gap-1" aria-label="Étapes">
-        {STEP_LABELS.map((l, i) => (
+        {(homeowner ? HOME_STEP_LABELS : STEP_LABELS).map((l, i) => (
           <li key={l} className="flex-1">
             <div className={cn("h-1.5 rounded-full", i <= step ? "bg-brand-600" : "bg-stone-200")} />
             <p className={cn("mt-1 text-xs", i === step ? "font-semibold text-brand-800" : "text-stone-500")}>
@@ -212,9 +217,10 @@ function Wizard() {
       )}
 
       {step === 1 && (
-        <Card title="Maître d'ouvrage (le client)">
+        <Card title={homeowner ? "Vos coordonnées" : "Maître d'ouvrage (le client)"}>
+          {homeowner && <p className="mb-3 text-sm text-muted">Elles figurent sur le formulaire officiel (cerfa) : c&apos;est vous qui déposez la demande.</p>}
           <div className="space-y-4">
-            {clients.length > 0 && (
+            {!homeowner && clients.length > 0 && (
               <Field label="Client existant" htmlFor="client">
                 <Select id="client" value={clientId} onChange={(e) => setClientId(e.target.value)}>
                   <option value="">Nouveau client</option>
@@ -251,6 +257,7 @@ function Wizard() {
                 </Field>
               </div>
             )}
+            {!homeowner && (
             <div className="rounded-lg border border-stone-200 p-3">
               <p className="text-sm font-medium">Mandat de dépôt (signature du client)</p>
               <p className="mb-2 text-xs text-stone-600">Autorise votre entreprise à déposer la DP et à échanger avec la mairie. Le texte complet figure dans le dossier ; empreinte SHA-256 et horodatage enregistrés.</p>
@@ -260,6 +267,7 @@ function Wizard() {
               </label>
               <p className="mt-1 text-xs text-stone-500">Vous pouvez aussi faire signer plus tard.</p>
             </div>
+            )}
           </div>
         </Card>
       )}
@@ -343,9 +351,10 @@ function Wizard() {
         <Card title="Photos (guidées)">
           <div className="space-y-3">
             {(["facade", "proche", "lointain"] as const).map((k) => (
-              <PhotoInput key={k} kind={k} photo={photos[k]} onChange={(ph) => setPhotos((x) => ({ ...x, [k]: ph }))} />
+              <PhotoInput key={k} kind={k} works={works} photo={photos[k]} onChange={(ph) => setPhotos((x) => ({ ...x, [k]: ph }))} />
             ))}
-            <p className="text-xs text-stone-500">Les photos peuvent être ajoutées plus tard. Elles restent dans votre espace (non publiées).</p>
+            <p className="rounded-2xl bg-sun-soft p-3 text-sm">💡 Pas devant la maison en ce moment ? Créez votre projet sans les photos : vous les ajouterez plus tard depuis « {homeowner ? "Mes projets" : "Tableau de bord"} », votre projet reste enregistré.</p>
+            <p className="text-xs text-stone-500">Les photos restent dans votre espace (non publiées).</p>
           </div>
         </Card>
       )}
@@ -360,7 +369,7 @@ function Wizard() {
           </Button>
         ) : (
           <Button variant="secondary" size="lg" onClick={create} data-testid="create-project">
-            Créer le dossier et analyser
+            {homeowner ? "Créer mon projet" : "Créer le dossier et analyser"}
           </Button>
         )}
       </div>
@@ -371,7 +380,7 @@ function Wizard() {
 
 export default function Page() {
   return (
-    <AppShell title="Nouveau dossier">
+    <AppShell>
       <Wizard />
     </AppShell>
   );

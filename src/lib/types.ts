@@ -14,6 +14,8 @@ export interface Tenant {
   legalMentions?: string;
   retentionMonths: number;
   plan: "decouverte" | "pro" | "entreprise";
+  /** particulier qui dépose pour lui-même, ou professionnel qui dépose pour ses clients */
+  kind?: "particulier" | "professionnel";
 }
 
 export type Role = "admin" | "user";
@@ -368,6 +370,8 @@ export interface Project {
   menuiserie?: JoineryInfo;
   velux?: RoofWindowInfo;
   extension?: ExtensionInfo;
+  /** le maître d'ouvrage dépose lui-même (pas de mandat) */
+  selfFiling?: boolean;
   tenantId: ID;
   reference: string;
   clientId?: ID;

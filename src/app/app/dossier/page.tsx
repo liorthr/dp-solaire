@@ -14,7 +14,9 @@ import { EnvoiTab } from "@/components/dossier/EnvoiTab";
 import { SuiviTab } from "@/components/dossier/SuiviTab";
 import { RaccordementTab } from "@/components/dossier/RaccordementTab";
 import { STATUS_LABEL, STATUS_TONE } from "@/lib/project/status";
-import { repo } from "@/lib/store/db";
+import { isHomeowner, repo } from "@/lib/store/db";
+import { useSession } from "@/lib/store/hooks";
+import { HomeownerJourney } from "@/components/dossier/HomeownerJourney";
 import { worksSummary } from "@/lib/works/summary";
 import { WORKS } from "@/data/works";
 
@@ -26,19 +28,30 @@ function DossierView() {
   const id = sp.get("id");
   const [tab, setTab] = useState<Tab>((sp.get("tab") as Tab) || "synthese");
   const b = useProject(id);
+  const { session } = useSession();
   if (!b) return <p>Dossier introuvable. <Link className="underline" href="/app/">Retour</Link></p>;
   const { project: p, analysis } = b;
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
+          {isHomeowner(session) ? (
+            <>
+              <h1 className="text-xl font-extrabold sm:text-2xl">{worksSummary(p)}</h1>
+              <p className="text-sm text-stone-600">{p.address?.label}</p>
+              <p className="text-xs text-muted" data-testid="project-title">{p.reference}</p>
+            </>
+          ) : (
           <h1 className="text-xl font-bold sm:text-2xl" data-testid="project-title">{p.reference}</h1>
-          <p className="text-sm text-stone-600">
-            {p.address?.label} : {b.client ? `${b.client.firstName} ${b.client.lastName}` : "client ?"} : {worksSummary(p)}
-          </p>
+          )}
+          {!isHomeowner(session) && (
+            <p className="text-sm text-stone-600">
+              {p.address?.label} : {b.client ? `${b.client.firstName} ${b.client.lastName}` : "client ?"} : {worksSummary(p)}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone="neutral">{WORKS.find((w) => w.id === (p.works ?? "pv"))!.short}</Badge>
+          {!isHomeowner(session) && <Badge tone="neutral">{WORKS.find((w) => w.id === (p.works ?? "pv"))!.short}</Badge>}
           <Badge tone={STATUS_TONE[analysis.status]}>{STATUS_LABEL[analysis.status]}</Badge>
           <Button
             variant="ghost"
@@ -54,6 +67,10 @@ function DossierView() {
           </Button>
         </div>
       </div>
+      {isHomeowner(session) ? (
+        <HomeownerJourney b={b} initial={sp.get("tab") ?? undefined} />
+      ) : (
+      <>
       <Tabs<Tab>
         value={tab}
         onChange={setTab}
@@ -74,6 +91,8 @@ function DossierView() {
       {tab === "envoi" && <EnvoiTab b={b} goTo={(t) => setTab(t as Tab)} />}
       {tab === "suivi" && <SuiviTab b={b} />}
       {tab === "raccordement" && (p.works ?? "pv") === "pv" && <RaccordementTab b={b} />}
+      </>
+      )}
     </div>
   );
 }

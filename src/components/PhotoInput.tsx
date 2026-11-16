@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Camera, CheckCircle2, AlertTriangle } from "lucide-react";
-import type { Photo } from "@/lib/types";
+import type { Photo, WorksType } from "@/lib/types";
 import { analyzePhoto, asset } from "@/lib/image/browser";
 import { photoStore } from "@/lib/store/db";
 import { uid } from "@/lib/project/factory";
@@ -9,12 +9,21 @@ import { Badge } from "./ui";
 
 const GUIDE: Record<Photo["kind"], { title: string; tips: string; required: boolean; example: string }> = {
   facade: { title: "Façade avec la toiture", tips: "Face à la maison, depuis la rue, toute la toiture visible, en plein jour, format paysage.", required: true, example: "/demo/sans-contrainte-facade.jpg" },
-  proche: { title: "Environnement proche (DP7)", tips: "Depuis la rue : la maison et ses voisines, les arbres, la clôture.", required: false, example: "/demo/sans-contrainte-proche.jpg" },
-  lointain: { title: "Paysage lointain (DP8)", tips: "Prenez du recul (50 à 150 m) : la maison dans le quartier ou le paysage.", required: false, example: "/demo/sans-contrainte-lointain.jpg" },
+  proche: { title: "Environnement proche", tips: "Depuis la rue : la maison et ses voisines, les arbres, la clôture.", required: false, example: "/demo/sans-contrainte-proche.jpg" },
+  lointain: { title: "Paysage lointain", tips: "Prenez du recul (50 à 150 m) : la maison dans le quartier ou le paysage.", required: false, example: "/demo/sans-contrainte-lointain.jpg" },
 };
 
-export function PhotoInput({ kind, photo, onChange }: { kind: Photo["kind"]; photo?: Photo; onChange: (p: Photo | undefined) => void }) {
-  const g = GUIDE[kind];
+/** consigne de la photo principale adaptée aux travaux */
+const FACADE_BY_WORKS: Partial<Record<WorksType, { title: string; tips: string }>> = {
+  pac: { title: "Façade où sera posée la pompe à chaleur", tips: "Face au mur concerné, en entier, avec le sol devant : on y placera l'unité extérieure. En plein jour, format paysage." },
+  ite: { title: "Façade à isoler", tips: "Face au mur, en entier, de la base jusqu'au toit, en plein jour, format paysage." },
+  menuiserie: { title: "Façade avec les fenêtres ou portes à changer", tips: "Face à la façade, toutes les ouvertures concernées visibles, en plein jour, format paysage." },
+  velux: { title: "Toiture où seront posées les fenêtres de toit", tips: "Depuis la rue ou le jardin, le pan de toit concerné bien visible, en plein jour." },
+  extension: { title: "Façade contre laquelle vous agrandissez", tips: "Recul suffisant pour voir le mur entier et le terrain devant, en plein jour, format paysage." },
+};
+
+export function PhotoInput({ kind, photo, onChange, works }: { kind: Photo["kind"]; photo?: Photo; onChange: (p: Photo | undefined) => void; works?: WorksType }) {
+  const g = kind === "facade" && works && FACADE_BY_WORKS[works] ? { ...GUIDE.facade, ...FACADE_BY_WORKS[works] } : GUIDE[kind];
   const [preview, setPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {

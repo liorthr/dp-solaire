@@ -57,6 +57,22 @@ export const DEMO_ACCOUNTS = {
 
 const empty = (): DB => ({ schema: 1, tenants: [], users: [], memberships: [], clients: [], projects: [], panels: [], inverters: [], audit: [], notifications: [], subscriptions: {} });
 
+/** synchronisation serveur (Supabase) : branchée par src/lib/cloud quand la session est un compte en ligne */
+export interface CloudHooks {
+  projectSaved(p: Project): void;
+  projectDeleted(id: string): void;
+  clientSaved(c: Client): void;
+  clientDeleted(id: string): void;
+  tenantUpdated(t: Tenant): void;
+  photoPut(key: string, blob: Blob): void;
+  photoFetch(key: string): Promise<Blob | undefined>;
+  photoDeleted(key: string): void;
+}
+let hooks: CloudHooks | null = null;
+export const setCloudHooks = (h: CloudHooks | null) => {
+  hooks = h;
+};
+
 let cache: DB | null = null;
 const listeners = new Set<() => void>();
 export const subscribe = (fn: () => void) => {
@@ -127,11 +143,11 @@ export function logout() {
   listeners.forEach((l) => l());
 }
 
-export async function signup(input: { company: string; fullName: string; email: string; password: string }): Promise<Session> {
+export async function signup(input: { company: string; fullName: string; email: string; password: string; kind?: "particulier" | "professionnel" }): Promise<Session> {
   const db = load();
   if (db.users.some((u) => u.email.toLowerCase() === input.email.toLowerCase())) throw new Error("Un compte existe déjà avec cet email.");
   if (input.password.length < 8) throw new Error("Mot de passe : 8 caractères minimum.");
-  const t: Tenant = { id: uid("ten"), name: input.company, retentionMonths: 60, plan: "decouverte" };
+  const t: Tenant = { id: uid("ten"), name: input.company, retentionMonths: 60, plan: "decouverte", kind: input.kind ?? "professionnel" };
   const u: UserRecord = { id: uid("usr"), email: input.email.trim(), fullName: input.fullName, passwordHash: await hashPassword(input.password) };
   db.tenants.push(t);
   db.users.push(u);
@@ -172,6 +188,7 @@ export const repo = {
     Object.assign(t, patch);
     audit(t.id, s.user.id, "modification_entreprise", "tenant", t.id, { fields: Object.keys(patch) });
     save();
+    hooks?.tenantUpdated(t);
   },
   members() {
     const s = requireSession();
@@ -206,12 +223,14 @@ export const repo = {
     if (existing) {
       Object.assign(existing, c);
       save();
+      hooks?.clientSaved(existing);
       return existing;
     }
     const created: Client = { ...c, id: uid("cli"), tenantId: s.tenant.id, createdAt: new Date().toISOString() };
     db.clients.push(created);
     audit(s.tenant.id, s.user.id, "creation_client", "client", created.id);
     save();
+    hooks?.clientSaved(created);
     return created;
   },
   deleteClient(id: string) {
@@ -220,6 +239,7 @@ export const repo = {
     db.clients = db.clients.filter((c) => !(c.id === id && c.tenantId === s.tenant.id));
     audit(s.tenant.id, s.user.id, "suppression_client", "client", id);
     save();
+    hooks?.clientDeleted(id);
   },
 
   // projets
@@ -246,6 +266,7 @@ export const repo = {
     }
     audit(s.tenant.id, s.user.id, action, "project", p.id);
     save();
+    hooks?.projectSaved(next);
     return next;
   },
   async deleteProject(id: string) {
@@ -254,9 +275,11 @@ export const repo = {
     const p = db.projects.find((x) => x.id === id && x.tenantId === s.tenant.id);
     if (!p) return;
     await Promise.all(p.photos.map((ph) => del(ph.blobKey)));
+    for (const ph of p.photos) hooks?.photoDeleted(ph.blobKey);
     db.projects = db.projects.filter((x) => x.id !== id);
     audit(s.tenant.id, s.user.id, "suppression_dossier", "project", id);
     save();
+    hooks?.projectDeleted(id);
   },
 
   // catalogue
@@ -349,16 +372,82 @@ export const repo = {
 
 // ----------------------------------------------------------------- photos (IndexedDB)
 export const photoStore = {
-  put: (key: string, blob: Blob) => set(key, blob),
-  get: (key: string) => get<Blob>(key),
+  put: async (key: string, blob: Blob) => {
+    await set(key, blob);
+    hooks?.photoPut(key, blob);
+  },
+  /** photo locale, sinon récupérée sur le serveur (autre appareil) puis mise en cache */
+  get: async (key: string) => {
+    const local = await get<Blob>(key);
+    if (local || !hooks) return local;
+    const remote = await hooks.photoFetch(key);
+    if (remote) await set(key, remote);
+    return remote;
+  },
   del: (key: string) => del(key),
 };
+
+// ----------------------------------------------------------------- comptes en ligne (Supabase)
+/** miroir local d'un compte en ligne : une entreprise (ou un particulier) = un utilisateur */
+export function adoptCloudAccount(a: { uid: string; email: string; fullName: string; company: string; kind?: "particulier" | "professionnel"; tenant?: Partial<Tenant> }): Session {
+  const db = load();
+  const tenantId = `ten_${a.uid}`, userId = `usr_${a.uid}`;
+  let t = db.tenants.find((x) => x.id === tenantId);
+  if (!t) {
+    t = { id: tenantId, name: a.company || a.fullName || a.email, retentionMonths: 60, plan: "decouverte", kind: a.kind ?? "particulier", ...a.tenant };
+    db.tenants.push(t);
+    db.subscriptions[tenantId] = { plan: "decouverte", status: "trialing", dossiersUsed: 0, periodEnd: addDaysIso(30) };
+  } else if (a.tenant) Object.assign(t, a.tenant, { id: tenantId });
+  if (!db.users.some((u) => u.id === userId)) db.users.push({ id: userId, email: a.email, fullName: a.fullName || a.email, passwordHash: "compte-en-ligne" });
+  if (!db.memberships.some((m) => m.userId === userId && m.tenantId === tenantId)) db.memberships.push({ tenantId, userId, role: "admin" });
+  if (!db.panels.length) db.panels.push(...defaultPanels);
+  if (!db.inverters.length) db.inverters.push(...defaultInverters);
+  window.localStorage.setItem(SESSION, JSON.stringify({ userId, tenantId }));
+  save();
+  return currentSession()!;
+}
+
+/** remplace les dossiers et clients locaux d'un compte en ligne par la version serveur la plus récente */
+export function mergeCloudData(tenantId: string, remote: { projects: Project[]; clients: Client[] }): { pushProjects: Project[]; pushClients: Client[] } {
+  const db = load();
+  const pushProjects: Project[] = [], pushClients: Client[] = [];
+  for (const rp of remote.projects) {
+    const i = db.projects.findIndex((x) => x.id === rp.id);
+    const fixed = { ...rp, tenantId };
+    if (i < 0) db.projects.push(fixed);
+    else if (db.projects[i].updatedAt <= rp.updatedAt) db.projects[i] = fixed;
+  }
+  for (const lp of db.projects.filter((x) => x.tenantId === tenantId)) {
+    const r = remote.projects.find((x) => x.id === lp.id);
+    if (!r || r.updatedAt < lp.updatedAt) pushProjects.push(lp);
+  }
+  for (const rc of remote.clients) {
+    const i = db.clients.findIndex((x) => x.id === rc.id);
+    if (i < 0) db.clients.push({ ...rc, tenantId });
+    else db.clients[i] = { ...rc, tenantId };
+  }
+  for (const lc of db.clients.filter((x) => x.tenantId === tenantId)) if (!remote.clients.some((x) => x.id === lc.id)) pushClients.push(lc);
+  save();
+  return { pushProjects, pushClients };
+}
+
+/** déconnexion d'un compte en ligne : les données restent sur le serveur, on efface la copie locale (appareil partagé) */
+export async function forgetLocalTenant(tenantId: string) {
+  const db = load();
+  for (const p of db.projects.filter((x) => x.tenantId === tenantId)) await Promise.all(p.photos.map((ph) => del(ph.blobKey)));
+  db.projects = db.projects.filter((x) => x.tenantId !== tenantId);
+  db.clients = db.clients.filter((x) => x.tenantId !== tenantId);
+  db.notifications = db.notifications.filter((x) => x.tenantId !== tenantId);
+  db.audit = db.audit.filter((x) => x.tenantId !== tenantId);
+  window.localStorage.removeItem(SESSION);
+  save();
+}
 
 // ----------------------------------------------------------------- seed
 export async function ensureSeed(seedDemoProjects: (tenantId: string, userId: string) => Promise<Project[]>) {
   const db = load();
   if (db.users.length) return;
-  const t: Tenant = { id: "ten_demo", name: "Soleil Picard Énergie (démo)", siret: "000 000 000 00000", address: "1 rue de l'Exemple, 80000 Amiens", email: "contact@example.org", phone: "03 00 00 00 00", retentionMonths: 60, plan: "pro", legalMentions: "SAS fictive de démonstration. RGE n° EXEMPLE." };
+  const t: Tenant = { id: "ten_demo", kind: "professionnel", name: "Soleil Picard Énergie (démo)", siret: "000 000 000 00000", address: "1 rue de l'Exemple, 80000 Amiens", email: "contact@example.org", phone: "03 00 00 00 00", retentionMonths: 60, plan: "pro", legalMentions: "SAS fictive de démonstration. RGE n° EXEMPLE." };
   const demo: UserRecord = { id: "usr_demo", email: DEMO_ACCOUNTS.installateur.email, fullName: "Alex Démo", passwordHash: await hashPassword(DEMO_ACCOUNTS.installateur.password) };
   const admin: UserRecord = { id: "usr_admin", email: DEMO_ACCOUNTS.admin.email, fullName: "Super Admin", isSuperAdmin: true, passwordHash: await hashPassword(DEMO_ACCOUNTS.admin.password) };
   db.tenants.push(t);
@@ -387,3 +476,6 @@ export function resetAll() {
   cache = null;
   listeners.forEach((l) => l());
 }
+
+/** le compte est-il celui d'un particulier (qui fait sa propre démarche) ? */
+export const isHomeowner = (s: Session | null) => s?.tenant.kind === "particulier";

@@ -94,7 +94,7 @@ export function InsertionTab({ b }: { b: ProjectBundle }) {
   if (!facade)
     return (
       <Card title={works === "velux" ? "Photo de la toiture requise" : "Photo de la façade requise"}>
-        <PhotoInput kind="facade" onChange={(ph) => ph && save({ ...p, photos: [...p.photos.filter((x) => x.kind !== "facade"), ph] }, "ajout_photo")} />
+        <PhotoInput kind="facade" works={works} onChange={(ph) => ph && save({ ...p, photos: [...p.photos.filter((x) => x.kind !== "facade"), ph] }, "ajout_photo")} />
       </Card>
     );
 
@@ -246,9 +246,7 @@ export function InsertionTab({ b }: { b: ProjectBundle }) {
       <Card title="Photos">
         <div className="space-y-3">
           {(["facade", "proche", "lointain"] as const).map((k) => (
-            <PhotoInput
-              key={k}
-              kind={k}
+            <PhotoInput key={k} kind={k} works={works}
               photo={p.photos.find((x) => x.kind === k)}
               onChange={(ph) => ph && save({ ...p, photos: [...p.photos.filter((x) => x.kind !== k), ph], insertions: k === "facade" ? [] : p.insertions }, "ajout_photo")}
             />

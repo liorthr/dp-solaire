@@ -264,7 +264,7 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   prog("Notice descriptive (DP11) et mandat", 66);
   add("DP11", "Notice des matériaux et modalités d'exécution", "DP11_notice_materiaux.pdf", textPdf(isPC ? "PCMI4 : Notice décrivant le terrain et présentant le projet" : "DP11 : Notice descriptive du projet", [{ lines: noticeDescriptive(p, panel, inverter) }, { heading: "Contexte réglementaire relevé", lines: ev.results.filter((r) => r.category === "contexte" && r.severity !== "ok").map((r) => `${r.title} : ${r.message} (source : ${r.source_label ?? r.source_url})`) }], DISCLAIMER));
   const mText = mandateText(p, client, tenant);
-  add("MANDAT", "Mandat du maître d'ouvrage", isPC ? "Mandat_depot_PC.pdf" : "Mandat_depot_DP.pdf", textPdf("Mandat", [{ lines: mText.split("\n").slice(1) }], DISCLAIMER, (doc, y) => {
+  if (!p.selfFiling) add("MANDAT", "Mandat du maître d'ouvrage", isPC ? "Mandat_depot_PC.pdf" : "Mandat_depot_DP.pdf", textPdf("Mandat", [{ lines: mText.split("\n").slice(1) }], DISCLAIMER, (doc, y) => {
     if (p.mandate) {
       try {
         doc.addImage(p.mandate.imageDataUrl, "PNG", 15, y + 2, 60, 18);
@@ -302,9 +302,9 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   const bordereau = textPdf(
     `Bordereau des pièces : ${p.reference}`,
     [
-      { lines: [`${isPC ? "Demande de permis de construire (maison individuelle)" : "Déclaration préalable"} : ${p.address.label}`, `Cadastre : ${parcelRefs(p.enrichment)}`, `Maître d'ouvrage : ${client ? `${client.firstName} ${client.lastName}` : ""} : mandataire : ${tenant.name}`, `Régime : ${ev.regime.message}`] },
+      { lines: [`${isPC ? "Demande de permis de construire (maison individuelle)" : "Déclaration préalable"} : ${p.address.label}`, `Cadastre : ${parcelRefs(p.enrichment)}`, `Maître d'ouvrage : ${client ? `${client.firstName} ${client.lastName}` : ""}${p.selfFiling ? " (dépôt par le déclarant lui-même)" : ` : mandataire : ${tenant.name}`}`, `Régime : ${ev.regime.message}`] },
       { heading: "Pièces jointes", lines: rs.pieces.filter((pc) => generatedCodes.includes(pc.code)).map((pc) => `[x] ${pc.code} (${pc.cerfaCode} au cerfa) : ${pc.label} : ${pc.article}`) },
-      { heading: "Autres documents", lines: [`[x] Cerfa n° ${auth.cerfa} rempli`, "[x] Mandat du maître d'ouvrage", ...(isPC && p.extension?.kind !== "garage" ? ["[ ] PCMI14-1 : attestation de prise en compte de la RE 2020, établie par un professionnel (non produite par Permizy)"] : [])] },
+      { heading: "Autres documents", lines: [`[x] Cerfa n° ${auth.cerfa} rempli`, ...(p.selfFiling ? [] : ["[x] Mandat du maître d'ouvrage"]), ...(isPC && p.extension?.kind !== "garage" ? ["[ ] PCMI14-1 : attestation de prise en compte de la RE 2020, établie par un professionnel (non produite par Permizy)"] : [])] },
       ...(missing.length ? [{ heading: "Pièces manquantes à compléter", lines: missing.map((m) => `[ ] ${m.code} : ${m.label} (${m.why})`) }] : []),
       { heading: "Dépôt papier", lines: [`${copies.label} (source : ${copies.source_url}).`] },
       { heading: "Contrôles automatiques", lines: [`Score indicatif : ${ev.blocking.length ? "dossier non déposable en l'état" : `${ev.score}/100`} (règles ${rs.ruleset} ${rs.version}, modèles ${TEMPLATES_VERSION}). Ce score n'est pas une garantie.`, ...ev.results.filter((r) => r.severity !== "ok").map((r) => `${r.severity.toUpperCase()} : ${r.title} : ${r.message}`)] },
@@ -314,8 +314,8 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   add("BORDEREAU", "Bordereau des pièces", "00_Bordereau_des_pieces.pdf", bordereau);
 
   const pieceNames = files.filter((f) => /^(DP|PCMI)\d+(-1)?$/.test(f.code)).map((f) => f.code);
-  const mail = coverLetterEmail(p, client, tenant, p.enrichment?.mairie, [...pieceNames, `cerfa ${auth.cerfa}`, "mandat"]);
-  const letter = lrarLetter(p, client, tenant, p.enrichment?.mairie, [...pieceNames, `cerfa ${auth.cerfa}`, "mandat"], copies.copies);
+  const mail = coverLetterEmail(p, client, tenant, p.enrichment?.mairie, [...pieceNames, `cerfa ${auth.cerfa}`, ...(p.selfFiling ? [] : ["mandat"])]);
+  const letter = lrarLetter(p, client, tenant, p.enrichment?.mairie, [...pieceNames, `cerfa ${auth.cerfa}`, ...(p.selfFiling ? [] : ["mandat"])], copies.copies);
   add("COURRIER", "Courrier LRAR", "Courrier_LRAR_mairie.pdf", textPdf("Courrier de dépôt", [{ lines: letter.split("\n") }], DISCLAIMER));
 
   // ---------------------------------------------------------------- PDF unique

@@ -5,7 +5,10 @@ import { useEffect, useMemo } from "react";
 import { AlertTriangle, CalendarClock, Clock, FilePlus2, Trophy } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Badge, Button, Card } from "@/components/ui";
-import { repo } from "@/lib/store/db";
+import { isHomeowner, repo } from "@/lib/store/db";
+import { useSession } from "@/lib/store/hooks";
+import { journeySteps, nextStep } from "@/components/dossier/HomeownerJourney";
+import { WorksIcon } from "@/components/home/WorksIcon";
 import { useDbVersion } from "@/lib/store/hooks";
 import { analyze, MANUAL_HOURS_PER_DOSSIER, STATUS_LABEL, STATUS_TONE } from "@/lib/project/status";
 import { daysBetween, fr } from "@/lib/instruction/deadlines";
@@ -121,10 +124,82 @@ function Kpi({ icon, label, value, sub, tone }: { icon: React.ReactNode; label: 
   );
 }
 
+/** « Mes projets » d'un particulier : une carte par projet, avec la prochaine étape bien visible */
+function MyProjects() {
+  const v = useDbVersion();
+  const today = new Date().toISOString().slice(0, 10);
+  const rows = useMemo(() => {
+    void v;
+    const panels = repo.panels();
+    return repo.projects().map((p) => {
+      const client = repo.client(p.clientId);
+      const a = analyze(p, client, panels.find((x) => x.id === p.pv.panelId), today);
+      return { p, b: { project: p, client, tenant: repo.tenant(), analysis: a } as unknown as Parameters<typeof journeySteps>[0] };
+    });
+  }, [v, today]);
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-extrabold sm:text-3xl">Mes projets</h1>
+        <Link href="/verifier/">
+          <Button size="lg">
+            <FilePlus2 className="h-5 w-5" /> Nouveau projet
+          </Button>
+        </Link>
+      </div>
+      {rows.length === 0 ? (
+        <Card>
+          <p className="text-lg font-semibold">Vous n&apos;avez pas encore de projet.</p>
+          <p className="mt-1 text-muted">Dites-nous ce que vous voulez faire : on vérifie les règles de votre commune en une minute.</p>
+          <Link href="/verifier/" className="mt-4 inline-block">
+            <Button size="lg">Commencer mon projet</Button>
+          </Link>
+        </Card>
+      ) : (
+        <ul className="grid gap-4 md:grid-cols-2">
+          {rows.map(({ p, b }) => {
+            const steps = journeySteps(b);
+            const n = nextStep(b);
+            const done = steps.filter((s) => s.done).length;
+            return (
+              <li key={p.id} className="rounded-3xl border border-line bg-white p-5" data-testid="project-row">
+                <div className="flex items-start gap-3">
+                  <WorksIcon works={p.works ?? "pv"} className="h-12 w-12" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold">{worksSummary(p)}</p>
+                    <p className="truncate text-sm text-muted">{p.address?.label}</p>
+                    <p className="text-xs text-muted">Réf. {p.reference}</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex gap-1" aria-label={`${done} étapes sur ${steps.length}`}>
+                  {steps.map((s) => (
+                    <i key={s.id} className={`h-1.5 flex-1 rounded ${s.done ? "bg-brand-600" : "bg-line"}`} />
+                  ))}
+                </div>
+                <p className="mt-3 text-sm">
+                  Prochaine étape : <b>{n.label}</b> <span className="text-muted">({n.hint.toLowerCase()})</span>
+                </p>
+                <Link href={`/app/dossier/?id=${p.id}&tab=${n.id}`} className="mt-3 inline-block">
+                  <Button>Continuer</Button>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function Home() {
+  const { session } = useSession();
+  return isHomeowner(session) ? <MyProjects /> : <Dashboard />;
+}
+
 export default function Page() {
   return (
     <AppShell>
-      <Dashboard />
+      <Home />
     </AppShell>
   );
 }

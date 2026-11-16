@@ -8,6 +8,7 @@ import { paperCopies, rulesetFor } from "@/lib/rules/engine";
 import { buildEml, mailtoLink } from "@/lib/mail/eml";
 import { annuaireSearchLink } from "@/lib/providers/annuaire";
 import { uid } from "@/lib/project/factory";
+import { authorizationOf } from "@/lib/works/authorization";
 import { builtCache, download } from "./DossierTab";
 import type { ProjectBundle } from "./useProject";
 import { useSaveProject } from "./useProject";
@@ -26,7 +27,8 @@ export function EnvoiTab({ b, goTo }: { b: ProjectBundle; goTo: (tab: string) =>
   const [mode, setMode] = useState<FilingMode>(p.filingMode ?? (mairie?.email ? "email" : "teleservice"));
   const built = builtCache.get(p.id)?.result;
   const pieces = built?.pieces ?? [];
-  const mail = coverLetterEmail(p, client, tenant, mairie, [...pieces, "cerfa 16702*03", "mandat"]);
+  const auth = authorizationOf(p);
+  const mail = coverLetterEmail(p, client, tenant, mairie, [...pieces, `cerfa ${auth.cerfa}`, ...(p.selfFiling ? [] : ["mandat"])]);
   const [subject, setSubject] = useState(mail.subject);
   const [body, setBody] = useState(mail.body);
   const [to, setTo] = useState(mail.to);

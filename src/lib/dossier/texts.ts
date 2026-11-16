@@ -220,7 +220,35 @@ export function noticeDescriptive(p: Project, panel: PanelModel | undefined, inv
   ];
 }
 
+/** objet des travaux en une phrase (courriers) */
+function worksPhrase(p: Project) {
+  return p.works && p.works !== "pv" ? `l'${worksObject(p).replace(/^l'|^/, "")}` : `l'installation de ${p.pv.panelCount} panneaux photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc) sur la toiture`;
+}
+
+/** courriel rédigé par le particulier lui-même (dépôt sans mandataire) */
+function selfEmail(p: Project, c: Client | undefined, mairie: MairieInfo | undefined, pieces: string[]) {
+  const auth = authorizationOf(p);
+  const subject = `${auth.kind === "PC" ? "Demande de permis de construire" : "Déclaration préalable"} : ${worksObject(p)} : ${p.address?.label ?? ""}`;
+  const body = [
+    "Madame, Monsieur,",
+    "",
+    `Je vous adresse ma ${auth.kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} (cerfa n° ${auth.cerfa}) relative à ${worksPhrase(p)} de ma maison située ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
+    "",
+    `Pièces jointes : ${pieces.join(", ")}.`,
+    "",
+    "Je vous remercie de bien vouloir m'adresser l'accusé de réception valant récépissé, avec le numéro d'enregistrement du dossier.",
+    "",
+    "Je reste à votre disposition pour tout complément.",
+    "",
+    "Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.",
+    "",
+    `${fullName(c)}${c?.phone ? ` | ${c.phone}` : ""}${c?.email ? ` | ${c.email}` : ""}`,
+  ].join("\n");
+  return { to: mairie?.email ?? "", subject, body };
+}
+
 export function coverLetterEmail(p: Project, c: Client | undefined, t: Tenant, mairie: MairieInfo | undefined, pieces: string[]) {
+  if (p.selfFiling) return selfEmail(p, c, mairie, pieces);
   const auth = authorizationOf(p);
   const subject = `${auth.kind === "PC" ? "Demande de permis de construire" : "Déclaration préalable"} : ${worksObject(p)} : ${p.address?.label ?? ""} : ${fullName(c)}`;
   const body = [
@@ -243,6 +271,31 @@ export function coverLetterEmail(p: Project, c: Client | undefined, t: Tenant, m
 }
 
 export function lrarLetter(p: Project, c: Client | undefined, t: Tenant, mairie: MairieInfo | undefined, pieces: string[], copies: number) {
+  if (p.selfFiling)
+    return [
+      fullName(c),
+      p.address?.label ?? "",
+      "",
+      `${mairie?.name ?? "Mairie de " + (p.address?.city ?? "")}`,
+      "Service urbanisme",
+      `${mairie?.address ?? ""}`,
+      "",
+      "Lettre recommandée avec demande d'avis de réception",
+      `Le ${today()}`,
+      "",
+      `Objet : dépôt d'une ${authorizationOf(p).kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} : ${worksObject(p)}`,
+      `Terrain : ${p.address?.label} : ${parcelRefs(p.enrichment)}`,
+      "",
+      "Madame, Monsieur,",
+      "",
+      `Je vous prie de trouver ci-joint, en ${copies} exemplaires, ma ${authorizationOf(p).name} (cerfa n° ${authorizationOf(p).cerfa}) et ses pièces : ${pieces.join(", ")}.`,
+      "",
+      "Je vous remercie de bien vouloir m'adresser le récépissé de dépôt mentionnant le numéro d'enregistrement du dossier.",
+      "",
+      "Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.",
+      "",
+      fullName(c),
+    ].join("\n");
   return [
     `${t.name}`,
     `${t.address ?? ""}`,

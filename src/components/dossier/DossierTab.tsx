@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
-import { Download, FileArchive, FileText, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, FileArchive, FileText, Loader2, Lock } from "lucide-react";
+import { isPaid, payDossier, paymentRequired, PRICES } from "@/lib/cloud/payments";
 import { Badge, Button, Card, Disclaimer, Progress } from "@/components/ui";
 import { SignaturePad } from "@/components/SignaturePad";
 import { buildDossier, type BuildResult } from "@/lib/dossier/build";
@@ -31,6 +32,15 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
   const [err, setErr] = useState("");
   const [sig, setSig] = useState<string | null>(null);
   const ev = analysis.evaluation;
+  const kind: "DP" | "PC" = ev.regime.outcome === "PC" ? "PC" : "DP";
+  const mustPay = paymentRequired();
+  const [paid, setPaid] = useState<boolean | null>(mustPay ? null : true);
+  useEffect(() => {
+    if (!mustPay) return;
+    isPaid(p.id)
+      .then(setPaid)
+      .catch(() => setPaid(false));
+  }, [mustPay, p.id]);
 
   const generate = async () => {
     setErr("");
@@ -73,9 +83,32 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
           ) : (
             <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">Aucun point bloquant : le dossier est prêt à être généré et déposé.</p>
           )}
+          {paid === false ? (
+            <div className="rounded-3xl border-2 border-brand-600 bg-mint p-5" data-testid="paywall">
+              <p className="flex items-center gap-2 text-lg font-extrabold">
+                <Lock className="h-5 w-5" /> Votre dossier est prêt à être téléchargé
+              </p>
+              <p className="mt-1 text-sm">
+                {kind === "PC" ? "Permis de construire" : "Déclaration préalable"} : <b className="text-2xl">{PRICES[kind]} €</b> TTC, paiement unique pour ce dossier.
+              </p>
+              <ul className="mt-3 space-y-1 text-sm">
+                <li>✓ Plans à l&apos;échelle, photomontage et notice</li>
+                <li>✓ Cerfa officiel rempli, bordereau des pièces</li>
+                <li>✓ Courrier ou email prêt pour votre mairie</li>
+                <li>✓ Suivi des délais jusqu&apos;à la décision</li>
+              </ul>
+              <Button size="lg" className="mt-4 w-full sm:w-auto" onClick={() => payDossier(p, kind).catch((e) => setErr(e instanceof Error ? e.message : String(e)))} data-testid="pay">
+                Payer {PRICES[kind]} € et télécharger
+              </Button>
+              <p className="mt-2 text-xs text-muted">Paiement sécurisé par Stripe. Les aperçus des plans restent gratuits dans l&apos;onglet Plans.</p>
+            </div>
+          ) : paid === null ? (
+            <p className="text-sm text-muted">Vérification du paiement…</p>
+          ) : (
           <Button size="lg" variant="secondary" onClick={generate} disabled={Boolean(state)} data-testid="generate">
             {state ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileText className="h-5 w-5" />} {ev.blocking.length ? "Générer un brouillon (PDF + ZIP)" : "Générer le dossier (PDF + ZIP)"}
           </Button>
+          )}
           {state && (
             <div aria-live="polite">
               <Progress value={state.pct} label="Génération" />
@@ -89,10 +122,10 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
       {res && (
         <Card title="Dossier généré" actions={<Badge tone="ok">{(res.durationMs / 1000).toFixed(1)} s</Badge>}>
           <div className="flex flex-wrap gap-2" data-testid="downloads">
-            <Button onClick={() => download(res.pdf, `Dossier_DP_${p.reference}.pdf`)} data-testid="download-pdf">
+            <Button onClick={() => download(res.pdf, `Dossier_${kind}_${p.reference}.pdf`)} data-testid="download-pdf">
               <Download className="h-4 w-4" /> PDF unique ({Math.round(res.pdf.size / 1024)} Ko)
             </Button>
-            <Button variant="outline" onClick={() => download(res.zip, `Dossier_DP_${p.reference}.zip`)} data-testid="download-zip">
+            <Button variant="outline" onClick={() => download(res.zip, `Dossier_${kind}_${p.reference}.zip`)} data-testid="download-zip">
               <FileArchive className="h-4 w-4" /> ZIP des pièces ({Math.round(res.zip.size / 1024)} Ko)
             </Button>
           </div>

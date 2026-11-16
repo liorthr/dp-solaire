@@ -3,10 +3,18 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Bell, FileText, Home, LogOut, Menu, Package, Plus, Settings, Shield, Users, CreditCard, Activity } from "lucide-react";
-import { logout, repo } from "@/lib/store/db";
+import { isHomeowner, logout, repo } from "@/lib/store/db";
+import { cloudEnabled, cloudLogout, isCloudSession, onSyncState, resumeCloud, syncState, type SyncState } from "@/lib/cloud/supabase";
 import { useDbVersion, useSeed, useSession } from "@/lib/store/hooks";
 import { cn } from "./ui";
 import { Logo } from "./Logo";
+
+/** menu d'un particulier : son projet, rien d'autre */
+const HOME_NAV = [
+  { href: "/app/", label: "Mes projets", icon: Home },
+  { href: "/app/nouveau/", label: "Nouveau projet", icon: Plus },
+  { href: "/app/parametres/", label: "Mon compte", icon: Settings },
+];
 
 const NAV = [
   { href: "/app/", label: "Tableau de bord", icon: Home },
@@ -24,13 +32,29 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const router = useRouter();
   const path = usePathname();
   const [menu, setMenu] = useState(false);
+  const [cloudChecked, setCloudChecked] = useState(!cloudEnabled);
+  const [sync, setSync] = useState<SyncState>(syncState());
   useDbVersion();
+  // compte en ligne : reprise de la session et récupération des dossiers avant tout affichage
   useEffect(() => {
-    if (seeded && !loading && !session) router.replace("/connexion/");
-  }, [seeded, loading, session, router]);
-  if (!seeded || loading || !session) return <div className="flex min-h-screen items-center justify-center text-stone-500">Chargement…</div>;
+    if (!cloudEnabled) return;
+    let alive = true;
+    resumeCloud()
+      .catch((e) => console.warn("Reprise de session en ligne impossible", e))
+      .finally(() => alive && setCloudChecked(true));
+    const off = onSyncState(setSync);
+    return () => {
+      alive = false;
+      off();
+    };
+  }, []);
+  useEffect(() => {
+    if (seeded && cloudChecked && !loading && !session) router.replace("/connexion/");
+  }, [seeded, cloudChecked, loading, session, router]);
+  if (!seeded || !cloudChecked || loading || !session) return <div className="flex min-h-screen items-center justify-center text-stone-500">Chargement…</div>;
   const unread = repo.notifications().filter((n) => !n.read).length;
-  const nav = session.user.isSuperAdmin ? [...NAV, { href: "/app/admin/", label: "Back-office", icon: Shield }] : NAV;
+  const homeowner = isHomeowner(session);
+  const nav = homeowner ? HOME_NAV : session.user.isSuperAdmin ? [...NAV, { href: "/app/admin/", label: "Back-office", icon: Shield }] : NAV;
   const active = (h: string) => (h === "/app/" ? path === "/app" || path === "/app/" : path?.startsWith(h.replace(/\/$/, "")));
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
@@ -48,10 +72,16 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               <Bell className="h-5 w-5" />
               {unread > 0 && <span className="absolute right-1 top-1 h-4 min-w-4 rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">{unread}</span>}
             </Link>
+            {isCloudSession(session) && (
+              <span className={cn("hidden rounded-full px-2 py-0.5 text-xs font-medium sm:inline", sync === "ok" ? "bg-mint text-brand-700" : sync === "pending" ? "bg-sun-soft text-[#8a5a00]" : "bg-red-50 text-red-800")} aria-live="polite" data-testid="sync-state">
+                {sync === "ok" ? "✓ Sauvegardé en ligne" : sync === "pending" ? "Sauvegarde…" : sync === "offline" ? "Hors ligne : sauvegarde en attente" : "Sauvegarde en attente (nouvel essai)"}
+              </span>
+            )}
             <span className="hidden text-sm sm:inline">{session.user.fullName}</span>
             <button
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                if (isCloudSession(session)) await cloudLogout();
+                else logout();
                 router.replace("/connexion/");
               }}
               className="rounded-lg p-2 hover:bg-stone-100"
@@ -85,17 +115,19 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
           {children}
         </main>
       </div>
-      <nav aria-label="Navigation mobile" className="fixed inset-x-0 bottom-0 z-[450] flex justify-around border-t border-stone-200 bg-white py-1.5 sm:hidden">
-        {[NAV[0], NAV[1], NAV[2]].map((n) => (
+      <nav aria-label="Navigation mobile" className="fixed inset-x-0 bottom-0 z-[450] flex justify-around border-t border-line bg-cream py-1.5 sm:hidden">
+        {(homeowner ? HOME_NAV : [NAV[0], NAV[1], NAV[2]]).map((n) => (
           <Link key={n.href} href={n.href} className={cn("flex flex-col items-center px-3 text-[11px]", active(n.href) ? "text-brand-700" : "text-stone-500")}>
             <n.icon className="h-5 w-5" />
-            {n.label.split(" ")[0]}
+            {homeowner ? n.label : n.label.split(" ")[0]}
           </Link>
         ))}
-        <Link href="/app/" className="flex flex-col items-center px-3 text-[11px] text-stone-500">
-          <FileText className="h-5 w-5" />
-          Dossiers
-        </Link>
+        {!homeowner && (
+          <Link href="/app/" className="flex flex-col items-center px-3 text-[11px] text-stone-500">
+            <FileText className="h-5 w-5" />
+            Dossiers
+          </Link>
+        )}
       </nav>
     </div>
   );

@@ -3,7 +3,7 @@ import next from "eslint-config-next";
 const config = [
   ...next,
   {
-    ignores: [".next/**", "out/**", "node_modules/**", "playwright-report/**", "test-results/**", "next-env.d.ts"],
+    ignores: [".next/**", "out/**", "node_modules/**", "playwright-report/**", "test-results/**", "next-env.d.ts", "supabase/functions/**"],
   },
   {
     rules: {
