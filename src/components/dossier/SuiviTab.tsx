@@ -11,6 +11,7 @@ import { STATUS_LABEL, STATUS_TONE } from "@/lib/project/status";
 import { photoStore } from "@/lib/store/db";
 import type { ProjectBundle } from "./useProject";
 import { useSaveProject } from "./useProject";
+import { Tracker } from "./Tracker";
 
 const EVENT_LABEL: Partial<Record<InstructionEvent["type"], string>> = {
   depot: "Dépôt",
@@ -42,6 +43,7 @@ export function SuiviTab({ b }: { b: ProjectBundle }) {
 
   return (
     <div className="space-y-4">
+      <Tracker p={p} ins={ins} mairie={p.enrichment?.mairie?.name} />
       <Card title="Instruction" actions={<Badge tone={STATUS_TONE[analysis.status]}>{STATUS_LABEL[analysis.status]}</Badge>}>
         {ins.depositDate ? (
           <div className="space-y-3 text-sm">

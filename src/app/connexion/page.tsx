@@ -1,15 +1,19 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
+import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input } from "@/components/ui";
 import { DEMO_ACCOUNTS, login, resetAll, signup } from "@/lib/store/db";
 import { useSeed } from "@/lib/store/hooks";
 
-export default function Connexion() {
+function Connexion() {
   const ready = useSeed();
   const router = useRouter();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const sp = useSearchParams();
+  const fromDraft = sp.get("next") === "draft";
+  const [mode, setMode] = useState<"login" | "signup">(sp.get("mode") === "signup" ? "signup" : "login");
+  const [pro, setPro] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("");
@@ -23,8 +27,8 @@ export default function Connexion() {
     setBusy(true);
     try {
       if (mode === "login") await login(email, password);
-      else await signup({ company, fullName, email, password });
-      router.push("/app/");
+      else await signup({ company: pro ? company : fullName, fullName, email, password });
+      router.push(fromDraft ? "/app/nouveau/?draft=1" : "/app/");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -33,19 +37,30 @@ export default function Connexion() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-100 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-cream p-4">
       <div className="w-full max-w-md space-y-4">
-        <Link href="/" className="flex items-center justify-center gap-2 text-xl font-bold text-brand-800">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-amber-400 text-stone-900">☀</span> DP Solaire
+        <Link href="/" className="flex justify-center" aria-label="Permizy : accueil">
+          <Logo size="lg" />
         </Link>
+        {fromDraft && <p className="rounded-2xl bg-mint p-3 text-center text-sm font-medium text-brand-700">Votre projet est gardé de côté : créez votre espace pour préparer le dossier.</p>}
         <Card>
           <form onSubmit={submit} className="space-y-4">
-            <h1 className="text-lg font-semibold">{mode === "login" ? "Connexion" : "Créer un compte entreprise"}</h1>
+            <h1 className="text-2xl font-extrabold">{mode === "login" ? "Connexion" : "Créer mon espace"}</h1>
             {mode === "signup" && (
               <>
-                <Field label="Entreprise" htmlFor="company">
-                  <Input id="company" required value={company} onChange={(e) => setCompany(e.target.value)} />
-                </Field>
+                <div className="grid grid-cols-2 gap-2 text-sm" role="radiogroup" aria-label="Type de compte">
+                  <button type="button" role="radio" aria-checked={!pro} onClick={() => setPro(false)} className={`rounded-2xl border-2 p-3 font-semibold ${!pro ? "border-brand-600 bg-mint" : "border-line"}`}>
+                    Je suis un particulier
+                  </button>
+                  <button type="button" role="radio" aria-checked={pro} onClick={() => setPro(true)} className={`rounded-2xl border-2 p-3 font-semibold ${pro ? "border-brand-600 bg-mint" : "border-line"}`}>
+                    Je suis un professionnel
+                  </button>
+                </div>
+                {pro && (
+                  <Field label="Entreprise" htmlFor="company">
+                    <Input id="company" required value={company} onChange={(e) => setCompany(e.target.value)} />
+                  </Field>
+                )}
                 <Field label="Nom et prénom" htmlFor="fullname">
                   <Input id="fullname" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
                 </Field>
@@ -59,14 +74,14 @@ export default function Connexion() {
             </Field>
             {error && <p role="alert" className="text-sm font-medium text-red-700">{error}</p>}
             <Button type="submit" className="w-full" size="lg" disabled={busy || !ready}>
-              {!ready ? "Préparation de la démo…" : mode === "login" ? "Se connecter" : "Créer le compte"}
+              {!ready ? "Préparation de la démo…" : mode === "login" ? "Se connecter" : "Créer mon espace"}
             </Button>
             <button type="button" className="w-full text-sm text-brand-700 underline" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
               {mode === "login" ? "Pas encore de compte ? Créer un compte" : "J'ai déjà un compte"}
             </button>
           </form>
         </Card>
-        <Card className="bg-amber-50">
+        <Card className="bg-sun-soft">
           <h2 className="font-semibold">Comptes de démonstration</h2>
           <ul className="mt-2 space-y-2 text-sm">
             <li>
@@ -83,5 +98,13 @@ export default function Connexion() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-8">Chargement…</div>}>
+      <Connexion />
+    </Suspense>
   );
 }

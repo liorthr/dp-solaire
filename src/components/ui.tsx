@@ -1,11 +1,10 @@
 "use client";
 // Composants d'interface (style shadcn/ui, écrits à la main) : accessibles au clavier, contrastés.
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { cn } from "@/lib/cn";
 import { HelpCircle } from "lucide-react";
 import { useId, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 
-export const cn = (...a: Parameters<typeof clsx>) => twMerge(clsx(a));
+export { cn };
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 export function Button({ variant = "primary", size = "md", className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: "sm" | "md" | "lg" }) {
@@ -13,13 +12,13 @@ export function Button({ variant = "primary", size = "md", className, ...props }
     <button
       {...props}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition disabled:cursor-not-allowed disabled:opacity-50",
         size === "sm" && "h-8 px-3 text-sm",
         size === "md" && "h-10 px-4 text-sm",
         size === "lg" && "h-12 px-6 text-base",
-        variant === "primary" && "bg-brand-700 text-white hover:bg-brand-800",
-        variant === "secondary" && "bg-amber-400 text-stone-900 hover:bg-amber-500",
-        variant === "outline" && "border border-stone-300 bg-white hover:bg-stone-100",
+        variant === "primary" && "bg-ink text-white hover:bg-brand-700",
+        variant === "secondary" && "bg-brand-600 text-white shadow-[0_8px_20px_rgba(31,107,74,.25)] hover:bg-brand-700",
+        variant === "outline" && "border-2 border-ink bg-transparent hover:bg-white",
         variant === "ghost" && "hover:bg-stone-100",
         variant === "danger" && "bg-red-700 text-white hover:bg-red-800",
         className,
@@ -30,7 +29,7 @@ export function Button({ variant = "primary", size = "md", className, ...props }
 
 export function Card({ className, children, title, actions }: { className?: string; children: ReactNode; title?: ReactNode; actions?: ReactNode }) {
   return (
-    <section className={cn("rounded-xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5", className)}>
+    <section className={cn("rounded-3xl border border-line bg-white p-4 shadow-sm sm:p-6", className)}>
       {(title || actions) && (
         <div className="mb-3 flex items-center justify-between gap-2">
           {title && <h2 className="text-base font-semibold">{title}</h2>}

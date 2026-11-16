@@ -302,7 +302,7 @@ export async function buildDossier(input: BuildInput): Promise<BuildResult> {
   const merged = await PDFDocument.create();
   merged.setTitle(`Dossier DP ${p.reference}`);
   merged.setAuthor(tenant.name);
-  merged.setProducer("DP Solaire");
+  merged.setProducer("Permizy");
   for (const code of order) {
     const f = files.find((x) => x.code === code);
     if (!f) continue;

@@ -6,7 +6,7 @@ import JSZip from "jszip";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-const DEMO = { email: "demo@dp-solaire.fr", password: "Demo-2026!" };
+const DEMO = { email: "demo@permizy.com", password: "Demo-2026!" };
 const photo = (k: string) => path.join(import.meta.dirname, "..", "public", "demo", `sans-contrainte-${k}.jpg`);
 
 async function login(page: Page) {
@@ -275,4 +275,42 @@ test("fenêtres de toit : nouveau dossier en périmètre ABF, vue sur le voisin,
   const zip = await JSZip.loadAsync(readFileSync((await zipDl.path())!));
   const names = Object.keys(zip.files).map((n) => n.split("/").pop());
   for (const f of ["DP2_plan_de_masse.pdf", "DP4_plan_toiture.pdf", "DP11_notice_materiaux.pdf"]) expect(names).toContain(f);
+});
+
+test("particulier : accueil → verdict immédiat → création d'espace → dossier repris dans l'assistant", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await page.goto("./");
+  await page.evaluate(() => window.localStorage.setItem("dp:providerMode", "fixtures"));
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Le oui de la mairie");
+  await page.selectOption("[data-testid=home-works]", "pv");
+  await page.fill("#address", "Allée des Tilleuls 80480 Pont-de-Metz");
+  await page.locator("#address-list button").first().click();
+  await page.getByTestId("home-check").click();
+  await page.waitForURL(/\/verifier\//);
+  // deux questions : visible depuis la rue, copropriété
+  await page.getByTestId("quick-answer-visible").first().click();
+  await page.getByTestId("quick-answer-copropriete").first().click();
+  await expect(page.getByTestId("verdict")).toContainText("une simple déclaration suffit", { timeout: 60_000 });
+  await expect(page.getByText("1 mois")).toBeVisible();
+  await expect(page.getByText(/Zone UC/)).toBeVisible();
+  await page.getByTestId("quick-prepare").click();
+  await page.waitForURL(/\/connexion\/.*next=draft/);
+  await expect(page.getByText("Votre projet est gardé de côté")).toBeVisible();
+  await page.fill("#fullname", "Camille Testeuse");
+  await page.fill("#email", `camille.${Date.now()}@example.org`);
+  await page.fill("#password", "Mot-de-passe-2026");
+  await page.getByRole("button", { name: "Créer mon espace" }).click();
+  await page.waitForURL(/\/app\/nouveau\/\?draft=1/);
+  // étape 2 directement, client = le particulier lui-même
+  await expect(page.locator("#ln")).toHaveValue("Testeuse");
+  await expect(page.locator("#fn")).toHaveValue("Camille");
+});
+
+test("suivi façon colis : compte à rebours et étapes", async ({ page }, info) => {
+  test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
+  await login(page);
+  await page.getByTestId("project-row").filter({ hasText: "DEMO-1" }).click();
+  await page.getByRole("tab", { name: "Suivi" }).click();
+  await expect(page.getByTestId("tracker")).toContainText("Feu vert au plus tard le");
+  await expect(page.getByTestId("tracker")).toContainText("Récépissé reçu");
 });

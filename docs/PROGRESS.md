@@ -56,3 +56,11 @@ Qualité au dernier commit : lint 0 erreur ; typecheck OK ; Vitest 51/51 ; Playw
 - Démos : DEMO-6-MENUISERIE et DEMO-7-VELUX.
 - Tests : Vitest 91/91, Playwright desktop 14/14.
 - Questions ouvertes : Q26 à Q28.
+
+## 15-16/11/2026 : Permizy, refonte grand public et mise en ligne
+- Nouveau nom et domaine : permizy.com (enregistré sur Hostinger), identité « tampon feu vert » (vert, jaune soleil, crème), police Inter auto-hébergée.
+- Accueil : « Vos travaux. Le oui de la mairie. Sans la paperasse. » et phrase interactive « Je veux… chez moi, au… ».
+- Parcours public `/verifier/` : questions une par une, analyse sur les sources officielles, verdict immédiat (régime, délai, ABF, zone PLU, pièces, alertes sourcées).
+- Création d'espace particulier ou professionnel ; le projet commencé est repris dans l'assistant (client pré-rempli).
+- Suivi « façon colis » : compte à rebours jusqu'à la décision tacite, étapes cochées, écran « C'est accordé ! ».
+- Tests : Vitest 91/91, Playwright desktop 13/13.

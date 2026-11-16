@@ -1,4 +1,4 @@
-# DP Solaire : déclaration préalable automatisée (solaire, pompe à chaleur, isolation, menuiseries, fenêtres de toit)
+# Permizy (ex-DP Solaire) : déclaration préalable automatisée (solaire, pompe à chaleur, isolation, menuiseries, fenêtres de toit)
 
 SaaS B2B pour installateurs : **panneaux photovoltaïques** (avec raccordement Enedis et Consuel), **pompes à chaleur** (unité extérieure), **isolation thermique par l'extérieur**, **fenêtres, portes et volets** et **fenêtres de toit**. L'installateur fournit **une adresse, le matériel et 3 photos**. L'application :
 - interroge les sources publiques (BAN, cadastre, Géoportail de l'Urbanisme, BD TOPO, Géorisques, Annuaire) ;
@@ -17,8 +17,8 @@ SaaS B2B pour installateurs : **panneaux photovoltaïques** (avec raccordement E
 | | |
 |---|---|
 | URL | voir la section « Déploiement » (GitHub Pages) ou `npm run dev` |
-| Installateur | `demo@dp-solaire.fr` / `Demo-2026!` |
-| Super-admin (back-office) | `admin@dp-solaire.fr` / `Admin-2026!` |
+| Installateur | `demo@permizy.com` / `Demo-2026!` |
+| Super-admin (back-office) | `admin@permizy.com` / `Admin-2026!` |
 
 Sept dossiers de démonstration sont créés au premier lancement : adresses publiques réelles, clients **fictifs**, photos de **synthèse** marquées « ILLUSTRATION DÉMO ».
 
@@ -79,6 +79,12 @@ Voir `.env.example`. **Aucune n'est requise** pour la démo statique.
 | `NEXT_PUBLIC_SUPABASE_*` | driver Supabase (schéma prêt, driver à brancher) |
 
 ## Déploiement
+
+- **Production : https://permizy.com** (hébergement Hostinger, site statique, SSL et CDN Hostinger).
+  Mise en ligne : `NEXT_PUBLIC_BASE_PATH= npm run build:static`, ajouter `out/.htaccess` (redirection HTTPS, 404, cache), zipper `out/`, téléverser l'archive dans `public_html` puis « Deploy static site archive » (API Hostinger).
+- Pré-production : GitHub Pages (https://liorthr.github.io/dp-solaire/), déployée par la CI à chaque push.
+- Parcours public particulier : `/verifier/` (verdict immédiat sans inscription), puis création d'espace et reprise du brouillon dans `/app/nouveau/?draft=1`.
+
 - **GitHub Pages (statique)** : `.github/workflows/ci.yml` exécute lint, typecheck, Vitest, build, Playwright, puis publie `out/` (activer *Settings > Pages > Source : GitHub Actions*). URL : `https://<owner>.github.io/<dépôt>/`.
 - **Vercel (serveur)** : importer le dépôt, commande `npm run build`, définir les variables. Les routes `/api/proxy` (Annuaire et PVGIS, sans CORS), `/api/ai/plu`, `/api/mail/send` et `/api/billing/checkout` s'activent.
 - **Supabase** : `supabase db push` applique `supabase/migrations/0001_init.sql` (PostGIS, RLS par `tenant_id`, bucket privé cloisonné).

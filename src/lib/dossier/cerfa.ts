@@ -117,6 +117,6 @@ export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: Return
   }
   form.updateFieldAppearances();
   doc.setTitle(`Cerfa ${mapping.cerfa}*${mapping.version} : déclaration préalable`);
-  doc.setProducer("DP Solaire");
+  doc.setProducer("Permizy");
   return { bytes: await doc.save(), report };
 }

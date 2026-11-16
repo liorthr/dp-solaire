@@ -316,4 +316,4 @@ export function derogationNote(p: Project): string[] {
 }
 
 export const DISCLAIMER =
-  "Document préparé avec l'assistance du logiciel DP Solaire. Les informations réglementaires sont issues de sources publiques citées et peuvent comporter des erreurs ou être devenues obsolètes. Le déclarant reste seul responsable de l'exactitude du dossier et du respect des règles d'urbanisme ; aucune décision favorable n'est garantie.";
+  "Document préparé avec l'assistance du logiciel Permizy. Les informations réglementaires sont issues de sources publiques citées et peuvent comporter des erreurs ou être devenues obsolètes. Le déclarant reste seul responsable de l'exactitude du dossier et du respect des règles d'urbanisme ; aucune décision favorable n'est garantie.";

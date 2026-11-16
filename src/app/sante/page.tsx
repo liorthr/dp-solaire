@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { HealthTable } from "@/components/HealthTable";
 
-export const metadata = { title: "Santé des sources : DP Solaire" };
+export const metadata = { title: "Santé des sources : Permizy" };
 
 export default function Sante() {
   return (

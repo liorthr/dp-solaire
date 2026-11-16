@@ -1,20 +1,65 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
 
 @theme {
-  --color-brand-50: #ecfdf5;
-  --color-brand-100: #d1fae5;
-  --color-brand-600: #0f766e;
-  --color-brand-700: #0f5e57;
-  --color-brand-800: #0f3d2e;
-  --color-sun: #f59e0b;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-brand-50: #dff3e8;
+  --color-brand-100: #c6e8d5;
+  --color-brand-600: #1f6b4a;
+  --color-brand-700: #185a3d;
+  --color-brand-800: #13231c;
+  --color-ink: #13231c;
+  --color-cream: #fbf6ee;
+  --color-mint: #dff3e8;
+  --color-sun: #ffb84d;
+  --color-sun-soft: #fff1d6;
+  --color-sky: #dcebf7;
+  --color-line: #e8e1d5;
+  --color-muted: #5d6b64;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
 }
 body {
-  @apply bg-stone-50 text-stone-900 antialiased;
+  @apply bg-cream text-ink antialiased;
+}
+h1, h2, .display {
+  letter-spacing: -0.025em;
+}
+/* tampon « feu vert » (identité Permizy) */
+.stamp {
+  border: 3px solid currentColor;
+  border-radius: 9999px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  transform: rotate(-12deg);
+}
+.stamp::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 9999px;
+  border: 1.5px dashed currentColor;
+  opacity: 0.5;
+}
+.highlight {
+  position: relative;
+  white-space: nowrap;
+  z-index: 0;
+}
+.highlight::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 0.08em;
+  height: 0.28em;
+  background: var(--color-sun);
+  z-index: -1;
+  border-radius: 6px;
+  transform: rotate(-1deg);
 }
 :focus-visible {
   outline: 3px solid #f59e0b;

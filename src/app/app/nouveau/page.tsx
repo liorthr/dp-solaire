@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { DRAFT_KEY, type QuickDraft } from "@/lib/verdict/quick";
 import { Check, Loader2, AlertTriangle, XCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
@@ -52,6 +53,33 @@ function Wizard() {
   const [progress, setProgress] = useState<Record<string, { status: string; message?: string }>>({});
   const [running, setRunning] = useState(false);
   const [err, setErr] = useState("");
+
+  // reprise du projet commencé sur le parcours public (« Préparer mon dossier »)
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).get("draft")) return;
+    try {
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "null") as QuickDraft | null;
+      if (!d?.address) return;
+      localStorage.removeItem(DRAFT_KEY);
+      setWorks(d.works);
+      setAddress(d.address);
+      setAnswers((x) => ({ ...x, visibleFromPublicSpace: d.answers.visible ?? true, copropriete: Boolean(d.answers.copropriete) }));
+      if (d.answers.pacPlacement) setPac((x) => ({ ...x, placement: d.answers.pacPlacement! }));
+      if (d.answers.identical !== undefined) {
+        setMenu((x) => ({ ...x, identical: Boolean(d.answers.identical) }));
+        setVelux((x) => ({ ...x, identical: Boolean(d.answers.identical) }));
+      }
+      // particulier : le maître d'ouvrage, c'est lui
+      const s = currentSession();
+      if (s && s.tenant.name === s.user.fullName) {
+        const [first, ...rest] = s.user.fullName.trim().split(/\s+/);
+        setC((x) => ({ ...x, firstName: first, lastName: rest.join(" ") || first, email: s.user.email }));
+      }
+      setStep(1);
+    } catch {
+      /* brouillon illisible : on repart de zéro */
+    }
+  }, []);
 
   const existingClient = clients.find((x) => x.id === clientId);
   const canNext = useMemo(() => {

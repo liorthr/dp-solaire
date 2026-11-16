@@ -82,6 +82,6 @@ export async function stampConsuel(pdfBytes: ArrayBuffer | Uint8Array, form: str
     const pg = pages[c.page];
     pg.drawText("X", { x: c.x + 1.4, y: pg.getHeight() - c.y - 7.6, size: 8.5, font: bold, color: blue });
   }
-  pages[0].drawText("Pré-rempli par DP Solaire : à vérifier, compléter et signer par l'installateur", { x: 36, y: 12, size: 6.5, font, color: rgb(0.6, 0.1, 0.1) });
+  pages[0].drawText("Pré-rempli par Permizy : à vérifier, compléter et signer par l'installateur", { x: 36, y: 12, size: 6.5, font, color: rgb(0.6, 0.1, 0.1) });
   return doc.save();
 }

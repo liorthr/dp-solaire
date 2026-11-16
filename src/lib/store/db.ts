@@ -51,8 +51,8 @@ const SESSION = "dp:session";
 export const SALT = "dp-solaire-demo";
 
 export const DEMO_ACCOUNTS = {
-  installateur: { email: "demo@dp-solaire.fr", password: "Demo-2026!" },
-  admin: { email: "admin@dp-solaire.fr", password: "Admin-2026!" },
+  installateur: { email: "demo@permizy.com", password: "Demo-2026!" },
+  admin: { email: "admin@permizy.com", password: "Admin-2026!" },
 };
 
 const empty = (): DB => ({ schema: 1, tenants: [], users: [], memberships: [], clients: [], projects: [], panels: [], inverters: [], audit: [], notifications: [], subscriptions: {} });

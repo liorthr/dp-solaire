@@ -133,7 +133,7 @@ export function EnvoiTab({ b, goTo }: { b: ProjectBundle; goTo: (tab: string) =>
                 Ouvrir dans ma messagerie
               </a>
               <Button variant="secondary" disabled={!built || !to || !serverMail} onClick={() => setConfirm(true)} title={serverMail ? "" : "Envoi direct : déploiement serveur + RESEND_API_KEY requis"}>
-                <Send className="h-4 w-4" /> Envoyer depuis DP Solaire
+                <Send className="h-4 w-4" /> Envoyer depuis Permizy
               </Button>
             </div>
             <p className="text-xs text-stone-500">Aucun email n&apos;est envoyé sans votre confirmation explicite. En mode démo (sans serveur), ouvrez le .eml dans votre messagerie puis cliquez « Envoyer ».</p>

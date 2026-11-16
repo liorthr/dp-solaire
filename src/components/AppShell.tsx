@@ -6,6 +6,7 @@ import { Bell, FileText, Home, LogOut, Menu, Package, Plus, Settings, Shield, Us
 import { logout, repo } from "@/lib/store/db";
 import { useDbVersion, useSeed, useSession } from "@/lib/store/hooks";
 import { cn } from "./ui";
+import { Logo } from "./Logo";
 
 const NAV = [
   { href: "/app/", label: "Tableau de bord", icon: Home },
@@ -33,14 +34,13 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const active = (h: string) => (h === "/app/" ? path === "/app" || path === "/app/" : path?.startsWith(h.replace(/\/$/, "")));
   return (
     <div className="min-h-screen pb-20 sm:pb-0">
-      <header className="sticky top-0 z-[500] border-b border-stone-200 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-[500] border-b border-stone-200 bg-cream/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
           <button className="sm:hidden" aria-label="Menu" onClick={() => setMenu((m) => !m)}>
             <Menu className="h-6 w-6" />
           </button>
-          <Link href="/app/" className="flex items-center gap-2 font-bold text-brand-800">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-amber-400 text-stone-900">☀</span>
-            <span>DP Solaire</span>
+          <Link href="/app/" aria-label="Permizy : tableau de bord">
+            <Logo size="sm" />
           </Link>
           <span className="hidden truncate text-sm text-stone-500 sm:inline">{session.tenant.name}</span>
           <div className="ml-auto flex items-center gap-2">
