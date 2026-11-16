@@ -105,7 +105,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
             ))}
           </ul>
           <p className="mt-6 hidden px-3 text-xs text-stone-500 sm:block">
-            Mode démo : données stockées dans ce navigateur.
+            {isCloudSession(session) ? "Vos projets sont sauvegardés en ligne et accessibles depuis tous vos appareils." : "Mode démo : données stockées dans ce navigateur."}
             <br />
             <Link className="underline" href="/cgu/">CGU & responsabilité</Link>
           </p>
