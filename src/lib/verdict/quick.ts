@@ -10,6 +10,8 @@ import { deadlineMonths, evaluateProject, requiredPieces, rulesetFor } from "@/l
 export const DRAFT_KEY = "permizy:draft";
 export interface QuickDraft {
   works: WorksType;
+  /** parcours « Solaire agricole » */
+  agri?: boolean;
   address: AddressResult;
   answers: QuickAnswers;
 }

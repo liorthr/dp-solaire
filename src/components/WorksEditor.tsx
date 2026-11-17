@@ -1,18 +1,18 @@
 "use client";
 // Saisie des caractéristiques PAC / ITE (assistant de création et onglet Plans).
-import type { ExtensionInfo, IteInfo, JoineryInfo, JoineryItem, JoineryKind, JoineryMaterial, PacInfo, RoofPlane, RoofWindowInfo, WorksType } from "@/lib/types";
+import type { AgriInfo, ExtensionInfo, IteInfo, JoineryInfo, JoineryItem, JoineryKind, JoineryMaterial, PacInfo, RoofPlane, RoofWindowInfo, WorksType } from "@/lib/types";
 import { Field, Input, Select, cn } from "@/components/ui";
-import { EXTENSION_KINDS, defaultPacUnits, ITE_COLORS, ITE_FINISHES, JOINERY_COLORS, JOINERY_KINDS, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS, WORKS } from "@/data/works";
+import { EXTENSION_KINDS, defaultPacUnits, ITE_COLORS, ITE_FINISHES, JOINERY_COLORS, JOINERY_KINDS, JOINERY_MATERIALS, ROOF_WINDOW_COLORS, ROOF_WINDOW_MODELS, WORK_CHOICES, AGRI_USES, type WorksChoice } from "@/data/works";
 import { Button } from "@/components/ui";
 import { orientationLabel } from "@/lib/geo/roof";
 import type { Facade } from "@/lib/geo/facades";
 
-export function WorksPicker({ value, onChange }: { value: WorksType; onChange: (w: WorksType) => void }) {
+export function WorksPicker({ value, onChange }: { value: WorksChoice; onChange: (w: WorksChoice) => void }) {
   return (
     <fieldset>
       <legend className="mb-2 text-sm font-medium">Type de travaux</legend>
       <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5" role="radiogroup">
-        {WORKS.map((w) => (
+        {WORK_CHOICES.map((w) => (
           <label key={w.id} className={cn("flex cursor-pointer flex-col rounded-xl border p-3 text-sm transition", value === w.id ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600" : "border-stone-200 hover:border-stone-400")}>
             <span className="flex items-center gap-2 font-semibold">
               <input type="radio" name="works" value={w.id} checked={value === w.id} onChange={() => onChange(w.id)} data-testid={`works-${w.id}`} />
@@ -23,6 +23,53 @@ export function WorksPicker({ value, onChange }: { value: WorksType; onChange: (
         ))}
       </div>
     </fieldset>
+  );
+}
+
+/** bâtiment agricole et déclarant (exploitant en nom propre ou société) */
+export function AgriEditor({ value, onChange }: { value: AgriInfo; onChange: (v: AgriInfo) => void }) {
+  const co = value.company;
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Field label="Bâtiment" htmlFor="agri-building" help="Panneaux sur un bâtiment existant : déclaration préalable. Hangar construit pour porter les panneaux : permis de construire.">
+        <Select id="agri-building" value={value.building} data-testid="agri-building" onChange={(e) => onChange({ ...value, building: e.target.value as AgriInfo["building"] })}>
+          <option value="existant">Bâtiment existant</option>
+          <option value="neuf">Hangar neuf (à construire)</option>
+        </Select>
+      </Field>
+      <Field label="Usage du bâtiment" htmlFor="agri-use">
+        <Select id="agri-use" value={value.use} onChange={(e) => onChange({ ...value, use: e.target.value as AgriInfo["use"] })}>
+          {Object.entries(AGRI_USES).map(([k, l]) => (
+            <option key={k} value={k}>
+              {l}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Déclarant" htmlFor="agri-declarant" help="Société : la demande est faite au nom de la société (cerfa, rubrique « personne morale »), représentée par l'exploitant.">
+        <Select id="agri-declarant" value={co ? "societe" : "nom_propre"} data-testid="agri-declarant" onChange={(e) => onChange({ ...value, company: e.target.value === "societe" ? { legalForm: "EARL", name: "", siret: "" } : undefined })}>
+          <option value="nom_propre">Exploitant en nom propre</option>
+          <option value="societe">Société (EARL, GAEC, SCEA…)</option>
+        </Select>
+      </Field>
+      {co && (
+        <>
+          <Field label="Forme" htmlFor="agri-form">
+            <Select id="agri-form" value={co.legalForm} onChange={(e) => onChange({ ...value, company: { ...co, legalForm: e.target.value } })}>
+              {["EARL", "GAEC", "SCEA", "SARL", "SAS", "Autre"].map((f) => (
+                <option key={f}>{f}</option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Nom de la société" htmlFor="agri-name">
+            <Input id="agri-name" data-testid="agri-name" value={co.name} onChange={(e) => onChange({ ...value, company: { ...co, name: e.target.value } })} placeholder="EARL du Moulin" />
+          </Field>
+          <Field label="N° SIRET" htmlFor="agri-siret" help="14 chiffres (avis de situation INSEE).">
+            <Input id="agri-siret" data-testid="agri-siret" inputMode="numeric" value={co.siret} onChange={(e) => onChange({ ...value, company: { ...co, siret: e.target.value } })} />
+          </Field>
+        </>
+      )}
+    </div>
   );
 }
 

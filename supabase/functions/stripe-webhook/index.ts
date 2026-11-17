@@ -6,7 +6,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const stripe = new Stripe("sk_unused_for_signature_check", { httpClient: Stripe.createFetchHttpClient() });
 const crypto = Stripe.createSubtleCryptoProvider();
-const KINDS: Record<number, string> = { 4900: "DP", 14900: "PC" };
+const KINDS: Record<number, string> = { 4900: "DP", 14900: "PC", 23900: "AGRI" };
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Méthode non autorisée", { status: 405 });

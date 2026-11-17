@@ -72,6 +72,9 @@ export function buildFacts(ctx: FactsContext): Facts {
     "pv.groundHeightM": p.pv.groundHeightM ?? 0,
     "pv.fullBlack": Boolean(panel?.fullBlack),
     "pv.mounting": p.pv.mounting,
+    "agri.is": Boolean(p.agri),
+    "agri.newBuilding": p.agri?.building === "neuf",
+    "declarant.isCompany": Boolean(p.agri?.company),
 
     "layout.placed": placed,
     "layout.mismatch": placed !== p.pv.panelCount,

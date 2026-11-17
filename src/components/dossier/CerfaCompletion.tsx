@@ -27,6 +27,7 @@ export function CerfaCompletion({ b, self }: { b: ProjectBundle; self: boolean }
     const patch: Record<string, string> = {};
     for (const k of ["lastName", "firstName", "birthDate", "birthPlace", "phone", "email"]) if (v[k]?.trim()) patch[k] = v[k].trim();
     let clientId = p.clientId;
+    const agri = p.agri && (v.companyName || v.companySiret || v.companyForm) ? { ...p.agri, company: { name: v.companyName?.trim() || p.agri.company?.name || "", siret: (v.companySiret || p.agri.company?.siret || "").replace(/\s/g, ""), legalForm: v.companyForm?.trim() || p.agri.company?.legalForm || "" } } : p.agri;
     if (Object.keys(patch).length) {
       if (client) repo.saveClient({ ...client, ...patch });
       else clientId = repo.saveClient({ firstName: patch.firstName ?? "", lastName: patch.lastName ?? "", ...patch }).id;
@@ -34,7 +35,7 @@ export function CerfaCompletion({ b, self }: { b: ProjectBundle; self: boolean }
     const overrides = { ...p.overrides };
     // parcelle saisie à la main : uniquement pour le cerfa (les plans gardent la géométrie du cadastre)
     if (v.section?.trim() && v.numero?.trim()) overrides["cadastre.manual"] = { section: v.section.trim().toUpperCase(), numero: v.numero.trim().padStart(4, "0"), contenanceM2: Number(v.surface) || 0 };
-    save({ ...p, clientId, overrides }, "cerfa_complete");
+    save({ ...p, clientId, overrides, agri }, "cerfa_complete");
   };
 
   return (
@@ -61,7 +62,7 @@ export function CerfaCompletion({ b, self }: { b: ProjectBundle; self: boolean }
             </div>
           ) : (
             <Field key={g.id} label={`${g.label}${g.required ? "" : " (facultatif)"}`} htmlFor={`cg-${g.id}`}>
-              <Input id={`cg-${g.id}`} type={g.id === "birthDate" ? "date" : g.id === "phone" ? "tel" : g.id === "email" ? "email" : "text"} value={v[g.id] ?? ""} onChange={set(g.id)} />
+              <Input id={`cg-${g.id}`} type={g.id === "birthDate" ? "date" : g.id === "phone" ? "tel" : g.id === "email" ? "email" : "text"} inputMode={g.id === "companySiret" ? "numeric" : undefined} placeholder={g.id === "companyForm" ? "EARL, GAEC, SCEA…" : undefined} value={v[g.id] ?? ""} onChange={set(g.id)} />
             </Field>
           ),
         )}

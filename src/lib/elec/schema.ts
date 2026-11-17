@@ -66,7 +66,7 @@ export function singleLineSvg(p: Project, e: ElecInfo, r: ElecResult, panel: Pan
   parts.push(text(DRAW.x + 2, y + h + 26, "Liaisons", 3, { weight: "bold" }));
   links.forEach((l, i) => parts.push(text(DRAW.x + 2, y + h + 31 + i * 4.2, `L${i + 1} : ${l}`, 2.6, { fill: l.startsWith("DC") ? "#b91c1c" : "#1d4ed8" })));
   parts.push(text(DRAW.x + 2, DRAW.y + 8, "Schéma unifilaire simplifié de l'installation de production photovoltaïque", 3.6, { weight: "bold" }));
-  parts.push(text(DRAW.x + 2, DRAW.y + 14, `${r.isMicro ? "Micro-onduleurs" : "Onduleur central"} : ${r.acPowerKva} kVA ${e.phase === "tri" ? "triphasé" : "monophasé"} : raccordement ${e.injection === "sans" ? "en autoconsommation totale (sans injection)" : e.injection === "surplus" ? "en autoconsommation avec injection du surplus" : "en vente de la totalité"}`, 2.8));
+  parts.push(text(DRAW.x + 2, DRAW.y + 14, `${r.isMicro ? "Micro-onduleurs" : r.inverterCount > 1 ? `${r.inverterCount} onduleurs` : "Onduleur central"} : ${r.acPowerKva} kVA ${e.phase === "tri" ? "triphasé" : "monophasé"} : raccordement ${e.injection === "sans" ? "en autoconsommation totale (sans injection)" : e.injection === "surplus" ? "en autoconsommation avec injection du surplus" : "en vente de la totalité"}`, 2.8));
   parts.push(text(DRAW.x + 2, DRAW.y + 19, "Courant continu en rouge, courant alternatif en bleu. Valeurs calculées à vérifier par l'installateur (note de calcul jointe).", 2.4, { fill: "#555" }));
   return page(parts.join(""), {
     ...cart,

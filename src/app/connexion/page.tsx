@@ -13,10 +13,12 @@ function Connexion() {
   const router = useRouter();
   const sp = useSearchParams();
   const fromDraft = sp.get("next") === "draft" || sp.get("next") === "/app/nouveau/?draft=1";
-  const target = fromDraft ? "/app/nouveau/?draft=1" : "/app/";
+  const nextParam = sp.get("next") ?? "";
+  // destination interne uniquement (jamais d'URL externe)
+  const target = fromDraft ? "/app/nouveau/?draft=1" : nextParam.startsWith("/app/") && !nextParam.startsWith("//") ? nextParam : "/app/";
   const [mode, setMode] = useState<"login" | "signup" | "reset" | "newpassword">(sp.get("reset") ? "newpassword" : sp.get("mode") === "signup" ? "signup" : "login");
   const [info, setInfo] = useState("");
-  const [pro, setPro] = useState(false);
+  const [pro, setPro] = useState(sp.get("pro") === "1");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("");

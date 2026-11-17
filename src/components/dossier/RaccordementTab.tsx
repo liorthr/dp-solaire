@@ -4,7 +4,7 @@ import { Download, ExternalLink, FileArchive, Loader2, Zap } from "lucide-react"
 import type { ElecInfo, InstructionEvent } from "@/lib/types";
 import { Badge, Button, Card, Field, Input, Select, severityLabel, severityTone } from "@/components/ui";
 import { SignaturePad } from "@/components/SignaturePad";
-import { defaultElec } from "@/lib/elec/calc";
+import { defaultElec, GRID } from "@/lib/elec/calc";
 import { evaluateRaccordement } from "@/lib/elec/rules";
 import { singleLineSvg } from "@/lib/elec/schema";
 import { mandateRaccordementText } from "@/lib/elec/texts";
@@ -18,11 +18,11 @@ import type { ProjectBundle } from "./useProject";
 import { useSaveProject } from "./useProject";
 
 const STEPS: { type: InstructionEvent["type"]; label: string; group: "Enedis" | "Consuel" }[] = [
-  { type: "rac_demande", label: "Demande de raccordement déposée (Enedis Connect)", group: "Enedis" },
+  { type: "rac_demande", label: "Demande de raccordement déposée", group: "Enedis" },
   { type: "rac_complete", label: "Demande déclarée complète (fixe le tarif d'achat)", group: "Enedis" },
-  { type: "rac_proposition", label: "Proposition / convention reçue", group: "Enedis" },
+  { type: "rac_proposition", label: "Proposition de raccordement / convention reçue (devis sous 3 mois au-delà de 36 kVA)", group: "Enedis" },
   { type: "rac_acceptation", label: "Proposition acceptée (et acompte réglé si demandé)", group: "Enedis" },
-  { type: "consuel_demande", label: "Demande de visa Consuel envoyée", group: "Consuel" },
+  { type: "consuel_demande", label: "Demande de visa Consuel envoyée (ou contrôle de conformité commandé)", group: "Consuel" },
   { type: "consuel_visite", label: "Visite de contrôle Consuel", group: "Consuel" },
   { type: "consuel_vise", label: "Attestation visée (transmise au gestionnaire de réseau)", group: "Consuel" },
   { type: "rac_mise_en_service", label: "Mise en service (début du contrat d'achat)", group: "Enedis" },
@@ -116,12 +116,21 @@ export function RaccordementTab({ b }: { b: ProjectBundle }) {
               <Field label="Nombre de chaînes">
                 <Input type="number" defaultValue={e.strings ?? 1} onBlur={(ev) => set({ strings: num(ev.target.value) })} />
               </Field>
+              <Field label="Nombre d'onduleurs" help="Onduleurs identiques (grosses installations : hangar, bâtiment agricole…).">
+                <Input type="number" min={1} data-testid="inverter-count" defaultValue={e.inverterCount ?? 1} onBlur={(ev) => set({ inverterCount: Math.max(1, num(ev.target.value) ?? 1) })} />
+              </Field>
             </>
           )}
           <Field label="Batterie">
             <Select value={e.battery ? "oui" : "non"} onChange={(ev) => set({ battery: ev.target.value === "oui" })}>
               <option value="non">Non</option>
               <option value="oui">Oui</option>
+            </Select>
+          </Field>
+          <Field label="Type de site" help="Exploitation agricole, entreprise, ERP : rapport de contrôle d'un organisme accrédité COFRAC.">
+            <Select value={e.workplace ? "pro" : "logement"} data-testid="workplace" onChange={(ev) => set({ workplace: ev.target.value === "pro" })}>
+              <option value="logement">Logement</option>
+              <option value="pro">Exploitation agricole, entreprise, ERP</option>
             </Select>
           </Field>
           <Field label="Nom de l'électricien (dossier Consuel)">
@@ -133,15 +142,22 @@ export function RaccordementTab({ b }: { b: ProjectBundle }) {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Résultats">
           <ul className="space-y-1 text-sm" data-testid="elec-results">
-            <li>Puissance de raccordement : <strong>{String(r.acPowerKva).replace(".", ",")} kVA</strong> ({r.isMicro ? `${r.microCount} micro-onduleurs` : "onduleur central"})</li>
+            <li>Puissance de raccordement : <strong>{String(r.acPowerKva).replace(".", ",")} kVA</strong> ({r.isMicro ? `${r.microCount} micro-onduleurs` : r.inverterCount > 1 ? `${r.inverterCount} onduleurs` : "onduleur central"})</li>
+            <li data-testid="grid-domain">
+              Réseau : <strong>{GRID[r.domain].label}</strong> : {GRID[r.domain].procedure}
+            </li>
             <li>Courant AC : {String(r.iAcA).replace(".", ",")} A : protection <strong>{r.breakerA} A</strong> + différentiel 30 mA</li>
             <li>Câble AC : <strong>{r.sectionMm2} mm²</strong> : chute de tension {String(r.dropPct).replace(".", ",")} %</li>
             <li>Iscmax : {r.iscMaxA !== undefined ? String(r.iscMaxA).replace(".", ",") : "?"} A : Uocmax : {r.uocMaxV !== undefined ? String(r.uocMaxV).replace(".", ",") : "?"} V</li>
+            {!r.consuelRequired ? (
+              <li>Consuel : sans objet en HTA ; <strong>contrôle de conformité</strong> par un organisme accrédité (arrêté du 6 juillet 2010).</li>
+            ) : (
             <li>
               Consuel : attestation <Badge tone={r.attestation === "bleue" ? "info" : "ia"}>{r.attestation}</Badge> ({r.attestationCerfa}) + <strong data-testid="consuel-form">{r.consuelForm}</strong>
               {r.extraForms.length > 0 && <> + {r.extraForms.join(" + ")}</>}{" "}
               <a className="text-brand-700 underline" href="https://www.consuel.com/dossiers-techniques/" target="_blank" rel="noreferrer">source</a>
             </li>
+            )}
             {r.notes.map((n) => <li key={n} className="text-xs text-amber-800">{n}</li>)}
           </ul>
         </Card>
@@ -193,7 +209,7 @@ export function RaccordementTab({ b }: { b: ProjectBundle }) {
       </Card>
 
       <Card title="Générer le pack Raccordement & Consuel">
-        <p className="mb-2 text-sm text-stone-600">Schéma unifilaire, dossier technique Consuel pré-rempli, note de calcul, récapitulatif à saisir sur Enedis Connect, mandat et plan de situation.</p>
+        <p className="mb-2 text-sm text-stone-600">Schéma unifilaire, dossier technique Consuel pré-rempli{r.extraForms.includes("SC 143") ? " et SC 143" : ""}, note de calcul, récapitulatif de la demande Enedis, mandat et plan de situation.</p>
         <Button size="lg" variant="secondary" onClick={generate} disabled={Boolean(busy)} data-testid="generate-rac">
           {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Zap className="h-5 w-5" />} {busy ? `${busy}…` : "Générer le pack"}
         </Button>
@@ -216,7 +232,7 @@ export function RaccordementTab({ b }: { b: ProjectBundle }) {
           </div>
         )}
         <p className="mt-3 text-xs text-stone-500">
-          Dépôt : demande en ligne sur <a className="underline" href="https://www.enedis.fr/" target="_blank" rel="noreferrer">Enedis Connect</a> (procédure Enedis-PRO-RAC_20E) ; visa sur <a className="underline" href="https://www.consuel.com/" target="_blank" rel="noreferrer">consuel.com</a>. Aucun dépôt n&apos;est fait automatiquement.
+          Dépôt : {GRID[r.domain].portal} sur <a className="underline" href="https://www.enedis.fr/" target="_blank" rel="noreferrer">enedis.fr</a> (procédure {GRID[r.domain].procedure}) ; visa sur <a className="underline" href="https://www.consuel.com/" target="_blank" rel="noreferrer">consuel.com</a>. Aucun dépôt n&apos;est fait automatiquement.
         </p>
       </Card>
 

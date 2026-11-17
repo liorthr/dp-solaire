@@ -111,6 +111,10 @@ export interface ElecInfo {
   dcSwitchUn?: number;
   dcSwitchIn?: number;
   microCount?: number;
+  /** nombre d'onduleurs centraux identiques (grosses puissances : hangar, bâtiment agricole…) */
+  inverterCount?: number;
+  /** site soumis au code du travail (exploitation agricole, entreprise, ERP…) : rapport de contrôle d'un organisme accrédité */
+  workplace?: boolean;
   installerName?: string;
   /** mandat spécifique raccordement / Consuel / contrat d'achat */
   mandate?: SignatureRecord;
@@ -361,8 +365,19 @@ export interface IteInfo {
   derogation: boolean;
 }
 
+/** photovoltaïque agricole : bâtiment d'exploitation, déclarant souvent une société (EARL, GAEC, SCEA…) */
+export interface AgriInfo {
+  /** panneaux sur un bâtiment existant (DP) ou sur un hangar neuf (permis de construire) */
+  building: "existant" | "neuf";
+  use: "hangar" | "stabulation" | "stockage" | "serre" | "autre";
+  /** déclarant personne morale (rubrique 1.2 du cerfa) ; absent : exploitant en nom propre */
+  company?: { legalForm: string; name: string; siret: string };
+}
+
 export interface Project {
   id: ID;
+  /** photovoltaïque sur bâtiment agricole (works « pv ») */
+  agri?: AgriInfo;
   /** défaut : photovoltaïque (dossiers créés avant l'ajout des autres travaux) */
   works?: WorksType;
   pac?: PacInfo;

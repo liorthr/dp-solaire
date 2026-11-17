@@ -34,3 +34,7 @@
 | Q30 | RE 2020 et petites extensions : exigences et attestation | F1986 : attestation exigée pour les constructions et extensions ; seuils non précisés | Lire R. 172-1 et suivants du CCH, et l'arrêté du 9/12/2021 |
 | Q31 | Garage : déduction des surfaces de stationnement dans la surface de plancher | Principe connu (R. 111-22) non relu dans cette session | Lire R. 111-22 du code de l'urbanisme |
 | Q32 | Permis en secteur protégé : nombre exact d'exemplaires | Cerfa 13406, cadre 8 : +1 exemplaire (SPR, abords MH) ; l'application retient 5 dossiers | Confirmer avec un service instructeur |
+| Q33 | Hangar agricole neuf : génération du permis (cerfa 13409, pièces PC1 à PC8) | Régime et seuil d'architecte vérifiés (F1986) ; mapping 13409 et plans du hangar non faits | Relever le PDF 13409 en vigueur et définir les plans du bâtiment neuf |
+| Q34 | Dénomination / raison sociale (cerfa, rubrique 1.2) | Les deux champs reçoivent le nom de la société | Confirmer avec un service instructeur la différence attendue |
+| Q35 | Sections de câbles et calibres au-delà de 63 A | Courants admissibles indicatifs ; une seule liaison AC calculée | Faire valider la note de calcul fortes puissances par un électricien / bureau d'études |
+| Q36 | Pièces exactes de complétude au-delà de 36 kVA | Procédure Enedis-NMO-RES_030E citée (photovoltaique.info) ; texte Enedis non relu | Lire le chapitre 7 de Enedis-NMO-RES_030E |

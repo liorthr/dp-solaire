@@ -24,7 +24,7 @@
 - Demande en ligne sur **Enedis Connect**, procédure **Enedis-PRO-RAC_20E**. Options : injection de la totalité, injection du surplus, sans injection.
 - **Sans injection** : déclaration obligatoire ; l'acceptation de la déclaration complète vaut **CACSI** ; aucun frais de gestion/comptage au titre de la production ; compteur électromécanique remplacé par Enedis. https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-inf-36-kva/sans-injection/
 - Surplus cédé gratuitement à Enedis possible pour P ≤ 3 kW.
-- > 36 kVA : autre procédure (hors V1, bloquant dans l'application).
+- > 36 kVA : voir la section « Fortes puissances » ci-dessous (traité depuis le 17/11/2026).
 - Production ≤ puissance souscrite en autoconsommation totale (FAQ photovoltaique.info) : **À_VÉRIFIER** sur le texte Enedis.
 - Pièces exactes de complétude (autorisation d'urbanisme, etc.) : **À_VÉRIFIER** dans Enedis-PRO-RAC_20E (Q19).
 
@@ -37,3 +37,18 @@ https://www.photovoltaique.info/fr/actualites/detail/arrete-s21-detail-des-modif
 
 ## Hypothèses de calcul (À_VÉRIFIER, affichées dans la note de calcul)
 Iscmax = 1,25 × Isc STC ; Uocmax = Voc × n × (1 + |coef| × (25 − (−10))) ou × 1,2 si coef inconnu ; chute de tension AC ≤ 1 % ; courants admissibles indicatifs.
+
+## Fortes puissances (> 36 kVA) : VÉRIFIÉ (photovoltaique.info, lu le 17/11/2026)
+Sources : [seuils techniques et réglementaires](https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/bien-choisir-sa-puissance-de-raccordement/connaitre-les-seuils-techniques-et-reglementaires/), [raccordement > 36 kVA](https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-36-kva/), [HTA](https://www.photovoltaique.info/fr/realiser-une-installation/raccordement/raccordement-en-hta/conditions-specifiques-en-hta/), [Consuel et rapport de contrôle](https://www.photovoltaique.info/fr/realiser-une-installation/regles-conception-mise-en-oeuvre/normes-electriques-applicables-aux-systemes-pv/attestation-consuel-et-rapport-de-controle/).
+
+| Puissance installée (somme des onduleurs, par PDL) | Domaine | Procédure Enedis | Conformité |
+|---|---|---|---|
+| ≤ 36 kVA | BT (mono jusqu'à 18 kVA ; injection mono limitée à 6 kVA par la DTR Enedis) | Enedis-PRO-RAC_20E, Enedis Connect | Consuel SC 144 |
+| 36 à 250 kVA | BT triphasé | Enedis-NMO-RES_030E (NMO-RAC_005E si production + consommation), agence CAP BT ; devis sous 3 mois ; CRD ou CR | Consuel SC 144 + SC 143 |
+| 250 kVA à 12 MW (17 MW dérogation) | HTA, poste privé (NF C 13-100 / C 13-200), découplage externe type H, CARD-I MOP-CF_045E/046E | Enedis-NMO-RES_030E | contrôle de conformité (arrêté du 6 juillet 2010), pas d'attestation Consuel (D342-19 : < 250 kVA) |
+
+- Sites soumis au code du travail (« dont font généralement partie les installations agricoles »), ERP… : **rapport de contrôle** par un organisme accrédité COFRAC (DRE 162 et DRE 155, DRE 155B avec stockage).
+- Nouvelle attestation si la puissance augmente de 10 % ou si le domaine de tension change (D342-14).
+- Passer au-delà de 36 kVA fait perdre le tarif réglementé de vente en consommation ≤ 36 kVA.
+- Soutien : ≤ 100 kWc (P+Q) arrêté S21 en guichet ouvert ; **> 100 et ≤ 500 kWc : appel d'offres simplifié « Petit PV »** depuis le 22/09/2025 (complément de rémunération 20 ans) ; > 500 kWc : appels d'offres CRE. [Source](https://www.photovoltaique.info/fr/tarifs-dachat-et-autoconsommation/appels-doffres/appel-doffres-simplifie-100-500-kwc/principes-et-conditions-deligibilite/)
+- Calculs de sections au-delà de 63 A : courants admissibles indicatifs (À_VÉRIFIER), la note de l'électricien fait foi.

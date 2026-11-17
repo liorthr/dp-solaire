@@ -13,4 +13,5 @@ export const defaultInverters: InverterModel[] = [
   { id: "gen-micro-400", brand: "Générique", model: "Micro-onduleur 400 VA (exemple)", kind: "micro", powerVa: 400, phase: "mono", integratedDecoupling: true },
   { id: "gen-central-6k", brand: "Générique", model: "Onduleur central 6 kVA (exemple)", kind: "central", powerVa: 6000, phase: "mono", integratedDecoupling: true },
   { id: "gen-opti", brand: "Générique", model: "Onduleur + optimiseurs (exemple)", kind: "optimiseur", powerVa: 5000, phase: "mono", integratedDecoupling: true },
+  { id: "gen-tri-50k", brand: "Générique", model: "Onduleur triphasé 50 kVA (exemple, grandes toitures)", kind: "central", powerVa: 50000, phase: "tri", integratedDecoupling: true },
 ];

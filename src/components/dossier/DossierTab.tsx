@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Download, FileArchive, FileText, Loader2, Lock } from "lucide-react";
-import { isPaid, payDossier, paymentRequired, PRICES } from "@/lib/cloud/payments";
+import { isPaid, payDossier, paymentRequired, PRICE_LABELS, PRICES, priceKindOf } from "@/lib/cloud/payments";
 import { Badge, Button, Card, Disclaimer, Progress } from "@/components/ui";
 import { SignaturePad } from "@/components/SignaturePad";
 import { buildDossier, type BuildResult } from "@/lib/dossier/build";
@@ -34,7 +34,7 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
   const [err, setErr] = useState("");
   const [sig, setSig] = useState<string | null>(null);
   const ev = analysis.evaluation;
-  const kind: "DP" | "PC" = ev.regime.outcome === "PC" ? "PC" : "DP";
+  const kind = priceKindOf(p, ev.regime.outcome);
   const mustPay = paymentRequired();
   const cerfaMissing = cerfaGaps(p, client).filter((g) => g.required);
   // on ne fait pas payer un dossier qui ne peut pas être déposé en l'état
@@ -104,7 +104,7 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
                 <Lock className="h-5 w-5" /> Votre dossier est prêt à être téléchargé
               </p>
               <p className="mt-1 text-sm">
-                {kind === "PC" ? "Permis de construire" : "Déclaration préalable"} : <b className="text-2xl">{PRICES[kind]} €</b> TTC, paiement unique pour ce dossier.
+                {PRICE_LABELS[kind]} : <b className="text-2xl">{PRICES[kind]} €</b> TTC, paiement unique pour ce dossier.
               </p>
               <ul className="mt-3 space-y-1 text-sm">
                 <li>✓ Plans à l&apos;échelle, photomontage et notice</li>
@@ -137,10 +137,10 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
       {res && (
         <Card title="Dossier généré" actions={<Badge tone="ok">{(res.durationMs / 1000).toFixed(1)} s</Badge>}>
           <div className="flex flex-wrap gap-2" data-testid="downloads">
-            <Button onClick={() => download(res.pdf, `Dossier_${kind}_${p.reference}.pdf`)} data-testid="download-pdf">
+            <Button onClick={() => download(res.pdf, `Dossier_${ev.regime.outcome === "PC" ? "PC" : "DP"}_${p.reference}.pdf`)} data-testid="download-pdf">
               <Download className="h-4 w-4" /> PDF unique ({Math.round(res.pdf.size / 1024)} Ko)
             </Button>
-            <Button variant="outline" onClick={() => download(res.zip, `Dossier_${kind}_${p.reference}.zip`)} data-testid="download-zip">
+            <Button variant="outline" onClick={() => download(res.zip, `Dossier_${ev.regime.outcome === "PC" ? "PC" : "DP"}_${p.reference}.zip`)} data-testid="download-zip">
               <FileArchive className="h-4 w-4" /> ZIP des pièces ({Math.round(res.zip.size / 1024)} Ko)
             </Button>
           </div>

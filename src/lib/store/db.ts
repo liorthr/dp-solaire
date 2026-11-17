@@ -86,6 +86,8 @@ function load(): DB {
   try {
     const raw = typeof window !== "undefined" ? window.localStorage.getItem(KEY) : null;
     cache = raw ? (JSON.parse(raw) as DB) : empty();
+    // catalogue de départ : les modèles génériques ajoutés depuis (ex. onduleur triphasé 50 kVA) apparaissent aussi chez les comptes existants
+    if (cache.inverters.length) for (const inv of defaultInverters) if (!cache.inverters.some((x) => x.id === inv.id)) cache.inverters.push(inv);
   } catch {
     cache = empty();
   }

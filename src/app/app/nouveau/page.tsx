@@ -14,10 +14,10 @@ import { applyEnrichment, newProject, relayout } from "@/lib/project/factory";
 import { runEnrichment, STEPS, type StepId } from "@/lib/enrichment/run";
 import { simpleSignatureProvider } from "@/lib/providers/signature";
 import { mandateText } from "@/lib/dossier/texts";
-import { ExtensionEditor, IteEditor, JoineryEditor, PacEditor, VeluxEditor, WorksPicker } from "@/components/WorksEditor";
-import { defaultExtension, defaultIte, defaultJoinery, defaultPac, defaultVelux } from "@/data/works";
+import { AgriEditor, ExtensionEditor, IteEditor, JoineryEditor, PacEditor, VeluxEditor, WorksPicker } from "@/components/WorksEditor";
+import { defaultAgri, defaultExtension, defaultIte, defaultJoinery, defaultPac, defaultVelux, type WorksChoice } from "@/data/works";
 import { bestExtensionFacade, bestPacFacade, defaultJoineryItems, defaultRoofWindows, estimateExistingFloorArea } from "@/lib/works/geom";
-import type { ExtensionInfo, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
+import type { AgriInfo, ExtensionInfo, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
 
 const STEP_LABELS = ["Adresse", "Client & mandat", "Projet", "Photos"];
 const HOME_STEP_LABELS = ["Où et quoi", "Vous", "Votre projet", "Photos"];
@@ -29,6 +29,7 @@ function Wizard() {
     const w = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("works") : null;
     return w === "pac" || w === "ite" || w === "menuiserie" || w === "velux" || w === "extension" ? w : "pv";
   });
+  const [agri, setAgri] = useState<AgriInfo | undefined>(() => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("works") === "pv_agri" ? defaultAgri() : undefined));
   const [pac, setPac] = useState<PacInfo>(defaultPac);
   const [ite, setIte] = useState<IteInfo>(defaultIte);
   const [menu, setMenu] = useState<JoineryInfo>(defaultJoinery);
@@ -46,12 +47,15 @@ function Wizard() {
   const panels = repo.panels();
   const inverters = repo.inverters();
   const [panelId, setPanelId] = useState(panels[0]?.id ?? "");
-  const [count, setCount] = useState(12);
+  const [count, setCount] = useState(() => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("works") === "pv_agri" ? 120 : 12));
   const panel = panels.find((p) => p.id === panelId);
   const computed = panel ? Math.round(count * panel.powerWc) / 1000 : 0;
   const [power, setPower] = useState<string>("");
   const [mounting, setMounting] = useState<MountingType>("surimposition");
-  const [inverterId, setInverterId] = useState(inverters[0]?.id ?? "");
+  const [inverterId, setInverterId] = useState(() => {
+    const agriStart = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("works") === "pv_agri";
+    return (agriStart ? inverters.find((x) => x.phase === "tri" && x.kind === "central")?.id : undefined) ?? inverters[0]?.id ?? "";
+  });
   const [photos, setPhotos] = useState<Partial<Record<Photo["kind"], Photo>>>({});
   const [progress, setProgress] = useState<Record<string, { status: string; message?: string }>>({});
   const [running, setRunning] = useState(false);
@@ -65,6 +69,10 @@ function Wizard() {
       if (!d?.address) return;
       localStorage.removeItem(DRAFT_KEY);
       setWorks(d.works);
+      if (d.agri) {
+        setAgri(defaultAgri());
+        setCount(120);
+      }
       setAddress(d.address);
       setAnswers((x) => ({ ...x, visibleFromPublicSpace: d.answers.visible ?? true, copropriete: Boolean(d.answers.copropriete) }));
       if (d.answers.pacPlacement) setPac((x) => ({ ...x, placement: d.answers.pacPlacement! }));
@@ -112,6 +120,7 @@ function Wizard() {
       p.selfFiling = homeowner;
       p.answers = answers;
       p.works = works;
+      if (works === "pv" && agri) p.agri = agri;
       if (works === "pv") p.pv = { ...p.pv, panelId, panelCount: count, powerKwc: power ? Number(power.replace(",", ".")) : computed, mounting, inverterId };
       if (works === "pac") p.pac = pac;
       if (works === "ite") p.ite = ite;
@@ -182,7 +191,22 @@ function Wizard() {
       {step === 0 && (
         <Card title="Où se trouve le chantier ?">
           <div className="space-y-4">
-            <WorksPicker value={works} onChange={setWorks} />
+            <WorksPicker
+              value={agri ? "pv_agri" : works}
+              onChange={(w: WorksChoice) => {
+                if (w === "pv_agri") {
+                  setWorks("pv");
+                  setAgri((a) => a ?? defaultAgri());
+                  setCount((n) => (n === 12 ? 120 : n));
+                  // grandes toitures : onduleur triphasé du catalogue s'il existe
+                  const tri = inverters.find((x) => x.phase === "tri" && x.kind === "central");
+                  if (tri) setInverterId(tri.id);
+                } else {
+                  setWorks(w);
+                  setAgri(undefined);
+                }
+              }}
+            />
             <Field label="Adresse du chantier" htmlFor="address" help="Tapez l'adresse : la Base Adresse Nationale propose les correspondances. Tout le reste (cadastre, PLU, monuments, mairie) est déduit automatiquement." example="Allée des Tilleuls 80480 Pont-de-Metz">
               <AddressAutocomplete value={address} onSelect={setAddress} />
             </Field>
@@ -302,6 +326,12 @@ function Wizard() {
           <p className="mt-2 text-xs text-stone-600">Les fenêtres sont placées sur le pan principal (BD TOPO) ; vous ajusterez le pan et leur position dans l&apos;onglet Plans.</p>
         </Card>
       )}
+      {step === 2 && works === "pv" && agri && (
+        <Card title="Le bâtiment agricole et le déclarant">
+          <AgriEditor value={agri} onChange={setAgri} />
+          {agri.building === "neuf" && <p className="mt-2 rounded-lg bg-sun-soft p-2 text-sm">Hangar neuf : c&apos;est un permis de construire (cerfa 13409). L&apos;analyse réglementaire est faite ; la génération du permis pour un hangar arrive bientôt.</p>}
+        </Card>
+      )}
       {step === 2 && works === "pv" && (
         <Card title="Le projet photovoltaïque">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -315,7 +345,7 @@ function Wizard() {
               </Select>
             </Field>
             <Field label="Nombre de panneaux" htmlFor="count" example="12">
-              <Input id="count" type="number" inputMode="numeric" min={1} max={200} value={count} onChange={(e) => setCount(Number(e.target.value))} />
+              <Input id="count" type="number" inputMode="numeric" min={1} max={5000} value={count} onChange={(e) => setCount(Number(e.target.value))} />
             </Field>
             <Field label="Puissance crête (kWc)" htmlFor="power" help="Calculée : nombre × puissance unitaire. Modifiez seulement si votre devis diffère : la même valeur sera reportée partout.">
               <Input id="power" inputMode="decimal" placeholder={String(computed).replace(".", ",")} value={power} onChange={(e) => setPower(e.target.value)} />

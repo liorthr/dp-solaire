@@ -37,8 +37,15 @@ export function cerfaData(p: Project, client: Client | undefined, panel: PanelMo
   const [emailLocal, emailDomain] = (client?.email ?? "").split("@");
   const a = p.address;
   const lot = p.answers.inLotissement ?? "nsp";
+  // déclarant personne morale (exploitation agricole en société) : rubrique 1.2, la rubrique 1.1 reste vide
+  const co = p.agri?.company;
   return {
-    declarant: {
+    company: co
+      ? { name: co.name, siret: co.siret.replace(/\s/g, ""), legalForm: co.legalForm, repLastName: client?.lastName?.toUpperCase() ?? "", repFirstName: client?.firstName ?? "" }
+      : { name: "", siret: "", legalForm: "", repLastName: "", repFirstName: "" },
+    declarant: co
+      ? { lastName: "", firstName: "", birthDate: "", birthPlace: "", phone: client?.phone ?? "", emailLocal: emailLocal ?? "", emailDomain: emailDomain ?? "", acceptsEmail: false }
+      : {
       lastName: client?.lastName?.toUpperCase() ?? "",
       firstName: client?.firstName ?? "",
       birthDate: client?.birthDate ? fr(client.birthDate) : "",
@@ -47,7 +54,7 @@ export function cerfaData(p: Project, client: Client | undefined, panel: PanelMo
       emailLocal: emailLocal ?? "",
       emailDomain: emailDomain ?? "",
       acceptsEmail: false,
-    },
+      },
     // hypothèse V1 : le maître d'ouvrage réside sur le terrain (modifiable dans le PDF)
     declarantAddress: { housenumber: a?.housenumber ?? "", street: a?.street ?? a?.label ?? "", city: a?.city ?? "", postcode: a?.postcode ?? "" },
     terrain: { housenumber: a?.housenumber ?? "", street: a?.street ?? "", city: a?.city ?? "", postcode: a?.postcode ?? "" },
@@ -118,7 +125,10 @@ export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: object
     if (m.type === "text" && field instanceof PDFTextField) {
       const s = v == null ? "" : String(v);
       if (!s) {
-        report.empty.push(m.field);
+        // rubriques exclusives : particulier (1.1) ou personne morale (1.2) ; l'autre reste vide normalement
+        const isCompany = Boolean((data as { company?: { name?: string } }).company?.name);
+        const exclusive = isCompany ? m.value.startsWith("declarant.") && !/phone|email/i.test(m.value) : m.value.startsWith("company.");
+        if (!exclusive && !m.value.startsWith("parcels.1.")) report.empty.push(m.field);
         continue;
       }
       if (m.multiline) {
@@ -164,7 +174,7 @@ export async function fillCerfa(pdfBytes: ArrayBuffer | Uint8Array, data: object
 /** informations à demander au déclarant avant le téléchargement pour que le cerfa ne parte pas incomplet.
  *  required : rubrique « identité du déclarant » et « terrain » du cerfa (notice 51434) ; recommended : utile à la mairie. */
 export interface CerfaGap {
-  id: "lastName" | "firstName" | "birthDate" | "birthPlace" | "phone" | "email" | "parcel";
+  id: "lastName" | "firstName" | "birthDate" | "birthPlace" | "phone" | "email" | "parcel" | "companyName" | "companySiret" | "companyForm";
   label: string;
   required: boolean;
 }
@@ -172,8 +182,16 @@ export function cerfaGaps(p: Project, client: Client | undefined): CerfaGap[] {
   const g: CerfaGap[] = [];
   if (!client?.lastName?.trim()) g.push({ id: "lastName", label: "Nom du déclarant", required: true });
   if (!client?.firstName?.trim()) g.push({ id: "firstName", label: "Prénom du déclarant", required: true });
-  if (!client?.birthDate) g.push({ id: "birthDate", label: "Date de naissance", required: true });
-  if (!client?.birthPlace?.trim()) g.push({ id: "birthPlace", label: "Commune de naissance", required: true });
+  const co = p.agri?.company;
+  if (co) {
+    // personne morale : dénomination, SIRET, forme ; le nom/prénom du client est celui du représentant
+    if (!co.name.trim()) g.push({ id: "companyName", label: "Dénomination de la société", required: true });
+    if (!/^\d{14}$/.test(co.siret.replace(/\s/g, ""))) g.push({ id: "companySiret", label: "N° SIRET (14 chiffres)", required: true });
+    if (!co.legalForm.trim()) g.push({ id: "companyForm", label: "Type de société (EARL, GAEC, SCEA…)", required: true });
+  } else {
+    if (!client?.birthDate) g.push({ id: "birthDate", label: "Date de naissance", required: true });
+    if (!client?.birthPlace?.trim()) g.push({ id: "birthPlace", label: "Commune de naissance", required: true });
+  }
   if (!parcelsOf(p).length) g.push({ id: "parcel", label: "Référence cadastrale du terrain (section et numéro)", required: true });
   if (!client?.phone?.trim()) g.push({ id: "phone", label: "Téléphone (la mairie peut vous appeler)", required: false });
   if (!client?.email?.trim()) g.push({ id: "email", label: "Email", required: false });

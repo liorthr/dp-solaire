@@ -1,6 +1,6 @@
 {
  "ruleset": "dp-pv-toiture",
- "version": "2026.11.1",
+ "version": "2026.11.2",
  "published_at": "2026-11-11",
  "regimes": [
   {
@@ -118,6 +118,30 @@
    "source_label": "Notice cerfa 51434, §2.1 19)",
    "verification": "VERIFIE",
    "valid_from": "2024-12-01",
+   "valid_to": null
+  },
+  {
+   "code": "REGIME_AGRI_HANGAR_NEUF_PC",
+   "outcome": "PC",
+   "when": {
+    "all": [
+     {
+      "fact": "agri.newBuilding",
+      "op": "eq",
+      "value": true
+     },
+     {
+      "fact": "pv.isGround",
+      "op": "eq",
+      "value": false
+     }
+    ]
+   },
+   "message": "Construction d'un bâtiment agricole neuf (hangar) portant les panneaux : la construction d'un bâtiment de plus de 20 m² relève du permis de construire (R*421-1), avec le formulaire cerfa 13409 (permis de construire hors maison individuelle). Plans par un architecte obligatoires si la surface de plancher du bâtiment agricole dépasse 800 m². En zone agricole du PLU, la construction doit être nécessaire à l'exploitation.",
+   "source_url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1986",
+   "source_label": "Service-public F1986 : permis de construire (vérifiée le 13/02/2026, lue le 17/11/2026)",
+   "verification": "VERIFIE",
+   "valid_from": "2026-11-17",
    "valid_to": null
   },
   {

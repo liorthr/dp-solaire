@@ -78,3 +78,39 @@ describe("règles raccordement / Consuel", () => {
     expect(codes(proj(10, { agcpA: 15 }))).toContain("ELEC_PROTECTION_AGCP");
   });
 });
+
+describe("fortes puissances (hangars, bâtiments agricoles)", () => {
+  const tri = defaultInverters.find((x) => x.id === "gen-tri-50k")!;
+  function big(count: number, inverters: number, patch: Partial<NonNullable<Project["elec"]>> = {}) {
+    const p = proj(count, { phase: "tri", inverterCount: inverters, ...patch });
+    p.pv = { ...p.pv, inverterId: tri.id };
+    return p;
+  }
+  it("100 kVA : basse tension > 36 kVA, SC 143, appel d'offres au-delà de 100 kWc", () => {
+    const p = big(280, 2, { workplace: true });
+    const { calc, evaluation } = evaluateRaccordement(p, panel, tri);
+    expect(calc.acPowerKva).toBe(100);
+    expect(calc.domain).toBe("BT250");
+    expect(calc.extraForms).toContain("SC 143");
+    expect(calc.consuelRequired).toBe(true);
+    const codes = evaluation.results.filter((x) => x.severity !== "ok").map((x) => x.code);
+    expect(codes).toContain("RAC_PROCEDURE_36KVA");
+    expect(codes).toContain("CONSUEL_RAPPORT_CONTROLE");
+    expect(codes).toContain("OA_100_500_AO"); // 120,4 kWc
+    expect(codes).not.toContain("OA_TARIF_UNIQUE");
+    expect(evaluation.blocking.map((x) => x.code)).not.toContain("RAC_PROCEDURE_36KVA");
+  });
+  it("300 kVA : HTA, pas d'attestation Consuel mais contrôle de conformité", () => {
+    const p = big(800, 6);
+    const { calc, evaluation } = evaluateRaccordement(p, panel, tri);
+    expect(calc.domain).toBe("HTA");
+    expect(calc.consuelRequired).toBe(false);
+    const codes = evaluation.results.filter((x) => x.severity !== "ok").map((x) => x.code);
+    expect(codes).toEqual(expect.arrayContaining(["RAC_HTA", "CONSUEL_HTA"]));
+    expect(codes).not.toContain("CONSUEL_OBLIGATOIRE");
+  });
+  it("PDL non bloquant au-delà de 36 kVA (nouveau point de livraison possible)", () => {
+    const p = big(280, 2, { pdl: undefined });
+    expect(evaluateRaccordement(p, panel, tri).evaluation.blocking.map((x) => x.code)).not.toContain("RAC_PDL");
+  });
+});

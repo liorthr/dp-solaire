@@ -1,5 +1,5 @@
 // Types de travaux et catalogue de départ (modèles GÉNÉRIQUES représentatifs, à remplacer par vos fiches fabricants).
-import type { ExtensionInfo, IteInfo, JoineryInfo, JoineryKind, JoineryMaterial, PacInfo, PacUnitModel, RoofWindowInfo, RoofWindowModel, WorksType } from "@/lib/types";
+import type { AgriInfo, ExtensionInfo, IteInfo, JoineryInfo, JoineryKind, JoineryMaterial, PacInfo, PacUnitModel, RoofWindowInfo, RoofWindowModel, WorksType } from "@/lib/types";
 
 export const WORKS: { id: WorksType; label: string; short: string; emoji: string; desc: string }[] = [
   { id: "pv", label: "Panneaux solaires en toiture", short: "Solaire", emoji: "☀", desc: "Photovoltaïque sur toiture existante : DP mairie, puis raccordement et Consuel." },
@@ -9,6 +9,14 @@ export const WORKS: { id: WorksType; label: string; short: string; emoji: string
   { id: "extension", label: "Agrandissement, garage, véranda", short: "Extension", emoji: "▣", desc: "Déclaration préalable ou permis de construire selon la surface : on vous dit lequel et on le prépare." },
   { id: "velux", label: "Fenêtres de toit", short: "Fenêtres de toit", emoji: "◩", desc: "Création ou changement de modèle : DP ; distances de vue sur le voisin vérifiées." },
 ];
+
+/** choix « Solaire agricole » : même moteur que le solaire (works « pv ») avec la fiche AgriInfo */
+export type WorksChoice = WorksType | "pv_agri";
+export const AGRI_CHOICE = { id: "pv_agri" as const, label: "Panneaux solaires agricoles", short: "Solaire agricole", emoji: "☀", desc: "Hangar, stabulation, bâtiment d'exploitation : DP en mairie (permis pour un hangar neuf), raccordement et Consuel jusqu'aux fortes puissances." };
+export const WORK_CHOICES: { id: WorksChoice; label: string; short: string; emoji: string; desc: string }[] = [WORKS[0], AGRI_CHOICE, ...WORKS.slice(1)];
+export const defaultAgri = (): AgriInfo => ({ building: "existant", use: "hangar" });
+export const AGRI_USES: Record<AgriInfo["use"], string> = { hangar: "Hangar (matériel, fourrage)", stabulation: "Stabulation, bâtiment d'élevage", stockage: "Bâtiment de stockage", serre: "Serre", autre: "Autre bâtiment agricole" };
+export const choiceOf = (works: WorksType | undefined, agri: unknown): WorksChoice => ((works ?? "pv") === "pv" && agri ? "pv_agri" : works ?? "pv");
 
 export const worksLabel = (w?: WorksType) => WORKS.find((x) => x.id === (w ?? "pv"))!.label;
 

@@ -51,7 +51,7 @@ function DossierView() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          {!isHomeowner(session) && <Badge tone="neutral">{WORKS.find((w) => w.id === (p.works ?? "pv"))!.short}</Badge>}
+          {!isHomeowner(session) && <Badge tone="neutral">{p.agri ? "Solaire agricole" : WORKS.find((w) => w.id === (p.works ?? "pv"))!.short}</Badge>}
           <Badge tone={STATUS_TONE[analysis.status]}>{STATUS_LABEL[analysis.status]}</Badge>
           <Button
             variant="ghost"

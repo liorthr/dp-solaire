@@ -12,6 +12,15 @@ import { extensionRidgeM } from "@/lib/works/extension-plans";
 export const TEMPLATES_VERSION = "2026.11.1";
 
 const fullName = (c?: Client) => (c ? `${c.civility ? c.civility + " " : ""}${c.firstName} ${c.lastName}` : "le maître d'ouvrage");
+/** déclarant : la société (EARL, GAEC…) représentée par le client, sinon le client lui-même */
+const declarantLabel = (p: Project, c?: Client) => {
+  const co = p.agri?.company;
+  if (!co?.name) return fullName(c);
+  const form = co.legalForm.trim();
+  const name = form && !co.name.toLowerCase().startsWith(form.toLowerCase()) ? `${form} ${co.name}` : co.name;
+  return c ? `${name}, représentée par ${fullName(c)}` : name;
+};
+const sited = (p: Project) => (p.agri && !["stabulation", "serre"].includes(p.agri.use) ? "situé" : "située");
 const today = () => fr(new Date().toISOString().slice(0, 10));
 const mounting = (m: Project["pv"]["mounting"]) => ({ surimposition: "en surimposition de la couverture existante", integration: "en intégration au bâti (en remplacement de la couverture)", ombriere: "sur ombrière", sol: "au sol" })[m];
 
@@ -101,6 +110,11 @@ function extensionDescription(p: Project): string {
   );
 }
 
+const AGRI_USE: Record<NonNullable<Project["agri"]>["use"], string> = { hangar: "hangar agricole", stabulation: "stabulation", stockage: "bâtiment de stockage agricole", serre: "serre agricole", autre: "bâtiment agricole" };
+/** « la maison » ou « le hangar agricole » : les textes suivent le bâtiment réellement concerné */
+export const buildingName = (p: Project) => (p.agri ? AGRI_USE[p.agri.use] : "maison");
+const ofBuilding = (p: Project) => (p.agri ? `du ${AGRI_USE[p.agri.use]}` : "de la maison");
+
 export function projectDescription(p: Project, panel?: PanelModel): string {
   if (p.works === "extension") return extensionDescription(p);
   if (p.works === "menuiserie") return menuDescription(p);
@@ -114,7 +128,7 @@ export function projectDescription(p: Project, panel?: PanelModel): string {
     .join(" et ");
   return (
     `Installation de ${p.pv.panelCount} panneaux solaires photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc, ${totalPanelArea(p)} m²) ` +
-    `${mounting(p.pv.mounting)}, sur le ${planes || "pan de toiture"} de la maison existante. ` +
+    `${mounting(p.pv.mounting)}, sur le ${planes || "pan de toiture"} ${ofBuilding(p)} existant${p.agri && !["stabulation", "serre"].includes(p.agri.use) ? "" : "e"}. ` +
     (panel ? `Modules ${panel.fullBlack ? "full black" : `cellules ${panel.cellColor}`}, cadre ${panel.frameColor}, ${panel.widthMm} × ${panel.heightMm} mm. ` : "") +
     "Champ de panneaux rectangulaire, parallèle au plan de la toiture, sans modification du volume ni de la hauteur du bâtiment."
   );
@@ -124,7 +138,7 @@ export function mandateText(p: Project, c: Client | undefined, t: Tenant): strin
   return [
     authorizationOf(p).kind === "PC" ? "MANDAT DE DÉPÔT D'UNE DEMANDE DE PERMIS DE CONSTRUIRE" : "MANDAT DE DÉPÔT D'UNE DÉCLARATION PRÉALABLE DE TRAVAUX",
     "",
-    `Je soussigné(e) ${fullName(c)}, propriétaire (ou titulaire du droit de construire) du terrain situé ${p.address?.label ?? "(adresse)"} (parcelle(s) ${parcelRefs(p.enrichment)}),`,
+    `Je soussigné(e) ${declarantLabel(p, c)}, propriétaire (ou titulaire du droit de construire) du terrain situé ${p.address?.label ?? "(adresse)"} (parcelle(s) ${parcelRefs(p.enrichment)}),`,
     `donne mandat à ${t.name}${t.siret ? ` (SIRET ${t.siret})` : ""}, ${t.address ?? ""},`,
     `pour constituer, signer pour mon compte le cas échéant et déposer auprès de la mairie compétente la ${authorizationOf(p).name} relative aux travaux décrits ci-après, recevoir les correspondances du service instructeur et y répondre (pièces complémentaires), et demander le certificat de non-opposition.`,
     "",
@@ -211,7 +225,7 @@ export function noticeDescriptive(p: Project, panel: PanelModel | undefined, inv
     `Adresse du terrain : ${p.address?.label ?? ""}`,
     `Références cadastrales : ${parcelRefs(e)} : superficie ${e?.parcels.reduce((s, x) => s + x.contenanceM2, 0) ?? "?"} m²`,
     `Document d'urbanisme : ${zone ? `${zone.docType} ${zone.docName}, zone ${zone.libelle}${zone.libelong ? ` (${zone.libelong})` : ""}` : "non identifié sur le Géoportail de l'Urbanisme"}`,
-    `État initial : maison individuelle existante, toiture ${p.pv.roofPlanes.map((r) => `${r.label.toLowerCase()} ${r.tiltDeg}°`).join(", ")}. Couverture existante conservée.`,
+    `État initial : ${p.agri ? `${AGRI_USE[p.agri.use]} existant${["stabulation", "serre"].includes(p.agri.use) ? "e" : ""} de l'exploitation` : "maison individuelle existante"}, toiture ${p.pv.roofPlanes.map((r) => `${r.label.toLowerCase()} ${r.tiltDeg}°`).join(", ")}. Couverture existante conservée.`,
     `Projet : ${projectDescription(p, panel)}`,
     `Matériaux et couleurs : modules ${panel ? `${panel.brand} ${panel.model}` : ""} ; cadre ${panel?.frameColor ?? "?"} ; fixations et rails non visibles depuis l'espace public ; câbles cheminés sous les modules.`,
     `Onduleur : ${inverter ? `${inverter.brand} ${inverter.model}` : "à préciser"} (installé ${inverter?.kind === "micro" ? "sous les modules" : "à l'intérieur du bâtiment"}, aucun équipement visible ajouté en façade).`,
@@ -232,7 +246,7 @@ function selfEmail(p: Project, c: Client | undefined, mairie: MairieInfo | undef
   const body = [
     "Madame, Monsieur,",
     "",
-    `Je vous adresse ma ${auth.kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} (cerfa n° ${auth.cerfa}) relative à ${worksPhrase(p)} de ma maison située ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
+    `Je vous adresse ma ${auth.kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} (cerfa n° ${auth.cerfa}) relative à ${worksPhrase(p)} ${p.agri ? ofBuilding(p) : "de ma maison"} ${sited(p)} ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
     "",
     `Pièces jointes : ${pieces.join(", ")}.`,
     "",
@@ -242,7 +256,7 @@ function selfEmail(p: Project, c: Client | undefined, mairie: MairieInfo | undef
     "",
     "Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.",
     "",
-    `${fullName(c)}${c?.phone ? ` | ${c.phone}` : ""}${c?.email ? ` | ${c.email}` : ""}`,
+    `${declarantLabel(p, c)}${c?.phone ? ` | ${c.phone}` : ""}${c?.email ? ` | ${c.email}` : ""}`,
   ].join("\n");
   return { to: mairie?.email ?? "", subject, body };
 }
@@ -250,11 +264,11 @@ function selfEmail(p: Project, c: Client | undefined, mairie: MairieInfo | undef
 export function coverLetterEmail(p: Project, c: Client | undefined, t: Tenant, mairie: MairieInfo | undefined, pieces: string[]) {
   if (p.selfFiling) return selfEmail(p, c, mairie, pieces);
   const auth = authorizationOf(p);
-  const subject = `${auth.kind === "PC" ? "Demande de permis de construire" : "Déclaration préalable"} : ${worksObject(p)} : ${p.address?.label ?? ""} : ${fullName(c)}`;
+  const subject = `${auth.kind === "PC" ? "Demande de permis de construire" : "Déclaration préalable"} : ${worksObject(p)} : ${p.address?.label ?? ""} : ${declarantLabel(p, c)}`;
   const body = [
     `Madame, Monsieur,`,
     "",
-    `Pour le compte de ${fullName(c)}, nous vous adressons une ${auth.kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} (cerfa n° ${auth.cerfa}) relative à ${p.works && p.works !== "pv" ? `l'${worksObject(p).replace(/^l'|^/, "")}` : `l'installation de ${p.pv.panelCount} panneaux photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc) sur la toiture`} de la maison située ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
+    `Pour le compte de ${declarantLabel(p, c)}, nous vous adressons une ${auth.kind === "PC" ? "demande de permis de construire" : "déclaration préalable de travaux"} (cerfa n° ${auth.cerfa}) relative à ${p.works && p.works !== "pv" ? `l'${worksObject(p).replace(/^l'|^/, "")}` : `l'installation de ${p.pv.panelCount} panneaux photovoltaïques (${String(p.pv.powerKwc).replace(".", ",")} kWc) sur la toiture`} ${ofBuilding(p)} ${sited(p)} ${p.address?.label} (parcelle(s) ${parcelRefs(p.enrichment)}).`,
     "",
     `Pièces jointes : ${pieces.join(", ")}.`,
     "",
@@ -265,7 +279,7 @@ export function coverLetterEmail(p: Project, c: Client | undefined, t: Tenant, m
     "Veuillez agréer, Madame, Monsieur, l'expression de nos salutations distinguées.",
     "",
     `${t.name}${t.phone ? ` | ${t.phone}` : ""}${t.email ? ` | ${t.email}` : ""}`,
-    `Mandataire de ${fullName(c)} | Réf. ${p.reference}`,
+    `Mandataire de ${declarantLabel(p, c)} | Réf. ${p.reference}`,
   ].join("\n");
   return { to: mairie?.email ?? "", subject, body };
 }
@@ -273,7 +287,7 @@ export function coverLetterEmail(p: Project, c: Client | undefined, t: Tenant, m
 export function lrarLetter(p: Project, c: Client | undefined, t: Tenant, mairie: MairieInfo | undefined, pieces: string[], copies: number) {
   if (p.selfFiling)
     return [
-      fullName(c),
+      declarantLabel(p, c),
       p.address?.label ?? "",
       "",
       `${mairie?.name ?? "Mairie de " + (p.address?.city ?? "")}`,
@@ -294,7 +308,7 @@ export function lrarLetter(p: Project, c: Client | undefined, t: Tenant, mairie:
       "",
       "Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.",
       "",
-      fullName(c),
+      declarantLabel(p, c),
     ].join("\n");
   return [
     `${t.name}`,
@@ -312,7 +326,7 @@ export function lrarLetter(p: Project, c: Client | undefined, t: Tenant, mairie:
     "",
     "Madame, Monsieur,",
     "",
-    `Agissant en qualité de mandataire de ${fullName(c)}, nous vous prions de trouver ci-joint, en ${copies} exemplaires, la ${authorizationOf(p).name} (cerfa n° ${authorizationOf(p).cerfa}) et ses pièces : ${pieces.join(", ")}.`,
+    `Agissant en qualité de mandataire de ${declarantLabel(p, c)}, nous vous prions de trouver ci-joint, en ${copies} exemplaires, la ${authorizationOf(p).name} (cerfa n° ${authorizationOf(p).cerfa}) et ses pièces : ${pieces.join(", ")}.`,
     "",
     "Nous vous remercions de bien vouloir nous adresser le récépissé de dépôt mentionnant le numéro d'enregistrement du dossier.",
     "",
@@ -332,7 +346,7 @@ export const gnauSteps = (mairie?: MairieInfo) => [
 
 export function tacitCertificateRequest(p: Project, c: Client | undefined, t: Tenant, mairie: MairieInfo | undefined, depositDate: string, deadline: string) {
   return [
-    `${t.name}, mandataire de ${fullName(c)}`,
+    `${t.name}, mandataire de ${declarantLabel(p, c)}`,
     "",
     `${mairie?.name ?? "Mairie"} : Service urbanisme`,
     "",

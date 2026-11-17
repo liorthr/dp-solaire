@@ -10,7 +10,7 @@ import { buildBasemap } from "@/lib/plans/basemap";
 import { DRAW } from "@/lib/plans/svg";
 import { asset } from "@/lib/image/browser";
 import { fr } from "@/lib/instruction/deadlines";
-import { defaultElec, elecCalc, withInverterDefaults, withPanelDefaults } from "./calc";
+import { defaultElec, elecCalc, GRID, withInverterDefaults, withPanelDefaults } from "./calc";
 import { singleLineSvg } from "./schema";
 import { consuelFormSpec, consuelValues, stampConsuel } from "./consuel";
 import { calcNote, enedisRecap, mandateRaccordementText } from "./texts";
@@ -36,7 +36,8 @@ export async function buildRaccordementPack(input: { project: Project; client?: 
   files.push({ name: "01_Schema_unifilaire.pdf", label: "Schéma unifilaire", bytes: await svgToPdfBytes([singleLineSvg(p, e, r, panel, inv, cart)]) });
 
   prog(`Dossier technique Consuel ${r.consuelForm}`);
-  try {
+  if (!r.consuelRequired) warnings.push("Raccordement HTA (≥ 250 kVA) : pas d'attestation Consuel ; contrôle de conformité par un organisme accrédité (arrêté du 6 juillet 2010).");
+  else try {
     const blank = await (await fetch(asset(r.consuelFormPdf))).arrayBuffer();
     if (consuelFormSpec(r.consuelForm)) {
       files.push({ name: `02_Consuel_${r.consuelForm.replace(/\s/g, "_")}_pre-rempli.pdf`, label: `Dossier technique ${r.consuelForm} pré-rempli`, bytes: await stampConsuel(blank, r.consuelForm, consuelValues(p, e, r, client, tenant, inv)) });
@@ -44,6 +45,7 @@ export async function buildRaccordementPack(input: { project: Project; client?: 
       files.push({ name: `02_Consuel_${r.consuelForm.replace(/\s/g, "_")}_vierge.pdf`, label: `Dossier technique ${r.consuelForm} (vierge, à remplir avec la note de calcul)`, bytes: new Uint8Array(blank) });
       warnings.push(`${r.consuelForm} : pré-remplissage automatique non disponible, formulaire vierge fourni avec la note de calcul.`);
     }
+    if (r.extraForms.includes("SC 143")) files.push({ name: "02c_Consuel_SC_143_vierge.pdf", label: "Dossier technique SC 143 (puissance surveillée > 36 kVA)", bytes: new Uint8Array(await (await fetch(asset("/consuel/SC143_4.pdf"))).arrayBuffer()) });
     if (r.extraForms.includes("SC 144E")) files.push({ name: "02b_Consuel_SC_144E_vierge.pdf", label: "Dossier technique SC 144E (cas 4)", bytes: new Uint8Array(await (await fetch(asset("/consuel/SC-144E_1.pdf"))).arrayBuffer()) });
   } catch (err) {
     warnings.push(`Formulaire Consuel non chargé : ${err instanceof Error ? err.message : err}`);
@@ -52,7 +54,7 @@ export async function buildRaccordementPack(input: { project: Project; client?: 
   prog("Note de calcul");
   files.push({ name: "03_Note_de_calcul.pdf", label: "Note de calcul électrique", bytes: textPdf(`Note de calcul : ${p.reference}`, calcNote(p, e, r, panel), DISCLAIMER) });
 
-  prog("Récapitulatif Enedis Connect");
+  prog("Récapitulatif de la demande Enedis");
   files.push({ name: "04_Recapitulatif_demande_Enedis.pdf", label: "Récapitulatif pour la demande Enedis", bytes: textPdf(`Demande de raccordement : ${p.reference}`, enedisRecap(p, client, tenant, e, r, panel, inv), DISCLAIMER) });
 
   prog("Mandat");
@@ -89,6 +91,6 @@ export async function buildRaccordementPack(input: { project: Project; client?: 
   const zip = new JSZip();
   const folder = zip.folder(`${p.reference}_Raccordement_Consuel`)!;
   for (const f of files) folder.file(f.name, f.bytes);
-  folder.file("LISEZMOI.txt", [`Pack raccordement / Consuel : ${p.reference}`, "", ...files.map((f) => `- ${f.name} : ${f.label}`), "", "Consuel : https://www.consuel.com/dossiers-techniques/", "Enedis : demande en ligne (Enedis Connect), procédure Enedis-PRO-RAC_20E", "", ...warnings.map((w) => `ATTENTION : ${w}`), "", DISCLAIMER].join("\n"));
+  folder.file("LISEZMOI.txt", [`Pack raccordement / Consuel : ${p.reference}`, "", ...files.map((f) => `- ${f.name} : ${f.label}`), "", "Consuel : https://www.consuel.com/dossiers-techniques/", `Enedis : ${GRID[r.domain].portal}, procédure ${GRID[r.domain].procedure}`, "", ...warnings.map((w) => `ATTENTION : ${w}`), "", DISCLAIMER].join("\n"));
   return { files, zip: await zip.generateAsync({ type: "blob", compression: "DEFLATE" }), calc: r, warnings };
 }

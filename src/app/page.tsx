@@ -12,6 +12,8 @@ const AVAILABLE: { id: WorksType; title: string; desc: string }[] = [
   { id: "ite", title: "Isolation extérieure", desc: "Teinte, surplomb, ABF" },
   { id: "extension", title: "Agrandissement, garage, véranda", desc: "Déclaration ou permis de construire" },
 ];
+/** offre agricole : exploitants et installateurs, parcours professionnel */
+const AGRI_HREF = `/connexion/?mode=signup&pro=1&next=${encodeURIComponent("/app/nouveau/?works=pv_agri")}`;
 const SOON = [
   { title: "Piscine", desc: "Bassin, abri, plage" },
   { title: "Abri, carport, pergola", desc: "Surface et hauteur" },
@@ -115,6 +117,13 @@ export default function Landing() {
             <h2 className="mt-4 text-4xl font-extrabold sm:text-[46px]">Un projet, un dossier prêt à déposer</h2>
             <p className="mt-2 text-lg text-muted">Permizy connaît les règles de chaque type de travaux : vous répondez à quelques questions, on fait le reste.</p>
             <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+              <Link href={AGRI_HREF} data-testid="home-agri" className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
+                <WorksIcon works="pv" className="h-14 w-14" />
+                <span>
+                  <b className="mt-4 block text-lg leading-tight">Solaire agricole</b>
+                  <span className="text-sm text-muted">Hangar, stabulation : DP, raccordement fortes puissances</span>
+                </span>
+              </Link>
               {AVAILABLE.map((w) => (
                 <Link key={w.id} href={`/verifier/?w=${w.id}`} className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
                   <WorksIcon works={w.id} className="h-14 w-14" />

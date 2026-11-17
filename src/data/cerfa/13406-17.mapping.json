@@ -33,6 +33,42 @@
    "label": "Commune de naissance"
   },
   {
+   "field": "D2D_denomination",
+   "type": "text",
+   "value": "company.name",
+   "label": "1.2 Personne morale : dénomination"
+  },
+  {
+   "field": "D2R_raison",
+   "type": "text",
+   "value": "company.name",
+   "label": "1.2 Personne morale : raison sociale"
+  },
+  {
+   "field": "D2S_siret",
+   "type": "text",
+   "value": "company.siret",
+   "label": "1.2 Personne morale : n° SIRET"
+  },
+  {
+   "field": "D2J_type",
+   "type": "text",
+   "value": "company.legalForm",
+   "label": "1.2 Personne morale : type de société (EARL, GAEC, SCEA…)"
+  },
+  {
+   "field": "D2N_nom",
+   "type": "text",
+   "value": "company.repLastName",
+   "label": "1.2 Représentant : nom"
+  },
+  {
+   "field": "D2P_prenom",
+   "type": "text",
+   "value": "company.repFirstName",
+   "label": "1.2 Représentant : prénom"
+  },
+  {
    "field": "D3N_numero",
    "type": "text",
    "value": "declarantAddress.housenumber",
