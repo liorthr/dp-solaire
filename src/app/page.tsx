@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { GreenStamp, Logo } from "@/components/Logo";
+import { GreenStamp } from "@/components/Logo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SiteFooter, SiteHeader } from "@/components/seo/SiteChrome";
+import { faqLd, organizationLd, serviceLd, websiteLd } from "@/lib/seo/site";
+import { GUIDES } from "@/data/seo/guides";
 import { SentenceBuilder } from "@/components/home/SentenceBuilder";
 import { WorksIcon } from "@/components/home/WorksIcon";
 import type { WorksType } from "@/lib/types";
@@ -14,6 +18,15 @@ const AVAILABLE: { id: WorksType; title: string; desc: string }[] = [
 ];
 /** offre agricole : exploitants et installateurs, parcours professionnel */
 const AGRI_HREF = `/connexion/?mode=signup&pro=1&next=${encodeURIComponent("/app/nouveau/?works=pv_agri")}`;
+export const metadata = { alternates: { canonical: "/" } };
+
+const HOME_FAQ = [
+  { q: "Qu'est-ce qu'une déclaration préalable de travaux ?", a: "C'est l'autorisation d'urbanisme demandée à la mairie pour des travaux de faible importance qui modifient l'aspect extérieur d'une maison : panneaux solaires, pompe à chaleur en façade, changement de fenêtres, isolation par l'extérieur, petite extension. La mairie répond en 1 mois dans le cas général." },
+  { q: "Déclaration préalable ou permis de construire ?", a: "Le permis de construire concerne les projets plus importants, par exemple une extension de plus de 40 m² en zone urbaine d'un PLU, ou de plus de 20 m² ailleurs. Permizy lit le zonage de votre commune et vous indique la bonne démarche." },
+  { q: "Combien coûte un dossier avec Permizy ?", a: "La vérification est gratuite. Le dossier complet coûte 49 € TTC pour une déclaration préalable, 149 € pour un permis de construire et 239 € pour le solaire agricole, payés une fois au téléchargement." },
+  { q: "Permizy dépose-t-il le dossier à ma place ?", a: "Non : rien n'est envoyé sans votre accord. Permizy prépare le dossier complet, le courrier ou l'email pour la bonne mairie, et vous guide pour le déposer en ligne, par email ou en mairie." },
+];
+
 const SOON = [
   { title: "Piscine", desc: "Bassin, abri, plage" },
   { title: "Abri, carport, pergola", desc: "Surface et hauteur" },
@@ -60,36 +73,20 @@ function HouseArt() {
 export default function Landing() {
   return (
     <div className="min-h-screen bg-cream text-ink">
-      <header className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 sm:px-10">
-        <Link href="/" aria-label="Permizy : accueil">
-          <Logo />
-        </Link>
-        <nav className="hidden gap-8 font-medium text-muted lg:flex">
-          <a href="#comment">Comment ça marche</a>
-          <a href="#travaux">Vos travaux</a>
-          <a href="#confiance">Vos garanties</a>
-        </nav>
-        <div className="flex gap-2">
-          <Link href="/connexion/" className="rounded-full border-2 border-ink px-4 py-2 text-sm font-bold sm:px-5">
-            Mon dossier
-          </Link>
-          <Link href="/verifier/" className="hidden rounded-full bg-ink px-5 py-2 text-sm font-bold text-white sm:inline-block">
-            Commencer
-          </Link>
-        </div>
-      </header>
+      <JsonLd data={[organizationLd, websiteLd, serviceLd, faqLd(HOME_FAQ)]} />
+      <SiteHeader />
 
       <main>
         <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-6 sm:px-10 lg:grid-cols-[1.15fr_.85fr]">
           <div className="min-w-0">
-            <span className="inline-flex items-center gap-2 rounded-full bg-mint px-3.5 py-2 text-xs font-bold text-brand-600 sm:text-sm">● Déclaration préalable · Permis de construire</span>
-            <h1 className="mt-5 text-[42px] font-extrabold leading-[1.02] sm:text-6xl lg:text-[68px] xl:text-[76px]">
+            <h1 className="inline-flex items-center gap-2 rounded-full bg-mint px-3.5 py-2 text-xs font-bold text-brand-600 sm:text-sm"><span aria-hidden>●</span> Déclaration préalable et permis de construire en ligne</h1>
+            <p className="mt-5 text-[42px] font-extrabold leading-[1.02] sm:text-6xl lg:text-[68px] xl:text-[76px]">
               Vos travaux.
               <br />
               Le <span className="highlight text-brand-600">oui</span> de la mairie.
               <br />
               Sans la paperasse.
-            </h1>
+            </p>
             <p className="mt-6 max-w-[640px] text-lg leading-relaxed text-muted sm:text-xl">
               Dites-nous ce que vous voulez faire. Permizy vérifie les règles de votre commune, dessine les plans, remplit le cerfa et prépare l&apos;envoi à la bonne mairie.
             </p>
@@ -181,17 +178,38 @@ export default function Landing() {
             </div>
           </div>
         </section>
+        <section id="guides" className="bg-white px-5 py-16 sm:px-10">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="text-4xl font-extrabold">Quelle autorisation pour vos travaux ?</h2>
+            <p className="mt-2 text-lg text-muted">Nos guides, avec les sources officielles.</p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {GUIDES.map((g) => (
+                <li key={g.slug}>
+                  <Link href={`/${g.slug}/`} className="block h-full rounded-2xl border border-line p-4 font-semibold hover:shadow">
+                    {g.h1}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section id="faq" className="px-5 py-16 sm:px-10">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-4xl font-extrabold">Questions fréquentes</h2>
+            <dl className="mt-6 divide-y divide-line rounded-2xl border border-line bg-white">
+              {HOME_FAQ.map((f) => (
+                <div key={f.q} className="p-5">
+                  <dt className="font-bold">{f.q}</dt>
+                  <dd className="mt-1.5 leading-relaxed text-muted">{f.a}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
       </main>
 
-      <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-muted sm:px-10">
-        <Logo size="sm" />
-        <span>
-          <Link href="/cgu/" className="underline">
-            Conditions et responsabilité
-          </Link>{" "}
-          · <Link href="/connexion/" className="underline">Espace professionnels</Link> · <Link href="/sante/" className="underline">État des sources</Link>
-        </span>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

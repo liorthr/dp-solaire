@@ -5,8 +5,8 @@ import type { Project } from "@/lib/types";
 import { currentSession } from "@/lib/store/db";
 import { cloudEnabled, isCloudSession, supabase } from "./supabase";
 
-export const PRICES = { DP: 49, PC: 149, AGRI: 239 } as const;
-export type PriceKind = keyof typeof PRICES;
+import { PRICES, type PriceKind } from "./prices";
+export { PRICES, type PriceKind };
 export const PRICE_LABELS: Record<PriceKind, string> = { DP: "Déclaration préalable", PC: "Permis de construire", AGRI: "Solaire agricole" };
 const LINKS: Record<PriceKind, string> = { DP: process.env.NEXT_PUBLIC_STRIPE_LINK_DP ?? "", PC: process.env.NEXT_PUBLIC_STRIPE_LINK_PC ?? "", AGRI: process.env.NEXT_PUBLIC_STRIPE_LINK_AGRI ?? "" };
 /** formule facturée : le solaire agricole a son propre prix, quel que soit le régime */

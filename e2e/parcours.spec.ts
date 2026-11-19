@@ -281,7 +281,8 @@ test("particulier : accueil → verdict immédiat → création d'espace → dos
   test.skip(info.project.name === "mobile" && !process.env.E2E_ALL, "exécuté sur le profil desktop");
   await page.goto("./");
   await page.evaluate(() => window.localStorage.setItem("dp:providerMode", "fixtures"));
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Le oui de la mairie");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Déclaration préalable et permis de construire en ligne");
+  await expect(page.getByText("Sans la paperasse.")).toBeVisible();
   await page.selectOption("[data-testid=home-works]", "pv");
   await page.fill("#address", "Allée des Tilleuls 80480 Pont-de-Metz");
   await page.locator("#address-list button").first().click();

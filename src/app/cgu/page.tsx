@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Conditions générales : Permizy" };
+export const metadata = { title: "Conditions générales", alternates: { canonical: "/cgu/" } };
 
 export default function CGU() {
   return (
