@@ -113,12 +113,12 @@ export const GUIDES: Guide[] = [
       { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE },
       { label: "Service-public : formulaire cerfa 16702 (R2028)", url: SP("R2028") },
     ],
-    related: ["raccordement-enedis-consuel-panneaux-solaires", "panneaux-solaires-agricoles-hangar", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf"],
+    related: ["raccordement-enedis-consuel-panneaux-solaires", "pieces-declaration-prealable-dp1-dp8", "declaration-prealable-ombriere-panneaux-au-sol", "panneaux-solaires-agricoles-hangar", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf"],
     updated: "2026-11-19",
   },
   {
     slug: "declaration-prealable-pompe-a-chaleur",
-    title: "Déclaration préalable pompe à chaleur : quand et comment",
+    title: "Pompe à chaleur, climatisation : déclaration préalable ?",
     description: "Pompe à chaleur en façade ou en toiture : déclaration préalable obligatoire. Règles, bruit, voisinage et dossier complet prêt à déposer en mairie.",
     h1: "Déclaration préalable pour une pompe à chaleur",
     lead: "L'unité extérieure d'une pompe à chaleur ou d'une climatisation change souvent l'aspect de la maison. Selon son emplacement, une déclaration préalable est nécessaire : Permizy vous le dit et prépare le dossier.",
@@ -417,7 +417,7 @@ export const GUIDES: Guide[] = [
       { q: "Combien de temps dure une déclaration préalable ?", a: "Elle est périmée si les travaux ne commencent pas dans les 3 ans, ou s'ils sont interrompus plus d'un an. Elle peut être prorogée deux fois un an." },
     ],
     sources: [{ label: "Service-public : déclaration préalable (F17578)", url: SP("F17578") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : permis de construire (F1986)", url: SP("F1986") }],
-    related: ["declaration-prealable-panneaux-solaires", "travaux-abords-monument-historique-abf", "permis-de-construire-extension-garage-veranda"],
+    related: ["declaration-prealable-panneaux-solaires", "cerfa-16702-declaration-prealable", "travaux-abords-monument-historique-abf", "permis-de-construire-extension-garage-veranda"],
     updated: "2026-11-19",
   },
   {
@@ -440,6 +440,148 @@ export const GUIDES: Guide[] = [
     sources: [{ label: "Service-public : déclaration préalable (F17578)", url: SP("F17578") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Géoportail de l'Urbanisme", url: "https://www.geoportail-urbanisme.gouv.fr/" }],
     related: ["declaration-prealable-panneaux-solaires", "delai-instruction-declaration-prealable", "declaration-prealable-isolation-exterieure"],
     updated: "2026-11-19",
+  },
+  {
+    slug: "pieces-declaration-prealable-dp1-dp8",
+    title: "Pièces d'une déclaration préalable : DP1 à DP11",
+    description: "Plan de situation DP1, plan de masse DP2, façades DP4, photomontage DP6, photos DP7 et DP8, notice DP11 : quelles pièces joindre et en combien d'exemplaires.",
+    h1: "Les pièces d'une déclaration préalable, de DP1 à DP11",
+    lead: "Le dossier de déclaration préalable se compose du cerfa et de pièces numérotées DP1, DP2… Toutes ne sont pas exigées à chaque fois : voici à quoi sert chacune et quand la fournir.",
+    works: "pv",
+    price: { label: "Dossier de déclaration préalable", amount: 49 },
+    cta: { label: "Générer mes pièces DP1 à DP8", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Ce que dit la notice officielle",
+        p: ["« Seule la pièce DP1 est à joindre obligatoirement dans tous les cas. DP2 n'est nécessaire que lorsque le projet crée une construction ou modifie le volume d'une construction existante. DP5 n'est à fournir que lorsque l'aspect extérieur est modifié. » (notice du cerfa 16702, n° 51434)."],
+      },
+      {
+        h2: "Le détail des pièces",
+        table: {
+          head: ["Pièce", "Contenu", "Quand la fournir"],
+          rows: [
+            ["DP1", "Plan de situation du terrain, avec les points et angles de prise de vue des photos", "Toujours"],
+            ["DP2", "Plan de masse : échelle, nord, cotes", "Construction créée ou volume modifié ; attendu par la plupart des mairies"],
+            ["DP3", "Plan en coupe", "Profil du terrain modifié"],
+            ["DP4", "Plans des façades et des toitures, avant et après", "Façades ou toiture modifiées"],
+            ["DP5", "Représentation de l'aspect extérieur", "Aspect extérieur modifié"],
+            ["DP6", "Document graphique d'insertion (photomontage)", "Travaux visibles depuis l'espace public, ou en secteur protégé"],
+            ["DP7", "Photographie de l'environnement proche", "Mêmes cas que DP6"],
+            ["DP8", "Photographie du paysage lointain", "Mêmes cas que DP6"],
+            ["DP11", "Notice des matériaux et modalités d'exécution", "Certains secteurs protégés ; utile dans tous les cas pour décrire le projet"],
+          ],
+        },
+        note: ["Les photographies DP7 et DP8 doivent être des photos originales, pas des photocopies (notice 51434). Dans le cerfa 16702*03, ces pièces sont numérotées DPC1 à DPC8."],
+      },
+      {
+        h2: "Combien d'exemplaires ?",
+        list: ["Dépôt en ligne : un seul envoi.", "Dépôt papier, cas général : 2 exemplaires.", "Secteur protégé (site patrimonial remarquable, abords de monument historique, site classé ou inscrit) : 3 exemplaires, plus 2 exemplaires supplémentaires du plan de situation."],
+        note: ["Source : service-public F17578."],
+      },
+      {
+        h2: "Ce que Permizy génère à votre place",
+        p: ["À partir de votre adresse, Permizy dessine le plan de situation et le plan de masse sur le cadastre, les façades avant / après, le photomontage à partir de votre photo, la notice et le bordereau des pièces, puis remplit le cerfa et coche les bonnes cases."],
+      },
+    ],
+    faq: [
+      { q: "Quelle pièce est obligatoire dans une déclaration préalable ?", a: "Seule la DP1, le plan de situation, est obligatoire dans tous les cas ; les autres dépendent des travaux (notice officielle du cerfa 16702)." },
+      { q: "Qu'est-ce que le DP6 ?", a: "Le document graphique d'insertion, en pratique un photomontage montrant le projet dans son environnement. Il est exigé si les travaux sont visibles depuis l'espace public ou en secteur protégé." },
+      { q: "Combien d'exemplaires pour une déclaration préalable papier ?", a: "2 exemplaires dans le cas général, 3 en secteur protégé avec 2 plans de situation supplémentaires (service-public, F17578)." },
+    ],
+    sources: [{ label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : déclaration préalable (F17578)", url: SP("F17578") }],
+    related: ["cerfa-16702-declaration-prealable", "declaration-prealable-panneaux-solaires", "delai-instruction-declaration-prealable"],
+    updated: "2026-11-20",
+  },
+  {
+    slug: "cerfa-16702-declaration-prealable",
+    title: "Cerfa 16702*03 : formulaire de déclaration préalable",
+    description: "Le cerfa 16702*03 est le formulaire de déclaration préalable en vigueur. Rubriques, pièces à joindre, dépôt et fin de travaux (DAACT 13408) : le guide.",
+    h1: "Cerfa 16702*03 : le formulaire de déclaration préalable",
+    lead: "Pour une déclaration préalable de travaux, le formulaire en vigueur est le cerfa n° 16702*03. Beaucoup de sites citent encore d'anciennes versions : voici l'essentiel pour ne pas se tromper.",
+    works: "pv",
+    price: { label: "Dossier de déclaration préalable", amount: 49 },
+    cta: { label: "Remplir mon cerfa automatiquement", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Quel formulaire ?",
+        list: [
+          "Cerfa n° 16702*03 : « Déclaration préalable constructions et travaux non soumis à permis de construire ».",
+          "Il est accompagné d'une notice officielle (n° 51434) qui détaille les cas et les pièces.",
+          "Pour un permis de construire de maison individuelle, c'est le cerfa 13406 ; pour les autres constructions, le cerfa 13409.",
+        ],
+        note: ["Source : service-public, fiche R2028 (vérifiée le 19/10/2026)."],
+      },
+      {
+        h2: "Les rubriques à remplir",
+        list: [
+          "Identité du déclarant : particulier (nom, prénom, date et lieu de naissance) ou personne morale (dénomination, SIRET, type de société, représentant).",
+          "Coordonnées du déclarant.",
+          "Le terrain : adresse et références cadastrales (préfixe, section, numéro, superficie).",
+          "Le projet : nature des travaux et courte description.",
+          "Les protections : site patrimonial remarquable, abords de monument historique, site classé.",
+          "L'engagement : lieu, date et signature.",
+          "Le bordereau des pièces jointes (DPC1 à DPC8 et suivantes).",
+        ],
+      },
+      {
+        h2: "Après les travaux : la DAACT",
+        p: ["À la fin des travaux, la déclaration attestant l'achèvement et la conformité des travaux (DAACT) se fait sur le cerfa 13408*14 (service-public, fiche R1978)."],
+      },
+      {
+        h2: "Le cerfa rempli pour vous",
+        p: ["Permizy remplit le PDF officiel champ par champ : identité, adresse, parcelles lues sur le cadastre, description du projet, cases des secteurs protégés détectés et bordereau des pièces. Avant le téléchargement, il vous demande ce qui manque (par exemple la date et la commune de naissance) pour que le cerfa ne parte pas incomplet."],
+      },
+    ],
+    faq: [
+      { q: "Quel est le cerfa de la déclaration préalable ?", a: "Le cerfa n° 16702*03, « Déclaration préalable constructions et travaux non soumis à permis de construire » (service-public, R2028)." },
+      { q: "Quel cerfa pour déclarer la fin des travaux ?", a: "La DAACT, cerfa n° 13408*14 (service-public, R1978)." },
+      { q: "Faut-il indiquer la date de naissance ?", a: "Oui pour un particulier : la rubrique « identité du déclarant » demande la date et le lieu de naissance. Une société indique sa dénomination et son SIRET." },
+    ],
+    sources: [{ label: "Service-public : cerfa 16702 (R2028)", url: SP("R2028") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : DAACT, cerfa 13408 (R1978)", url: SP("R1978") }],
+    related: ["pieces-declaration-prealable-dp1-dp8", "delai-instruction-declaration-prealable", "declaration-prealable-panneaux-solaires"],
+    updated: "2026-11-20",
+  },
+  {
+    slug: "declaration-prealable-ombriere-panneaux-au-sol",
+    title: "Panneaux solaires au sol, ombrière : quelle autorisation ?",
+    description: "Panneaux au sol ou ombrière : aucune formalité sous 3 kWc et 1,80 m, déclaration préalable jusqu'à 3 MWc, permis au-delà. Seuils et secteurs protégés.",
+    h1: "Panneaux solaires au sol et ombrières : déclaration préalable ou permis ?",
+    lead: "Pour des panneaux posés au sol ou une ombrière (parking, terrasse), l'autorisation dépend de la puissance crête, de la hauteur et du secteur. Les seuils ont changé pour les demandes déposées depuis le 1er décembre 2024.",
+    works: "pv",
+    cta: { label: "Vérifier mon projet", href: "/verifier/?w=pv" },
+    sections: [
+      {
+        h2: "Les seuils",
+        table: {
+          head: ["Puissance crête", "Hauteur", "Cas général", "Secteur protégé"],
+          rows: [
+            ["Moins de 3 kWc", "1,80 m maximum", "Aucune formalité", "Déclaration préalable"],
+            ["Moins de 3 kWc", "Plus de 1,80 m", "Déclaration préalable", "Déclaration préalable"],
+            ["De 3 kWc à 3 MWc", "Toute", "Déclaration préalable", "Permis de construire"],
+            ["3 MWc ou plus", "Toute", "Permis de construire", "Permis de construire"],
+          ],
+        },
+        note: ["Articles R. 421-2, R. 421-9, R. 421-11 et R. 421-1 du code de l'urbanisme. Le seuil entre déclaration et permis est passé de 1 MWc à 3 MWc pour les demandes déposées à compter du 1er décembre 2024 (décret du 13 novembre 2024). Sources : notice du cerfa 16702 et photovoltaique.info."],
+      },
+      {
+        h2: "Évaluation environnementale",
+        p: ["Pour les installations au sol, l'évaluation environnementale systématique s'applique toujours à partir de 1 MWc, indépendamment de l'autorisation d'urbanisme (photovoltaique.info)."],
+      },
+      {
+        h2: "En zone agricole ou naturelle",
+        p: ["Au sol sur des terres agricoles, naturelles ou forestières, l'agrivoltaïsme et les installations compatibles avec l'activité agricole sont encadrés par la loi du 10 mars 2023 et le décret du 8 avril 2024. Ces projets demandent une étude au cas par cas : Permizy en signale l'enjeu mais ne génère pas encore ces dossiers."],
+      },
+    ],
+    faq: [
+      { q: "Faut-il une autorisation pour des panneaux solaires au sol ?", a: "Pas en dessous de 3 kWc et 1,80 m de haut, hors secteur protégé. De 3 kWc à 3 MWc, une déclaration préalable ; à partir de 3 MWc, un permis de construire (code de l'urbanisme, R. 421-2, R. 421-9 et R. 421-1)." },
+      { q: "Et pour une ombrière de parking ?", a: "Depuis le 1er décembre 2024, les ombrières intégrant des panneaux suivent les mêmes seuils que les installations au sol (photovoltaique.info)." },
+    ],
+    sources: [
+      { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE },
+      { label: "photovoltaique.info : seuil du permis pour ombrières et installations au sol", url: "https://www.photovoltaique.info/fr/actualites/detail/urbanisme-rehaussement-du-seuil-du-permis-de-construire-pour-les-ombrieres-et-les-installations-au-sol/" },
+    ],
+    related: ["declaration-prealable-panneaux-solaires", "panneaux-solaires-agricoles-hangar", "raccordement-enedis-consuel-panneaux-solaires"],
+    updated: "2026-11-20",
   },
 ];
 

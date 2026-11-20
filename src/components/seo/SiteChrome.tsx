@@ -15,10 +15,10 @@ export function SiteHeader() {
         <Link href="/panneaux-solaires-agricoles-hangar/">Agricole</Link>
       </nav>
       <div className="flex gap-2">
-        <Link href="/connexion/" className="rounded-full border-2 border-ink px-4 py-2 text-sm font-bold sm:px-5">
+        <Link href="/connexion/" prefetch={false} className="rounded-full border-2 border-ink px-4 py-2 text-sm font-bold sm:px-5">
           Mon dossier
         </Link>
-        <Link href="/verifier/" className="hidden rounded-full bg-ink px-5 py-2 text-sm font-bold text-white sm:inline-block">
+        <Link href="/verifier/" prefetch={false} className="hidden rounded-full bg-ink px-5 py-2 text-sm font-bold text-white sm:inline-block">
           Commencer
         </Link>
       </div>
@@ -45,7 +45,7 @@ export function SiteFooter() {
       </div>
       <div className="mx-auto flex max-w-7xl flex-wrap gap-x-4 gap-y-1 px-5 pb-8 text-xs text-muted sm:px-10">
         <Link href="/cgu/" className="underline">Conditions et responsabilité</Link>
-        <Link href="/connexion/" className="underline">Espace professionnels</Link>
+        <Link href="/connexion/" prefetch={false} className="underline">Espace professionnels</Link>
         <Link href="/sante/" className="underline">État des sources</Link>
       </div>
     </footer>

@@ -61,7 +61,7 @@ function HouseArt() {
         </span>
       </div>
       <div className="absolute bottom-6 right-0 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm shadow-xl">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-sun-soft font-extrabold text-[#b36b00]">8</span>
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-sun-soft font-extrabold text-[#8a5200]">8</span>
         <span>
           <b className="block">Pièces générées</b>Plans, cerfa, photomontage
         </span>
@@ -114,7 +114,7 @@ export default function Landing() {
             <h2 className="mt-4 text-4xl font-extrabold sm:text-[46px]">Un projet, un dossier prêt à déposer</h2>
             <p className="mt-2 text-lg text-muted">Permizy connaît les règles de chaque type de travaux : vous répondez à quelques questions, on fait le reste.</p>
             <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-              <Link href={AGRI_HREF} data-testid="home-agri" className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
+              <Link href={AGRI_HREF} prefetch={false} data-testid="home-agri" className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
                 <WorksIcon works="pv" className="h-14 w-14" />
                 <span>
                   <b className="mt-4 block text-lg leading-tight">Solaire agricole</b>
@@ -122,7 +122,7 @@ export default function Landing() {
                 </span>
               </Link>
               {AVAILABLE.map((w) => (
-                <Link key={w.id} href={`/verifier/?w=${w.id}`} className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
+                <Link key={w.id} href={`/verifier/?w=${w.id}`} prefetch={false} className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
                   <WorksIcon works={w.id} className="h-14 w-14" />
                   <span>
                     <b className="mt-4 block text-lg leading-tight">{w.title}</b>
@@ -132,7 +132,7 @@ export default function Landing() {
               ))}
               {SOON.map((w) => (
                 <div key={w.title} className="flex min-h-44 flex-col justify-between rounded-3xl border border-dashed border-line p-5">
-                  <span className={`self-start rounded-md px-2 py-1 text-[11px] font-extrabold uppercase tracking-wider ${w.green ? "bg-mint text-brand-600" : "bg-sun-soft text-[#b36b00]"}`}>Bientôt</span>
+                  <span className={`self-start rounded-md px-2 py-1 text-[11px] font-extrabold uppercase tracking-wider ${w.green ? "bg-mint text-brand-600" : "bg-sun-soft text-[#8a5200]"}`}>Bientôt</span>
                   <span>
                     <b className="block text-lg leading-tight">{w.title}</b>
                     <span className="text-sm text-muted">{w.desc}</span>
@@ -149,7 +149,7 @@ export default function Landing() {
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {[
               { n: 1, bg: "bg-mint", c: "text-brand-600", i: "?", t: "Vous racontez votre projet", d: "5 minutes de questions simples, depuis votre téléphone. Trois photos de la maison, une signature." },
-              { n: 2, bg: "bg-sun-soft", c: "text-[#b36b00]", i: "✎", t: "On prépare tout", d: "Cadastre, PLU, monuments historiques : vérifiés. Plans à l'échelle, photomontage et cerfa : générés. Vous relisez." },
+              { n: 2, bg: "bg-sun-soft", c: "text-[#8a5200]", i: "✎", t: "On prépare tout", d: "Cadastre, PLU, monuments historiques : vérifiés. Plans à l'échelle, photomontage et cerfa : générés. Vous relisez." },
               { n: 3, bg: "bg-sky", c: "text-[#2b5d8a]", i: "✓", t: "On suit jusqu'au feu vert", d: "Envoi à la bonne mairie après votre accord, rappels de délais, réponse aux demandes de pièces." },
             ].map((s) => (
               <div key={s.n} className={`relative rounded-[26px] p-7 ${s.bg}`}>

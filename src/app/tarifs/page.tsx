@@ -36,7 +36,7 @@ export default function Tarifs() {
               <h2 className="text-xl font-extrabold">{p.name}</h2>
               <p className="mt-2 text-4xl font-extrabold">{p.price} €<span className="text-base font-medium text-muted"> TTC</span></p>
               <p className="mt-3 flex-1 text-sm text-muted">{p.for}</p>
-              <Link href={p.href} className="mt-5 rounded-full bg-ink px-5 py-2.5 text-center font-bold text-white">Commencer</Link>
+              <Link href={p.href} prefetch={false} className="mt-5 rounded-full bg-ink px-5 py-2.5 text-center font-bold text-white">Commencer</Link>
             </li>
           ))}
         </ul>
