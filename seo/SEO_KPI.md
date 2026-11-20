@@ -10,7 +10,7 @@ Règle : uniquement des chiffres mesurés, avec date et source. « non disponibl
 ## Conversions organiques
 | Période | Vérifications lancées | Dossiers créés | Paiements | Source |
 |---|---|---|---|---|
-| — | non disponible | non disponible | non disponible | aucun outil de mesure |
+| 20/11/2026 | mesure en place (début de collecte) | — | — | Supabase `analytics_events`, requêtes `seo/analytics-queries.sql` |
 
 ## Lighthouse (mobile, site en ligne)
 | Date | Page | Perf. | Access. | Bonnes pratiques | SEO | LCP | TBT | CLS |
