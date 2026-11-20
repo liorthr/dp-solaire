@@ -44,6 +44,8 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="mx-auto flex max-w-7xl flex-wrap gap-x-4 gap-y-1 px-5 pb-8 text-xs text-muted sm:px-10">
+        <Link href="/a-propos/" className="underline">À propos</Link>
+        <Link href="/mentions-legales/" className="underline">Mentions légales</Link>
         <Link href="/cgu/" className="underline">Conditions et responsabilité</Link>
         <Link href="/connexion/" prefetch={false} className="underline">Espace professionnels</Link>
         <Link href="/sante/" className="underline">État des sources</Link>

@@ -7,6 +7,7 @@ import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input } from "@/components/ui";
 import { DEMO_ACCOUNTS, login, resetAll, signup } from "@/lib/store/db";
 import { useSeed } from "@/lib/store/hooks";
+import { track } from "@/lib/analytics";
 
 function Connexion() {
   const ready = useSeed();
@@ -71,6 +72,7 @@ function Connexion() {
         }
       } else if (mode === "login") await login(email, password);
       else await signup({ company: pro ? company : fullName, fullName, email, password, kind: pro ? "professionnel" : "particulier" });
+      if (mode === "signup") track("signup", pro ? "professionnel" : "particulier");
       router.push(target);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));

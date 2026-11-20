@@ -1,0 +1,18 @@
+{
+  "slug": "pieces-dp1-dp8",
+  "title": "Les pièces d'une déclaration préalable, de DP1 à DP8",
+  "description": "Quelles pièces joindre à une déclaration préalable de travaux : plan de situation DP1, plan de masse DP2, façades DP4, photomontage DP6, photos DP7 et DP8, notice DP11, et combien d'exemplaires.",
+  "guide": "pieces-declaration-prealable-dp1-dp8",
+  "sources": ["Notice officielle du cerfa 16702 (n° 51434)", "service-public.fr, fiche F17578"],
+  "scenes": [
+    { "kicker": "Déclaration préalable", "title": "Quelles pièces fournir ?", "lines": ["De DP1 à DP8, en une minute et demie"], "say": "Déclaration préalable de travaux : quelles pièces fournir à la mairie ? Voici l'essentiel, de DP1 à DP8." },
+    { "kicker": "DP1", "title": "Plan de situation", "lines": ["Obligatoire dans tous les cas", "Situe le terrain dans la commune"], "say": "Une seule pièce est obligatoire dans tous les cas : la DP1, le plan de situation. Il situe votre terrain dans la commune, avec les points de prise de vue des photos." },
+    { "kicker": "DP2", "title": "Plan de masse", "lines": ["Le projet sur la parcelle, coté", "Si vous créez ou modifiez un volume"], "say": "La DP2, le plan de masse, montre le projet sur la parcelle, avec ses dimensions. Elle est exigée si vous créez une construction ou modifiez un volume, et la plupart des mairies l'attendent." },
+    { "kicker": "DP3 · DP4", "title": "Coupe, façades et toitures", "lines": ["DP3 : si le profil du terrain change", "DP4 : façades et toitures, avant et après"], "say": "La DP3, le plan en coupe, sert si le profil du terrain est modifié. La DP4 montre les façades et les toitures, avant et après les travaux." },
+    { "kicker": "DP5 · DP6", "title": "Aspect extérieur et insertion", "lines": ["DP5 : si l'aspect extérieur change", "DP6 : photomontage du projet"], "say": "La DP5 représente l'aspect extérieur, dès qu'il change. La DP6 est le document d'insertion : en pratique, un photomontage du projet dans son environnement." },
+    { "kicker": "DP7 · DP8", "title": "Photos proche et lointaine", "lines": ["Si les travaux sont visibles de la rue", "ou en secteur protégé", "Photos originales"], "say": "La DP7 et la DP8 sont deux photos, l'une proche, l'autre lointaine. Avec la DP6, elles sont exigées si les travaux sont visibles depuis l'espace public, ou en secteur protégé. Ce doivent être des photos originales." },
+    { "kicker": "DP11", "title": "La notice", "lines": ["Matériaux et modalités d'exécution", "Utile pour décrire le projet"], "say": "Enfin, la DP11, la notice, décrit les matériaux et la façon de réaliser les travaux. Elle est exigée dans certains secteurs protégés et utile dans tous les cas." },
+    { "kicker": "Exemplaires", "title": "En ligne ou sur papier", "lines": ["En ligne : un seul envoi", "Papier : 2 exemplaires", "Secteur protégé : 3 exemplaires"], "say": "En ligne, un seul envoi suffit. Sur papier, comptez deux exemplaires, et trois en secteur protégé." },
+    { "kicker": "permizy.com", "title": "Vos pièces, prêtes à déposer", "lines": ["Vérification gratuite avec votre adresse"], "say": "Permizy prépare ces pièces à partir de votre adresse. Vérifiez gratuitement votre projet sur permizy point com." }
+  ]
+}

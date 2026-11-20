@@ -15,6 +15,7 @@ import { DRAFT_KEY, quickVerdict, type QuickAnswers, type QuickVerdict } from "@
 import { currentSession, isHomeowner } from "@/lib/store/db";
 import { isCloudSession } from "@/lib/cloud/supabase";
 import { cn } from "@/components/ui";
+import { track } from "@/lib/analytics";
 
 
 interface Question {
@@ -199,7 +200,9 @@ function Verifier() {
     try {
       const e = await runEnrichment(address, { lon: address.lon, lat: address.lat }, (id, status) => setProgress((p) => ({ ...p, [id]: status })), { snap: address.type !== "housenumber" && address.type !== "manual" });
       setEnr(e);
-      setVerdict(quickVerdict(works, address, e, a));
+      const v = quickVerdict(works, address, e, a);
+      setVerdict(v);
+      track("verify_verdict", v.outcome);
       setStage("verdict");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -207,6 +210,7 @@ function Verifier() {
   };
 
   const prepare = () => {
+    track("verify_prepare", works);
     localStorage.setItem(DRAFT_KEY, JSON.stringify({ works, address, answers, site: enr && "site" in enr ? (enr as { site: unknown }).site : undefined }));
     // la simulation est le parcours particulier : une session de démo « installateur » restée ouverte ne doit pas l'emporter
     const s = currentSession();
@@ -219,7 +223,7 @@ function Verifier() {
         <h1 className="text-3xl font-extrabold leading-tight">Faut-il une déclaration préalable pour vos travaux&nbsp;?</h1>
         <Bubble icon="💬">Pas d&apos;inquiétude : choisissez ce qui ressemble le plus à votre projet, on affinera ensemble.</Bubble>
         {WORKS.map((w) => (
-          <Choice key={w.id} selected={works === w.id} onClick={() => { setWorks(w.id); setStage("address"); }} icon={<WorksIcon works={w.id} className="h-11 w-11" size={22} />} testid={`quick-works-${w.id}`}>
+          <Choice key={w.id} selected={works === w.id} onClick={() => { setWorks(w.id); setStage("address"); track("verify_start", w.id); }} icon={<WorksIcon works={w.id} className="h-11 w-11" size={22} />} testid={`quick-works-${w.id}`}>
             {w.label}
             <small className="block font-normal text-muted">{WORKS_STYLE[w.id].sub}</small>
           </Choice>

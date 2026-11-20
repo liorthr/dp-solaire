@@ -18,6 +18,9 @@ export const organizationLd = {
   name: SITE_NAME,
   url: SITE_URL,
   logo: abs("/icon-512.png"),
+  vatID: "FR48109443754",
+  foundingDate: "2026-09-02",
+  address: { "@type": "PostalAddress", streetAddress: "47 rue Vivienne", postalCode: "75002", addressLocality: "Paris", addressCountry: "FR" },
 };
 
 export const websiteLd = {

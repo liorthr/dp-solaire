@@ -8,6 +8,8 @@ import { abs, breadcrumbLd, faqLd, serviceLd } from "@/lib/seo/site";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/seo/SiteChrome";
 import { WorksIcon } from "@/components/home/WorksIcon";
+import { GuideVideo } from "@/components/seo/GuideVideo";
+import { videoForGuide } from "@/data/seo/videos";
 
 export const dynamicParams = false;
 export const generateStaticParams = () => GUIDES.map((g) => ({ slug: g.slug }));
@@ -59,7 +61,7 @@ export default async function GuidePage({ params }: Props) {
             <p className="mt-4 text-lg leading-relaxed text-muted">{g.lead}</p>
             <p className="mt-2 text-xs text-muted">Mis à jour le {fr(g.updated)} · sources officielles en bas de page</p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link href={g.cta.href} prefetch={false} className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 font-bold text-white" data-testid="guide-cta">
+              <Link href={g.cta.href} prefetch={false} className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 font-bold text-white" data-testid="guide-cta" data-track={`guide_cta:${g.slug.slice(0, 40)}`}>
                 {g.cta.label} <ArrowRight className="h-4 w-4" />
               </Link>
               {g.price && (
@@ -69,6 +71,8 @@ export default async function GuidePage({ params }: Props) {
               )}
             </div>
           </header>
+
+          {videoForGuide(g.slug) && <GuideVideo v={videoForGuide(g.slug)!} />}
 
           {g.sections.map((s) => (
             <section key={s.h2} className="mt-10">
@@ -108,7 +112,7 @@ export default async function GuidePage({ params }: Props) {
           <section className="mt-12 rounded-3xl bg-ink p-6 text-white sm:p-8">
             <h2 className="text-2xl font-extrabold">Votre dossier, prêt à déposer</h2>
             <p className="mt-2 text-white/80">Saisissez votre adresse : Permizy lit le cadastre, le PLU et les périmètres protégés, dessine les plans, remplit le cerfa et prépare l&apos;envoi à votre mairie. Aucun envoi sans votre accord.</p>
-            <Link href={g.cta.href} prefetch={false} className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-ink">
+            <Link href={g.cta.href} prefetch={false} data-track={`guide_cta:${g.slug.slice(0, 40)}`} className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-ink">
               {g.cta.label} <ArrowRight className="h-4 w-4" />
             </Link>
           </section>

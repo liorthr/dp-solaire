@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/ui";
 import { isPaid, PENDING_KEY } from "@/lib/cloud/payments";
+import { track } from "@/lib/analytics";
 
 function Waiting() {
   const router = useRouter();
@@ -24,6 +25,7 @@ function Waiting() {
       for (let i = 0; i < 20 && alive; i++) {
         if (await isPaid(pending.projectId).catch(() => false)) {
           localStorage.removeItem(PENDING_KEY);
+          track("paid");
           setState("ok");
           router.replace(`/app/dossier/?id=${pending.projectId}&tab=dossier`);
           return;

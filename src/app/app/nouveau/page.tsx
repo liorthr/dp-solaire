@@ -18,6 +18,7 @@ import { AgriEditor, ExtensionEditor, IteEditor, JoineryEditor, PacEditor, Velux
 import { defaultAgri, defaultExtension, defaultIte, defaultJoinery, defaultPac, defaultVelux, type WorksChoice } from "@/data/works";
 import { bestExtensionFacade, bestPacFacade, defaultJoineryItems, defaultRoofWindows, estimateExistingFloorArea } from "@/lib/works/geom";
 import type { AgriInfo, ExtensionInfo, IteInfo, JoineryInfo, PacInfo, RoofWindowInfo, WorksType } from "@/lib/types";
+import { track } from "@/lib/analytics";
 
 const STEP_LABELS = ["Adresse", "Client & mandat", "Projet", "Photos"];
 const HOME_STEP_LABELS = ["Où et quoi", "Vous", "Votre projet", "Photos"];
@@ -141,6 +142,7 @@ function Wizard() {
       if (works === "extension") p.extension = { ...ext, facadeIndex: bestExtensionFacade(enrichment, ext), floorAreaExistingM2: extExistingTouched ? ext.floorAreaExistingM2 : (estimateExistingFloorArea(enrichment) ?? ext.floorAreaExistingM2) };
       p.overrides = { ...p.overrides, site };
       repo.saveProject(p, "enrichissement");
+      track("project_created", agri ? "pv_agri" : works);
       router.push(`/app/dossier/?id=${p.id}`);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));

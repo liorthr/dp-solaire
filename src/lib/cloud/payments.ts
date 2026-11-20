@@ -6,6 +6,7 @@ import { currentSession } from "@/lib/store/db";
 import { cloudEnabled, isCloudSession, supabase } from "./supabase";
 
 import { PRICES, type PriceKind } from "./prices";
+import { track } from "@/lib/analytics";
 export { PRICES, type PriceKind };
 export const PRICE_LABELS: Record<PriceKind, string> = { DP: "Déclaration préalable", PC: "Permis de construire", AGRI: "Solaire agricole" };
 const LINKS: Record<PriceKind, string> = { DP: process.env.NEXT_PUBLIC_STRIPE_LINK_DP ?? "", PC: process.env.NEXT_PUBLIC_STRIPE_LINK_PC ?? "", AGRI: process.env.NEXT_PUBLIC_STRIPE_LINK_AGRI ?? "" };
@@ -30,6 +31,7 @@ export async function payDossier(p: Project, kind: PriceKind) {
   url.searchParams.set("client_reference_id", `${data.user.id}__${p.id}`);
   if (data.user.email) url.searchParams.set("prefilled_email", data.user.email);
   url.searchParams.set("locale", "fr");
+  track("pay_click", kind);
   localStorage.setItem(PENDING_KEY, JSON.stringify({ projectId: p.id, at: Date.now() }));
   window.location.href = url.toString();
 }
