@@ -19,7 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!g) return {};
   const url = `/${g.slug}/`;
   return {
-    title: g.title,
+    // suffixe « | Permizy » seulement s'il tient dans ~65 caractères (sinon tronqué par Google)
+    title: g.title.length + " | Permizy".length > 65 ? { absolute: g.title } : g.title,
     description: g.description,
     alternates: { canonical: url },
     openGraph: { type: "article", url, title: g.title, description: g.description, modifiedTime: g.updated, locale: "fr_FR", siteName: "Permizy", images: [{ url: "/og.png", width: 1200, height: 630 }] },
@@ -93,6 +94,12 @@ export default async function GuidePage({ params }: Props) {
                     </tbody>
                   </table>
                 </div>
+              )}
+              {s.figure && (
+                <figure className="mt-4">
+                  <img src={s.figure.src} alt={s.figure.alt} width={s.figure.width} height={s.figure.height} loading="lazy" decoding="async" className="h-auto w-full rounded-2xl border border-line" />
+                  <figcaption className="mt-1.5 text-xs text-muted">{s.figure.caption}</figcaption>
+                </figure>
               )}
               {s.note?.map((t) => <p key={t} className="mt-3 text-sm leading-relaxed text-muted">{t}</p>)}
             </section>

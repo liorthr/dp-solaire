@@ -216,7 +216,7 @@ function Verifier() {
   if (stage === "works")
     return (
       <Phone step={0} total={total}>
-        <h1 className="text-3xl font-extrabold leading-tight">Que voulez-vous faire chez vous&nbsp;?</h1>
+        <h1 className="text-3xl font-extrabold leading-tight">Faut-il une déclaration préalable pour vos travaux&nbsp;?</h1>
         <Bubble icon="💬">Pas d&apos;inquiétude : choisissez ce qui ressemble le plus à votre projet, on affinera ensemble.</Bubble>
         {WORKS.map((w) => (
           <Choice key={w.id} selected={works === w.id} onClick={() => { setWorks(w.id); setStage("address"); }} icon={<WorksIcon works={w.id} className="h-11 w-11" size={22} />} testid={`quick-works-${w.id}`}>
@@ -400,9 +400,32 @@ const Fact = ({ big, small }: { big: string; small: string }) => (
   </div>
 );
 
+/** premier écran rendu au build (HTML statique) : identique au parcours, avant que JavaScript ne prenne le relais */
+function FirstScreen() {
+  return (
+    <Phone step={0} total={3}>
+      <h1 className="text-3xl font-extrabold leading-tight">Faut-il une déclaration préalable pour vos travaux&nbsp;?</h1>
+      <p className="mt-3 text-muted">Choisissez vos travaux : on vérifie les règles de votre commune avec votre adresse, gratuitement.</p>
+      <ul className="mt-4 space-y-2">
+        {WORKS.map((w) => (
+          <li key={w.id}>
+            <a href={`?w=${w.id}`} className="flex items-center gap-3 rounded-[18px] border-2 border-line bg-white p-3 font-semibold">
+              <WorksIcon works={w.id} className="h-11 w-11" size={22} />
+              <span>
+                {w.label}
+                <small className="block font-normal text-muted">{WORKS_STYLE[w.id].sub}</small>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </Phone>
+  );
+}
+
 export default function Page() {
   return (
-    <Suspense fallback={<div className="p-8 text-muted">Chargement…</div>}>
+    <Suspense fallback={<FirstScreen />}>
       <Verifier />
     </Suspense>
   );

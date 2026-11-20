@@ -10,3 +10,4 @@ playwright-report/
 test-results/
 .vercel
 .plans-out/
+seo/crawl-latest.json

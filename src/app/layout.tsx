@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: "Déclaration préalable et permis de construire en ligne | Permizy",
     template: "%s | Permizy",
   },
-  description: "Déclaration préalable de travaux en ligne : panneaux solaires, pompe à chaleur, fenêtres, isolation, extension. Règles de votre commune, plans, cerfa rempli. Dès 49 €.",
+  description: "Déclaration préalable de travaux en ligne : solaire, pompe à chaleur, fenêtres, isolation, extension. Règles de votre commune, plans, cerfa rempli. Dès 49 €.",
   applicationName: "Permizy",
   openGraph: {
     type: "website",

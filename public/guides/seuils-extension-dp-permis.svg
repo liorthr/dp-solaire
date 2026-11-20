@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" role="img" aria-labelledby="t d" font-family="Inter, Arial, sans-serif">
+  <title id="t">Extension de maison : déclaration préalable ou permis de construire selon la surface</title>
+  <desc id="d">En zone urbaine d'un PLU : déclaration préalable jusqu'à 40 m² créés, permis au-delà, et permis dès plus de 20 m² si la surface totale dépasse 150 m². Hors zone urbaine : déclaration préalable jusqu'à 20 m², permis au-delà.</desc>
+  <rect width="960" height="400" rx="24" fill="#faf6ee"/>
+  <text x="40" y="52" font-size="24" font-weight="800" fill="#13201a">Extension : déclaration ou permis ?</text>
+  <text x="40" y="78" font-size="14" fill="#5d6b63">Surface créée (emprise au sol ou surface de plancher). Source : service-public.fr (F36777)</text>
+  <g font-size="14" fill="#13201a">
+    <text x="40" y="130" font-weight="700">Zone urbaine (U) d'un PLU</text>
+    <rect x="40" y="145" width="430" height="56" rx="12" fill="#dff3e6"/><text x="60" y="179" font-weight="700" fill="#1f6b4a">Déclaration préalable : jusqu'à 40 m²</text>
+    <rect x="480" y="145" width="440" height="56" rx="12" fill="#13201a"/><text x="500" y="179" font-weight="700" fill="#fff">Permis de construire : plus de 40 m²</text>
+    <text x="40" y="226" font-size="13" fill="#5d6b63">Exception : plus de 20 m² créés et plus de 150 m² au total après travaux → permis de construire.</text>
+    <text x="40" y="282" font-weight="700">Hors zone urbaine (U) d'un PLU</text>
+    <rect x="40" y="297" width="215" height="56" rx="12" fill="#dff3e6"/><text x="56" y="331" font-weight="700" fill="#1f6b4a">DP : jusqu'à 20 m²</text>
+    <rect x="265" y="297" width="655" height="56" rx="12" fill="#13201a"/><text x="285" y="331" font-weight="700" fill="#fff">Permis de construire : plus de 20 m²</text>
+  </g>
+  <text x="920" y="388" font-size="11" fill="#5d6b63" text-anchor="end">Schéma explicatif Permizy, non officiel</text>
+</svg>

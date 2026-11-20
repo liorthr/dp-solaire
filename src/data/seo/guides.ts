@@ -9,6 +9,8 @@ export interface GuideSection {
   table?: { head: string[]; rows: string[][] };
   /** précision sous le tableau (source…) */
   note?: string[];
+  /** infographie originale (SVG dans public/guides), jamais présentée comme un document officiel */
+  figure?: { src: string; alt: string; caption: string; width: number; height: number };
 }
 export interface Guide {
   slug: string;
@@ -51,6 +53,78 @@ const DP_APRES: GuideSection = {
 };
 
 export const GUIDES: Guide[] = [
+  {
+    slug: "declaration-prealable-travaux",
+    title: "Déclaration préalable de travaux : le guide complet",
+    description: "Quels travaux sont concernés, cerfa 16702, pièces DP1 à DP8, dépôt en mairie, délai d'un mois, affichage : tout sur la déclaration préalable de travaux.",
+    h1: "Déclaration préalable de travaux : le guide complet",
+    lead: "La déclaration préalable est l'autorisation d'urbanisme demandée à la mairie pour des travaux de faible importance, en particulier ceux qui modifient l'aspect extérieur d'une maison. Voici quand elle est obligatoire, comment la remplir, la déposer et ce qui se passe ensuite.",
+    works: "pv",
+    price: { label: "Dossier de déclaration préalable", amount: 49 },
+    cta: { label: "Vérifier gratuitement mon projet", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Pour quels travaux ?",
+        p: ["Les travaux qui modifient l'aspect extérieur d'un bâtiment existant relèvent de la déclaration préalable (article R*421-17 a du code de l'urbanisme), de même que certaines petites constructions et extensions. Les cas les plus fréquents :"],
+        table: {
+          head: ["Travaux", "Formalité habituelle", "Guide"],
+          rows: [
+            ["Panneaux solaires sur le toit", "Déclaration préalable", "Panneaux solaires"],
+            ["Pompe à chaleur ou climatisation en façade ou en toiture", "Déclaration préalable", "Pompe à chaleur"],
+            ["Isolation des murs par l'extérieur", "Déclaration préalable", "Isolation extérieure"],
+            ["Fenêtres, portes, volets : matériau, couleur ou forme changés", "Déclaration préalable (rien si à l'identique)", "Fenêtres et volets"],
+            ["Création ou changement de fenêtre de toit", "Déclaration préalable", "Fenêtre de toit"],
+            ["Extension jusqu'à 20 m², ou 40 m² en zone urbaine d'un PLU", "Déclaration préalable (permis au-delà)", "Extension, garage, véranda"],
+          ],
+        },
+        note: ["Sources : service-public F17578, F36778, F37924, F36762, F36766 et F36777. Le règlement d'urbanisme de votre commune (PLU) peut ajouter des règles d'aspect : Permizy le consulte pour votre adresse."],
+      },
+      {
+        h2: "Déclaration préalable ou permis de construire ?",
+        p: ["Le permis de construire concerne les projets plus importants : extension de plus de 40 m² en zone urbaine d'un PLU (ou plus de 20 m² si la surface totale dépasse alors 150 m²), plus de 20 m² ailleurs, ou travaux sur un bâtiment inscrit au titre des monuments historiques. Le délai d'instruction d'un permis de maison individuelle est de 2 mois."],
+      },
+      {
+        h2: "Le formulaire et les pièces",
+        list: [
+          "Formulaire : cerfa n° 16702*03, avec sa notice officielle n° 51434.",
+          "DP1, le plan de situation, est la seule pièce exigée dans tous les cas.",
+          "Les autres pièces dépendent des travaux : plan de masse (DP2), façades et toitures (DP4), aspect extérieur (DP5), photomontage et photographies (DP6, DP7, DP8) si les travaux sont visibles depuis l'espace public ou en secteur protégé, notice (DP11).",
+        ],
+      },
+      {
+        h2: "Comment déposer ?",
+        list: [
+          "En ligne : depuis le 1er janvier 2022, toutes les communes doivent pouvoir recevoir les demandes par voie électronique, sur leur téléservice ou via le service national AD'AU.",
+          "Par courrier recommandé avec accusé de réception, ou en main propre à la mairie contre récépissé : 2 exemplaires, 3 en secteur protégé.",
+          "Depuis le 1er janvier 2025, dans les communes de plus de 3 500 habitants, une personne morale (société) doit déposer par voie électronique.",
+        ],
+        note: ["Sources : notice du cerfa 16702 et service-public F17578."],
+      },
+      {
+        h2: "Les étapes et les délais",
+        figure: { src: "/guides/etapes-declaration-prealable.svg", alt: "Frise des étapes d'une déclaration préalable : préparer, déposer, récépissé, instruction d'un mois (deux en secteur protégé), décision ou non-opposition tacite, affichage avec deux mois de recours, travaux sous trois ans puis déclaration d'achèvement.", caption: "Les étapes d'une déclaration préalable (schéma explicatif, non officiel).", width: 960, height: 420 },
+        list: [
+          "Instruction : 1 mois à compter du dossier complet, 2 mois en général en secteur protégé.",
+          "Sans réponse à la fin du délai : non-opposition tacite ; un certificat peut être demandé.",
+          "Après l'accord : affichage sur le terrain pendant tout le chantier ; 2 mois de recours pour les tiers.",
+          "Les travaux doivent commencer dans les 3 ans ; à la fin, la déclaration d'achèvement (DAACT, cerfa 13408).",
+        ],
+      },
+      {
+        h2: "Le faire soi-même ou se faire aider ?",
+        p: ["Vous pouvez remplir et déposer vous-même la déclaration : c'est gratuit auprès de la mairie. La difficulté tient surtout aux plans, au photomontage et aux règles locales (PLU, monuments historiques). Permizy prépare ces pièces à partir de votre adresse et vous guide pour le dépôt ; vous restez le déclarant et la décision appartient à la mairie."],
+      },
+    ],
+    faq: [
+      { q: "Qu'est-ce qu'une déclaration préalable de travaux ?", a: "C'est l'autorisation d'urbanisme à demander à la mairie avant des travaux de faible importance, notamment ceux qui modifient l'aspect extérieur d'une maison (article R*421-17 du code de l'urbanisme)." },
+      { q: "Combien de temps pour obtenir une déclaration préalable ?", a: "1 mois à compter du dépôt du dossier complet, 2 mois en général en secteur protégé. Sans réponse, la non-opposition est tacite (service-public, F17578)." },
+      { q: "Peut-on faire une déclaration préalable soi-même ?", a: "Oui : le dépôt en mairie est gratuit et le déclarant peut remplir lui-même le cerfa 16702*03 et préparer les pièces." },
+      { q: "Combien coûte une déclaration préalable ?", a: "Le dépôt en mairie est gratuit. Si vous faites préparer le dossier par Permizy, le dossier complet coûte 49 € TTC, payé une fois au téléchargement." },
+    ],
+    sources: [{ label: "Service-public : déclaration préalable de travaux (F17578)", url: SP("F17578") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : cerfa 16702 (R2028)", url: SP("R2028") }, { label: "Service-public : agrandissement (F36777)", url: SP("F36777") }],
+    related: ["pieces-declaration-prealable-dp1-dp8", "cerfa-16702-declaration-prealable", "delai-instruction-declaration-prealable", "declaration-prealable-panneaux-solaires", "declaration-prealable-pompe-a-chaleur", "permis-de-construire-extension-garage-veranda"],
+    updated: "2026-11-20",
+  },
   {
     slug: "declaration-prealable-panneaux-solaires",
     title: "Déclaration préalable panneaux solaires : dossier en ligne",
@@ -113,7 +187,7 @@ export const GUIDES: Guide[] = [
       { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE },
       { label: "Service-public : formulaire cerfa 16702 (R2028)", url: SP("R2028") },
     ],
-    related: ["raccordement-enedis-consuel-panneaux-solaires", "pieces-declaration-prealable-dp1-dp8", "declaration-prealable-ombriere-panneaux-au-sol", "panneaux-solaires-agricoles-hangar", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf"],
+    related: ["declaration-prealable-travaux", "raccordement-enedis-consuel-panneaux-solaires", "pieces-declaration-prealable-dp1-dp8", "declaration-prealable-ombriere-panneaux-au-sol", "panneaux-solaires-agricoles-hangar", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf"],
     updated: "2026-11-19",
   },
   {
@@ -158,7 +232,7 @@ export const GUIDES: Guide[] = [
       { q: "Combien coûte le dossier ?", a: "49 € TTC, payés une seule fois au moment de télécharger le dossier complet." },
     ],
     sources: [{ label: "Service-public : pompe à chaleur (F36778)", url: SP("F36778") }, { label: "Service-public : déclaration préalable (F17578)", url: SP("F17578") }],
-    related: ["declaration-prealable-isolation-exterieure", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf"],
+    related: ["declaration-prealable-travaux", "declaration-prealable-isolation-exterieure", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf"],
     updated: "2026-11-19",
   },
   {
@@ -194,7 +268,7 @@ export const GUIDES: Guide[] = [
       { q: "Et si l'isolant dépasse sur le trottoir ?", a: "Le surplomb du domaine public demande l'accord de la commune ; celui de la propriété voisine, une convention avec le voisin (F37924)." },
     ],
     sources: [{ label: "Service-public : isolation par l'extérieur (F37924)", url: SP("F37924") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }],
-    related: ["declaration-prealable-pompe-a-chaleur", "declaration-prealable-fenetres-portes-volets", "delai-instruction-declaration-prealable"],
+    related: ["declaration-prealable-travaux", "declaration-prealable-pompe-a-chaleur", "declaration-prealable-fenetres-portes-volets", "delai-instruction-declaration-prealable"],
     updated: "2026-11-19",
   },
   {
@@ -224,7 +298,7 @@ export const GUIDES: Guide[] = [
       { q: "Quelle distance pour une nouvelle fenêtre près du voisin ?", a: "1,90 m en vue droite et 0,60 m en vue oblique, sauf accord écrit du voisin (service-public, F76)." },
     ],
     sources: [{ label: "Service-public : fenêtres, portes, volets (F36762)", url: SP("F36762") }, { label: "Service-public : vues sur le voisin (F76)", url: SP("F76") }],
-    related: ["declaration-prealable-fenetre-de-toit", "declaration-prealable-isolation-exterieure", "delai-instruction-declaration-prealable"],
+    related: ["declaration-prealable-travaux", "declaration-prealable-fenetre-de-toit", "declaration-prealable-isolation-exterieure", "delai-instruction-declaration-prealable"],
     updated: "2026-11-19",
   },
   {
@@ -251,7 +325,7 @@ export const GUIDES: Guide[] = [
       { q: "Quelle distance avec le voisin pour une fenêtre de toit ?", a: "1,90 m sans se pencher, 0,60 m en se penchant, sauf accord écrit du voisin (F36766)." },
     ],
     sources: [{ label: "Service-public : fenêtre de toit (F36766)", url: SP("F36766") }],
-    related: ["declaration-prealable-fenetres-portes-volets", "declaration-prealable-panneaux-solaires", "delai-instruction-declaration-prealable"],
+    related: ["declaration-prealable-travaux", "declaration-prealable-fenetres-portes-volets", "declaration-prealable-panneaux-solaires", "delai-instruction-declaration-prealable"],
     updated: "2026-11-19",
   },
   {
@@ -276,6 +350,7 @@ export const GUIDES: Guide[] = [
             ["Hors zone U, plus de 20 m² créés", "Permis de construire"],
           ],
         },
+        figure: { src: "/guides/seuils-extension-dp-permis.svg", alt: "Schéma : en zone urbaine d'un PLU, déclaration préalable jusqu'à 40 m² créés et permis au-delà ; hors zone urbaine, déclaration jusqu'à 20 m² et permis au-delà.", caption: "Seuils de surface pour une extension (schéma explicatif, non officiel).", width: 960, height: 400 },
         note: ["La surface retenue est la plus grande de l'emprise au sol et de la surface de plancher créées. Sources : service-public F36777 (agrandissement), F36961 (garage), F36768 (véranda)."],
       },
       {
@@ -417,7 +492,7 @@ export const GUIDES: Guide[] = [
       { q: "Combien de temps dure une déclaration préalable ?", a: "Elle est périmée si les travaux ne commencent pas dans les 3 ans, ou s'ils sont interrompus plus d'un an. Elle peut être prorogée deux fois un an." },
     ],
     sources: [{ label: "Service-public : déclaration préalable (F17578)", url: SP("F17578") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : permis de construire (F1986)", url: SP("F1986") }],
-    related: ["declaration-prealable-panneaux-solaires", "cerfa-16702-declaration-prealable", "travaux-abords-monument-historique-abf", "permis-de-construire-extension-garage-veranda"],
+    related: ["declaration-prealable-travaux", "declaration-prealable-panneaux-solaires", "cerfa-16702-declaration-prealable", "travaux-abords-monument-historique-abf", "permis-de-construire-extension-garage-veranda"],
     updated: "2026-11-19",
   },
   {
@@ -489,7 +564,7 @@ export const GUIDES: Guide[] = [
       { q: "Combien d'exemplaires pour une déclaration préalable papier ?", a: "2 exemplaires dans le cas général, 3 en secteur protégé avec 2 plans de situation supplémentaires (service-public, F17578)." },
     ],
     sources: [{ label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : déclaration préalable (F17578)", url: SP("F17578") }],
-    related: ["cerfa-16702-declaration-prealable", "declaration-prealable-panneaux-solaires", "delai-instruction-declaration-prealable"],
+    related: ["declaration-prealable-travaux", "cerfa-16702-declaration-prealable", "declaration-prealable-panneaux-solaires", "delai-instruction-declaration-prealable"],
     updated: "2026-11-20",
   },
   {
@@ -538,7 +613,7 @@ export const GUIDES: Guide[] = [
       { q: "Faut-il indiquer la date de naissance ?", a: "Oui pour un particulier : la rubrique « identité du déclarant » demande la date et le lieu de naissance. Une société indique sa dénomination et son SIRET." },
     ],
     sources: [{ label: "Service-public : cerfa 16702 (R2028)", url: SP("R2028") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : DAACT, cerfa 13408 (R1978)", url: SP("R1978") }],
-    related: ["pieces-declaration-prealable-dp1-dp8", "delai-instruction-declaration-prealable", "declaration-prealable-panneaux-solaires"],
+    related: ["declaration-prealable-travaux", "pieces-declaration-prealable-dp1-dp8", "delai-instruction-declaration-prealable", "declaration-prealable-panneaux-solaires"],
     updated: "2026-11-20",
   },
   {

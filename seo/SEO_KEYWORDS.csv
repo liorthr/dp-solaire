@@ -1,0 +1,24 @@
+mot_cle,intention,pertinence_1_5,potentiel_conversion_1_5,concurrence_estimee,saisonnalite_estimee,page_cible,statut,volume,source_volume
+déclaration préalable de travaux,informationnelle,5,3,forte (service-public, médias travaux),stable,/declaration-prealable-travaux/,page créée 20/11/2026,non mesuré,estimation
+déclaration préalable en ligne,transactionnelle,5,5,moyenne,stable,/,optimisée,non mesuré,estimation
+prix déclaration préalable,commerciale,5,5,moyenne,stable,/tarifs/,existante,non mesuré,estimation
+faire une déclaration préalable soi-même,informationnelle,4,4,moyenne,stable,/declaration-prealable-travaux/,section dédiée,non mesuré,estimation
+cerfa déclaration préalable,navigationnelle,4,3,forte (service-public),stable,/cerfa-16702-declaration-prealable/,existante,non mesuré,estimation
+plan de masse déclaration préalable,informationnelle,4,4,moyenne,stable,/pieces-declaration-prealable-dp1-dp8/,à enrichir (exemples),non mesuré,estimation
+dp1 dp2 dp4 dp6 dp7 dp8,informationnelle,4,4,faible,stable,/pieces-declaration-prealable-dp1-dp8/,existante,non mesuré,estimation
+déclaration préalable panneaux solaires,transactionnelle,5,5,moyenne (DPT Solaire, Urbassist, Permis Mairie),printemps,/declaration-prealable-panneaux-solaires/,existante,non mesuré,estimation
+déclaration préalable pompe à chaleur,informationnelle,5,4,moyenne,été et automne,/declaration-prealable-pompe-a-chaleur/,existante,non mesuré,estimation
+déclaration préalable climatisation,informationnelle,5,4,moyenne,été,/declaration-prealable-pompe-a-chaleur/,title ajusté,non mesuré,estimation
+déclaration préalable isolation extérieure,informationnelle,4,4,faible,stable,/declaration-prealable-isolation-exterieure/,existante,non mesuré,estimation
+déclaration préalable changement fenêtres,informationnelle,4,3,moyenne,stable,/declaration-prealable-fenetres-portes-volets/,existante,non mesuré,estimation
+autorisation velux,informationnelle,4,3,faible,stable,/declaration-prealable-fenetre-de-toit/,existante,non mesuré,estimation
+extension maison 20 m² 40 m²,informationnelle,5,4,forte,printemps,/permis-de-construire-extension-garage-veranda/,infographie ajoutée,non mesuré,estimation
+permis de construire garage,informationnelle,4,4,forte,printemps,/permis-de-construire-extension-garage-veranda/,existante,non mesuré,estimation
+architecte obligatoire extension maison,informationnelle,4,3,moyenne,stable,à créer (pilier permis),backlog B04,non mesuré,estimation
+permis de construire en ligne,transactionnelle,5,5,moyenne,stable,à créer (pilier permis),backlog B04,non mesuré,estimation
+délai réponse mairie déclaration préalable,informationnelle,4,2,moyenne,stable,/delai-instruction-declaration-prealable/,existante,non mesuré,estimation
+refus déclaration préalable que faire,informationnelle,4,2,faible,stable,à créer,backlog B05,non mesuré,estimation
+panneaux solaires hangar agricole autorisation,transactionnelle,4,5,faible,stable,/panneaux-solaires-agricoles-hangar/,existante,non mesuré,estimation
+raccordement enedis consuel panneaux solaires,informationnelle,4,3,moyenne,stable,/raccordement-enedis-consuel-panneaux-solaires/,existante,non mesuré,estimation
+panneaux solaires au sol autorisation,informationnelle,4,3,faible,printemps,/declaration-prealable-ombriere-panneaux-au-sol/,existante,non mesuré,estimation
+travaux monument historique abf,informationnelle,4,3,moyenne,stable,/travaux-abords-monument-historique-abf/,existante,non mesuré,estimation

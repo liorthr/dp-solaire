@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Conditions générales", alternates: { canonical: "/cgu/" } };
+export const metadata = { title: "Conditions générales et responsabilité", description: "Conditions d'utilisation de Permizy : rôle de la plateforme, responsabilité du déclarant, données personnelles et sources officielles utilisées.", alternates: { canonical: "/cgu/" } };
 
 export default function CGU() {
   return (
