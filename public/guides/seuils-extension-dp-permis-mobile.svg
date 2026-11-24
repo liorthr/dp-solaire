@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 680" role="img" aria-labelledby="t d" font-family="Inter, Arial, sans-serif">
+<title id="t">Extension de maison : déclaration préalable ou permis de construire selon la surface</title>
+<desc id="d">En zone urbaine d'un PLU : déclaration préalable jusqu'à 40 m² créés, permis au-delà, et permis dès plus de 20 m² si la surface totale dépasse 150 m². Hors zone urbaine : déclaration préalable jusqu'à 20 m², permis au-delà.</desc>
+<rect width="600" height="680" rx="24" fill="#faf6ee"/>
+<text x="32" y="56" font-size="28" font-weight="800" fill="#13201a">Extension :</text>
+<text x="32" y="90" font-size="28" font-weight="800" fill="#13201a">déclaration ou permis ?</text>
+<text x="32" y="120" font-size="15" fill="#5d6b63">Surface créée. Source : service-public.fr (F36777)</text>
+<text x="32" y="180" font-size="20" font-weight="700" fill="#13201a">Zone urbaine (U) d'un PLU</text>
+<rect x="32" y="198" width="536" height="64" rx="14" fill="#dff3e6"/><text x="52" y="238" font-size="20" font-weight="700" fill="#1f6b4a">Jusqu'à 40 m² : déclaration préalable</text>
+<rect x="32" y="274" width="536" height="64" rx="14" fill="#13201a"/><text x="52" y="314" font-size="20" font-weight="700" fill="#fff">Plus de 40 m² : permis de construire</text>
+<text x="32" y="372" font-size="16" fill="#5d6b63">Exception : plus de 20 m² créés et plus de 150 m²</text>
+<text x="32" y="396" font-size="16" fill="#5d6b63">au total après travaux → permis de construire.</text>
+<text x="32" y="470" font-size="20" font-weight="700" fill="#13201a">Hors zone urbaine (U) d'un PLU</text>
+<rect x="32" y="488" width="536" height="64" rx="14" fill="#dff3e6"/><text x="52" y="528" font-size="20" font-weight="700" fill="#1f6b4a">Jusqu'à 20 m² : déclaration préalable</text>
+<rect x="32" y="564" width="536" height="64" rx="14" fill="#13201a"/><text x="52" y="604" font-size="20" font-weight="700" fill="#fff">Plus de 20 m² : permis de construire</text>
+<text x="576" y="662" font-size="13" fill="#5d6b63" text-anchor="end">Schéma explicatif Permizy, non officiel</text>
+</svg>

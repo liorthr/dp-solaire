@@ -10,7 +10,7 @@ export interface GuideSection {
   /** précision sous le tableau (source…) */
   note?: string[];
   /** infographie originale (SVG dans public/guides), jamais présentée comme un document officiel */
-  figure?: { src: string; alt: string; caption: string; width: number; height: number };
+  figure?: { src: string; alt: string; caption: string; width: number; height: number; mobile?: { src: string; width: number; height: number } };
 }
 export interface Guide {
   slug: string;
@@ -102,7 +102,7 @@ export const GUIDES: Guide[] = [
       },
       {
         h2: "Les étapes et les délais",
-        figure: { src: "/guides/etapes-declaration-prealable.svg", alt: "Frise des étapes d'une déclaration préalable : préparer, déposer, récépissé, instruction d'un mois (deux en secteur protégé), décision ou non-opposition tacite, affichage avec deux mois de recours, travaux sous trois ans puis déclaration d'achèvement.", caption: "Les étapes d'une déclaration préalable (schéma explicatif, non officiel).", width: 960, height: 420 },
+        figure: { src: "/guides/etapes-declaration-prealable.svg", alt: "Frise des étapes d'une déclaration préalable : préparer, déposer, récépissé, instruction d'un mois (deux en secteur protégé), décision ou non-opposition tacite, affichage avec deux mois de recours, travaux sous trois ans puis déclaration d'achèvement.", caption: "Les étapes d'une déclaration préalable (schéma explicatif, non officiel).", width: 960, height: 420, mobile: { src: "/guides/etapes-declaration-prealable-mobile.svg", width: 600, height: 1010 } },
         list: [
           "Instruction : 1 mois à compter du dossier complet, 2 mois en général en secteur protégé.",
           "Sans réponse à la fin du délai : non-opposition tacite ; un certificat peut être demandé.",
@@ -122,7 +122,7 @@ export const GUIDES: Guide[] = [
       { q: "Combien coûte une déclaration préalable ?", a: "Le dépôt en mairie est gratuit. Si vous faites préparer le dossier par Permizy, le dossier complet coûte 49 € TTC, payé une fois au téléchargement." },
     ],
     sources: [{ label: "Service-public : déclaration préalable de travaux (F17578)", url: SP("F17578") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : cerfa 16702 (R2028)", url: SP("R2028") }, { label: "Service-public : agrandissement (F36777)", url: SP("F36777") }],
-    related: ["pieces-declaration-prealable-dp1-dp8", "cerfa-16702-declaration-prealable", "delai-instruction-declaration-prealable", "declaration-prealable-panneaux-solaires", "declaration-prealable-pompe-a-chaleur", "permis-de-construire-extension-garage-veranda"],
+    related: ["pieces-declaration-prealable-dp1-dp8", "cerfa-16702-declaration-prealable", "delai-instruction-declaration-prealable", "refus-declaration-prealable", "declaration-prealable-panneaux-solaires", "permis-de-construire-maison"],
     updated: "2026-11-20",
   },
   {
@@ -350,7 +350,7 @@ export const GUIDES: Guide[] = [
             ["Hors zone U, plus de 20 m² créés", "Permis de construire"],
           ],
         },
-        figure: { src: "/guides/seuils-extension-dp-permis.svg", alt: "Schéma : en zone urbaine d'un PLU, déclaration préalable jusqu'à 40 m² créés et permis au-delà ; hors zone urbaine, déclaration jusqu'à 20 m² et permis au-delà.", caption: "Seuils de surface pour une extension (schéma explicatif, non officiel).", width: 960, height: 400 },
+        figure: { src: "/guides/seuils-extension-dp-permis.svg", alt: "Schéma : en zone urbaine d'un PLU, déclaration préalable jusqu'à 40 m² créés et permis au-delà ; hors zone urbaine, déclaration jusqu'à 20 m² et permis au-delà.", caption: "Seuils de surface pour une extension (schéma explicatif, non officiel).", width: 960, height: 400, mobile: { src: "/guides/seuils-extension-dp-permis-mobile.svg", width: 600, height: 680 } },
         note: ["La surface retenue est la plus grande de l'emprise au sol et de la surface de plancher créées. Sources : service-public F36777 (agrandissement), F36961 (garage), F36768 (véranda)."],
       },
       {
@@ -372,7 +372,7 @@ export const GUIDES: Guide[] = [
       { q: "Combien coûte le dossier ?", a: "49 € TTC pour une déclaration préalable, 149 € TTC pour un permis de construire, payés une fois au téléchargement." },
     ],
     sources: [{ label: "Service-public : agrandissement (F36777)", url: SP("F36777") }, { label: "Service-public : garage (F36961)", url: SP("F36961") }, { label: "Service-public : véranda (F36768)", url: SP("F36768") }, { label: "Service-public : permis de construire (F1986)", url: SP("F1986") }],
-    related: ["delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf", "tarifs"],
+    related: ["permis-de-construire-maison", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf", "tarifs"],
     updated: "2026-11-19",
   },
   {
@@ -492,7 +492,7 @@ export const GUIDES: Guide[] = [
       { q: "Combien de temps dure une déclaration préalable ?", a: "Elle est périmée si les travaux ne commencent pas dans les 3 ans, ou s'ils sont interrompus plus d'un an. Elle peut être prorogée deux fois un an." },
     ],
     sources: [{ label: "Service-public : déclaration préalable (F17578)", url: SP("F17578") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }, { label: "Service-public : permis de construire (F1986)", url: SP("F1986") }],
-    related: ["declaration-prealable-travaux", "declaration-prealable-panneaux-solaires", "cerfa-16702-declaration-prealable", "travaux-abords-monument-historique-abf", "permis-de-construire-extension-garage-veranda"],
+    related: ["declaration-prealable-travaux", "refus-declaration-prealable", "declaration-prealable-panneaux-solaires", "cerfa-16702-declaration-prealable", "travaux-abords-monument-historique-abf", "permis-de-construire-maison"],
     updated: "2026-11-19",
   },
   {
@@ -657,6 +657,119 @@ export const GUIDES: Guide[] = [
     ],
     related: ["declaration-prealable-panneaux-solaires", "panneaux-solaires-agricoles-hangar", "raccordement-enedis-consuel-panneaux-solaires"],
     updated: "2026-11-20",
+  },
+  {
+    slug: "permis-de-construire-maison",
+    title: "Permis de construire maison : pièces, délais, architecte",
+    description: "Permis de construire d'une maison ou d'une extension : quand il est obligatoire, cerfa 13406, pièces PCMI, délai de 2 mois, architecte au-delà de 150 m².",
+    h1: "Permis de construire pour une maison : le guide",
+    lead: "Le permis de construire est l'autorisation exigée pour les projets plus importants qu'une déclaration préalable : grande extension, garage ou véranda au-delà des seuils, construction neuve. Voici quand il faut le demander, ce que contient le dossier et combien de temps attendre.",
+    works: "extension",
+    price: { label: "Dossier de permis de construire", amount: 149 },
+    cta: { label: "Vérifier mon projet d'agrandissement", href: "/verifier/?w=extension" },
+    sections: [
+      {
+        h2: "Quand faut-il un permis de construire ?",
+        table: {
+          head: ["Projet", "Autorisation"],
+          rows: [
+            ["Extension en zone urbaine (U) d'un PLU, jusqu'à 40 m² créés", "Déclaration préalable"],
+            ["Extension en zone U de plus de 40 m², ou de plus de 20 m² portant le total au-delà de 150 m²", "Permis de construire"],
+            ["Extension hors zone U de plus de 20 m²", "Permis de construire"],
+            ["Travaux sur un bâtiment inscrit au titre des monuments historiques", "Permis de construire"],
+            ["Construction d'un bâtiment de plus de 20 m²", "Permis de construire"],
+          ],
+        },
+        note: ["Sources : service-public F36777 (agrandissement), F1986 (permis de construire) et notice du cerfa 16702. La surface retenue est la plus grande de l'emprise au sol et de la surface de plancher créées."],
+      },
+      {
+        h2: "Le formulaire et les pièces",
+        list: [
+          "Cerfa 13406*17 pour une maison individuelle et ses annexes (extension, garage, véranda) ; cerfa 13409 pour les autres constructions.",
+          "PCMI1 plan de situation, PCMI2 plan de masse, PCMI3 plan en coupe, PCMI4 notice, PCMI5 plans des façades et toitures, PCMI6 document graphique d'insertion, PCMI7 et PCMI8 photographies proche et lointaine.",
+          "Attestation de prise en compte de la réglementation environnementale (PCMI14-1) lorsqu'elle est exigée : elle est établie par un professionnel.",
+        ],
+      },
+      {
+        h2: "Faut-il un architecte ?",
+        p: ["Oui si la surface de plancher dépasse 150 m² après travaux (service-public F1986). En dessous, le particulier qui construit pour lui-même peut établir son dossier sans architecte. Pour un bâtiment agricole, le seuil est de 800 m² de surface de plancher."],
+      },
+      {
+        h2: "Dépôt et délai",
+        list: [
+          "Délai d'instruction : 2 mois pour une maison individuelle, 3 mois en secteur protégé (service-public F1986).",
+          "Dépôt papier : 4 dossiers complets, plus 5 exemplaires supplémentaires des plans de situation, de masse et en coupe ; un exemplaire de plus en site patrimonial remarquable ou aux abords d'un monument historique (cerfa 13406, cadre 8).",
+          "Dans les 90 jours suivant l'achèvement : déclaration des éléments nécessaires au calcul de la taxe d'aménagement (cerfa 13406, cadre 8).",
+        ],
+      },
+      {
+        h2: "Ce que Permizy prépare",
+        p: ["À partir de votre adresse et des dimensions de l'extension, Permizy lit le zonage du PLU, vous dit si un permis est nécessaire, dessine les pièces PCMI1 à PCMI8, remplit le cerfa 13406 et prépare le courrier. Les volumes complexes ou à étage relèvent d'un architecte."],
+      },
+    ],
+    faq: [
+      { q: "Quand faut-il un permis de construire pour une extension ?", a: "En zone urbaine d'un PLU, au-delà de 40 m² créés, ou au-delà de 20 m² si la surface totale dépasse alors 150 m² ; ailleurs, au-delà de 20 m² (service-public, F36777)." },
+      { q: "Quel est le délai d'un permis de construire de maison individuelle ?", a: "2 mois, porté à 3 mois en secteur protégé (service-public, F1986)." },
+      { q: "Faut-il un architecte pour un permis de construire ?", a: "Oui si la surface de plancher dépasse 150 m² après travaux ; 800 m² pour un bâtiment agricole (service-public, F1986)." },
+      { q: "Combien coûte le dossier avec Permizy ?", a: "149 € TTC pour un permis de construire, payés une fois au téléchargement du dossier complet." },
+    ],
+    sources: [{ label: "Service-public : permis de construire (F1986)", url: SP("F1986") }, { label: "Service-public : agrandissement (F36777)", url: SP("F36777") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }],
+    related: ["permis-de-construire-extension-garage-veranda", "declaration-prealable-travaux", "panneaux-solaires-agricoles-hangar", "tarifs"],
+    updated: "2026-11-23",
+  },
+  {
+    slug: "refus-declaration-prealable",
+    title: "Refus de déclaration préalable : que faire ?",
+    description: "Opposition de la mairie à votre déclaration préalable : recours gracieux en 1 mois, recours au tribunal en 2 mois, cas de l'ABF, ou nouveau dossier corrigé.",
+    h1: "Refus de déclaration préalable : que faire ?",
+    lead: "Quand la mairie refuse une déclaration préalable, elle prend un arrêté d'opposition qui indique les motifs et les voies de recours. Vous pouvez contester la décision, ou corriger le projet et déposer un nouveau dossier.",
+    works: "pv",
+    cta: { label: "Préparer un dossier corrigé", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Les décisions possibles",
+        list: [
+          "Accord, ou absence de réponse dans le délai : décision tacite de non-opposition ; un certificat de non-opposition peut être demandé.",
+          "Accord avec prescriptions : les travaux doivent respecter les règles imposées par l'arrêté.",
+          "Refus : arrêté d'opposition, avec les motifs et les voies et délais de recours.",
+          "Sursis à statuer : la décision est reportée, au maximum 2 ans.",
+        ],
+        note: ["Le maire peut aussi retirer une non-opposition qu'il estime illégale dans les 3 mois suivant la décision. Source : service-public F17578."],
+      },
+      {
+        h2: "Contester le refus",
+        table: {
+          head: ["Recours", "Auprès de", "Délai"],
+          rows: [
+            ["Recours gracieux", "Le maire", "1 mois à compter de la notification du refus"],
+            ["Recours hiérarchique (commune sans PLU ni carte communale)", "Le préfet", "Dans le même délai d'1 mois"],
+            ["Recours contentieux", "Le tribunal administratif", "2 mois à compter de la notification du refus ou du rejet implicite de votre recours"],
+          ],
+        },
+        list: [
+          "Sans réponse du maire ou du préfet dans les 2 mois, le recours est rejeté.",
+          "Le délai de 2 mois devant le juge reste le même si vous avez d'abord fait un recours gracieux ; les deux peuvent être faits en même temps.",
+          "L'avocat n'est pas obligatoire ; le recours peut se faire par le téléservice Télérecours citoyens, en main propre ou en recommandé.",
+        ],
+        note: ["Source : service-public F17578 (vérifiée le 22/10/2026)."],
+      },
+      {
+        h2: "Refus fondé sur l'avis de l'architecte des Bâtiments de France",
+        p: ["En site patrimonial remarquable ou aux abords d'un monument historique, si le refus est motivé par un avis défavorable de l'ABF, un recours administratif préalable obligatoire doit être fait auprès du préfet de région avant de saisir le juge administratif (service-public F17578)."],
+      },
+      {
+        h2: "Corriger le projet et redéposer",
+        p: ["Souvent, le plus rapide est de lire les motifs de l'arrêté, d'adapter le projet (implantation, matériaux, couleurs, dimensions) et de déposer une nouvelle déclaration. Permizy refait les plans, le photomontage et le cerfa à partir des nouvelles caractéristiques, et vous signale les règles du PLU et les périmètres protégés de votre adresse."],
+      },
+    ],
+    faq: [
+      { q: "Combien de temps pour contester un refus de déclaration préalable ?", a: "1 mois pour un recours gracieux auprès du maire, 2 mois pour un recours devant le tribunal administratif, à compter de la notification du refus (service-public, F17578)." },
+      { q: "Faut-il un avocat pour contester un refus ?", a: "Non, l'avocat n'est pas obligatoire devant le tribunal administratif pour ce recours (service-public, F17578)." },
+      { q: "Peut-on redéposer après un refus ?", a: "Oui : vous pouvez modifier le projet en tenant compte des motifs de l'arrêté et déposer une nouvelle déclaration préalable." },
+    ],
+    sources: [{ label: "Service-public : déclaration préalable, décision et recours (F17578)", url: SP("F17578") }],
+    related: ["declaration-prealable-travaux", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf", "pieces-declaration-prealable-dp1-dp8"],
+    updated: "2026-11-23",
   },
 ];
 

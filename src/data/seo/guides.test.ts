@@ -16,3 +16,11 @@ describe("guides SEO", () => {
     }
   });
 });
+
+import { readFileSync } from "node:fs";
+describe("llms.txt", () => {
+  it("liste tous les guides (régénérer le fichier après l'ajout d'un guide)", () => {
+    const txt = readFileSync("public/llms.txt", "utf8");
+    for (const g of GUIDES) expect(txt, g.slug).toContain(`https://permizy.com/${g.slug}/`);
+  });
+});

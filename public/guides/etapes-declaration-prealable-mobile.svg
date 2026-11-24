@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1010" role="img" aria-labelledby="t d" font-family="Inter, Arial, sans-serif">
+<title id="t">Les étapes d'une déclaration préalable de travaux</title>
+<desc id="d">Étapes : préparer le dossier, déposer, récépissé, instruction d'un mois (deux mois en général en secteur protégé), décision ou non-opposition tacite, affichage et deux mois de recours, travaux sous trois ans puis déclaration d'achèvement.</desc>
+<rect width="600" height="1010" rx="24" fill="#faf6ee"/>
+<text x="32" y="56" font-size="28" font-weight="800" fill="#13201a">Déclaration préalable</text>
+<text x="32" y="90" font-size="28" font-weight="800" fill="#13201a">les étapes</text>
+<text x="32" y="118" font-size="15" fill="#5d6b63">Source : service-public.fr (F17578), notice du cerfa 16702</text>
+<line x1="62" y1="150" x2="62" y2="780" stroke="#1f6b4a" stroke-width="5" stroke-linecap="round"/>
+<circle cx="62" cy="150" r="22" fill="#1f6b4a"/><text x="62" y="157" font-size="18" font-weight="800" fill="#fff" text-anchor="middle">1</text>
+<text x="104" y="146" font-size="22" font-weight="700" fill="#13201a">Préparer</text><text x="104" y="174" font-size="17" fill="#2a3a32">cerfa 16702 + pièces DP1…</text>
+<circle cx="62" cy="255" r="22" fill="#1f6b4a"/><text x="62" y="262" font-size="18" font-weight="800" fill="#fff" text-anchor="middle">2</text>
+<text x="104" y="251" font-size="22" font-weight="700" fill="#13201a">Déposer</text><text x="104" y="279" font-size="17" fill="#2a3a32">en ligne, courrier ou en mairie</text>
+<circle cx="62" cy="360" r="22" fill="#1f6b4a"/><text x="62" y="367" font-size="18" font-weight="800" fill="#fff" text-anchor="middle">3</text>
+<text x="104" y="356" font-size="22" font-weight="700" fill="#13201a">Récépissé</text><text x="104" y="384" font-size="17" fill="#2a3a32">numéro et date de dépôt</text>
+<circle cx="62" cy="465" r="22" fill="#ffb84d"/><text x="62" y="472" font-size="18" font-weight="800" fill="#13201a" text-anchor="middle">4</text>
+<text x="104" y="461" font-size="22" font-weight="700" fill="#13201a">Instruction</text><text x="104" y="489" font-size="17" fill="#2a3a32">1 mois ; 2 mois en général en secteur protégé</text>
+<circle cx="62" cy="570" r="22" fill="#1f6b4a"/><text x="62" y="577" font-size="18" font-weight="800" fill="#fff" text-anchor="middle">5</text>
+<text x="104" y="566" font-size="22" font-weight="700" fill="#13201a">Décision</text><text x="104" y="594" font-size="17" fill="#2a3a32">ou non-opposition tacite</text>
+<circle cx="62" cy="675" r="22" fill="#1f6b4a"/><text x="62" y="682" font-size="18" font-weight="800" fill="#fff" text-anchor="middle">6</text>
+<text x="104" y="671" font-size="22" font-weight="700" fill="#13201a">Affichage</text><text x="104" y="699" font-size="17" fill="#2a3a32">panneau sur le terrain, recours : 2 mois</text>
+<circle cx="62" cy="780" r="22" fill="#13201a"/><text x="62" y="787" font-size="18" font-weight="800" fill="#fff" text-anchor="middle">7</text>
+<text x="104" y="776" font-size="22" font-weight="700" fill="#13201a">Travaux</text><text x="104" y="804" font-size="17" fill="#2a3a32">sous 3 ans, puis DAACT</text>
+<rect x="24" y="840" width="552" height="120" rx="16" fill="#fff" stroke="#e6e0d4"/>
+<text x="44" y="878" font-size="17" font-weight="700" fill="#13201a">Dossier incomplet ?</text>
+<text x="44" y="906" font-size="16" fill="#13201a">La mairie le signale dans le mois ; 3 mois pour compléter.</text>
+<text x="44" y="932" font-size="16" fill="#13201a">Le délai repart à la réception des pièces.</text>
+<text x="576" y="992" font-size="13" fill="#5d6b63" text-anchor="end">Schéma explicatif Permizy, non officiel</text></svg>

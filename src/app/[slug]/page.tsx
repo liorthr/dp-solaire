@@ -9,6 +9,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/seo/SiteChrome";
 import { WorksIcon } from "@/components/home/WorksIcon";
 import { GuideVideo } from "@/components/seo/GuideVideo";
+import { GuideQuickCheck } from "@/components/seo/GuideQuickCheck";
 import { videoForGuide } from "@/data/seo/videos";
 
 export const dynamicParams = false;
@@ -101,7 +102,10 @@ export default async function GuidePage({ params }: Props) {
               )}
               {s.figure && (
                 <figure className="mt-4">
-                  <img src={s.figure.src} alt={s.figure.alt} width={s.figure.width} height={s.figure.height} loading="lazy" decoding="async" className="h-auto w-full rounded-2xl border border-line" />
+                  <picture>
+                    {s.figure.mobile && <source media="(max-width: 640px)" srcSet={s.figure.mobile.src} width={s.figure.mobile.width} height={s.figure.mobile.height} />}
+                    <img src={s.figure.src} alt={s.figure.alt} width={s.figure.width} height={s.figure.height} loading="lazy" decoding="async" className="h-auto w-full rounded-2xl border border-line" />
+                  </picture>
                   <figcaption className="mt-1.5 text-xs text-muted">{s.figure.caption}</figcaption>
                 </figure>
               )}
@@ -109,13 +113,19 @@ export default async function GuidePage({ params }: Props) {
             </section>
           ))}
 
-          <section className="mt-12 rounded-3xl bg-ink p-6 text-white sm:p-8">
-            <h2 className="text-2xl font-extrabold">Votre dossier, prêt à déposer</h2>
-            <p className="mt-2 text-white/80">Saisissez votre adresse : Permizy lit le cadastre, le PLU et les périmètres protégés, dessine les plans, remplit le cerfa et prépare l&apos;envoi à votre mairie. Aucun envoi sans votre accord.</p>
-            <Link href={g.cta.href} prefetch={false} data-track={`guide_cta:${g.slug.slice(0, 40)}`} className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-ink">
-              {g.cta.label} <ArrowRight className="h-4 w-4" />
-            </Link>
-          </section>
+          {g.cta.href.startsWith("/verifier/") ? (
+            <section className="mt-12">
+              <GuideQuickCheck works={g.cta.href.includes("?w=") ? g.works : undefined} guide={g.slug} />
+            </section>
+          ) : (
+            <section className="mt-12 rounded-3xl bg-ink p-6 text-white sm:p-8">
+              <h2 className="text-2xl font-extrabold">Votre dossier, prêt à déposer</h2>
+              <p className="mt-2 text-white/80">Saisissez votre adresse : Permizy lit le cadastre, le PLU et les périmètres protégés, dessine les plans, remplit le cerfa et prépare l&apos;envoi à votre mairie. Aucun envoi sans votre accord.</p>
+              <Link href={g.cta.href} prefetch={false} data-track={`guide_cta:${g.slug.slice(0, 40)}`} className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-bold text-ink">
+                {g.cta.label} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </section>
+          )}
 
           <section className="mt-12">
             <h2 className="text-2xl font-extrabold">Questions fréquentes</h2>

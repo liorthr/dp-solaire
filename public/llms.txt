@@ -1,0 +1,35 @@
+# Permizy
+
+> Permizy (https://permizy.com) prépare en ligne les dossiers d'urbanisme des maisons en France : déclaration préalable de travaux, permis de construire, solaire agricole, raccordement Enedis et Consuel. À partir d'une adresse, l'outil lit les données publiques (cadastre, plan local d'urbanisme via le Géoportail de l'Urbanisme, périmètres de monuments historiques), indique l'autorisation à demander avec ses sources officielles, dessine les plans, remplit le cerfa officiel et prépare le courrier pour la mairie.
+
+Faits utiles :
+- Vérification du projet gratuite et sans inscription : https://permizy.com/verifier/
+- Prix du dossier complet, payé une fois au téléchargement : 49 € TTC (déclaration préalable), 149 € TTC (permis de construire), 239 € TTC (solaire agricole). https://permizy.com/tarifs/
+- Permizy n'est ni un service de l'État ni une mairie ; le demandeur reste le déclarant et la décision appartient à la mairie. Aucun envoi n'est fait sans l'accord de l'utilisateur.
+- Éditeur : SAS, SIREN 109 443 754, 47 rue Vivienne, 75002 Paris. https://permizy.com/mentions-legales/
+
+## Guides (sources officielles citées en bas de chaque page)
+
+- [Déclaration préalable de travaux : le guide complet](https://permizy.com/declaration-prealable-travaux/): Quels travaux sont concernés, cerfa 16702, pièces DP1 à DP8, dépôt en mairie, délai d'un mois, affichage : tout sur la déclaration préalable de travaux.
+- [Déclaration préalable panneaux solaires : dossier en ligne](https://permizy.com/declaration-prealable-panneaux-solaires/): Panneaux solaires sur le toit : déclaration préalable obligatoire. Plans DP1 à DP8, cerfa 16702 rempli, photomontage : votre dossier complet en ligne pour 49 €.
+- [Pompe à chaleur, climatisation : déclaration préalable ?](https://permizy.com/declaration-prealable-pompe-a-chaleur/): Pompe à chaleur en façade ou en toiture : déclaration préalable obligatoire. Règles, bruit, voisinage et dossier complet prêt à déposer en mairie.
+- [Isolation par l'extérieur : déclaration préalable](https://permizy.com/declaration-prealable-isolation-exterieure/): Isolation thermique par l'extérieur (ITE) : déclaration préalable obligatoire. Surplomb, voisin, couleurs, ABF : votre dossier complet en ligne.
+- [Changer fenêtres, portes, volets : déclaration préalable ?](https://permizy.com/declaration-prealable-fenetres-portes-volets/): Fenêtres, portes, volets : à l'identique, aucune formalité ; changement de matériau ou de couleur, déclaration préalable. Règles de vue et dossier en ligne.
+- [Fenêtre de toit (Velux) : déclaration préalable](https://permizy.com/declaration-prealable-fenetre-de-toit/): Créer ou changer une fenêtre de toit : déclaration préalable. Distances de vue, combles, ABF : plans de toiture et dossier complet en ligne.
+- [Extension, garage, véranda : DP ou permis de construire ?](https://permizy.com/permis-de-construire-extension-garage-veranda/): Agrandissement, garage ou véranda : 20 m², 40 m², 150 m², les seuils de la déclaration préalable et du permis. Plans et cerfa 13406 remplis en ligne.
+- [Panneaux solaires agricoles : hangar et autorisation](https://permizy.com/panneaux-solaires-agricoles-hangar/): Photovoltaïque sur hangar ou bâtiment agricole : déclaration préalable, permis pour un hangar neuf, raccordement fortes puissances. Dossier EARL, GAEC : 239 €.
+- [Raccordement Enedis et Consuel : panneaux solaires](https://permizy.com/raccordement-enedis-consuel-panneaux-solaires/): Raccordement Enedis, attestation Consuel bleue ou violette, dossier SC 144 : les démarches après la mairie, jusqu'aux fortes puissances. Pack prêt à déposer.
+- [Délai de réponse d'une déclaration préalable](https://permizy.com/delai-instruction-declaration-prealable/): 1 mois, 2 mois en secteur protégé, accord tacite, dossier incomplet, affichage, recours : tout sur le délai d'une déclaration préalable de travaux.
+- [Travaux près d'un monument historique : l'avis de l'ABF](https://permizy.com/travaux-abords-monument-historique-abf/): Maison à moins de 500 m d'un monument historique ou en site patrimonial : consultation de l'ABF, délai de 2 mois, pièces en plus. Vérification gratuite.
+- [Pièces d'une déclaration préalable : DP1 à DP11](https://permizy.com/pieces-declaration-prealable-dp1-dp8/): Plan de situation DP1, plan de masse DP2, façades DP4, photomontage DP6, photos DP7 et DP8, notice DP11 : quelles pièces joindre et en combien d'exemplaires.
+- [Cerfa 16702*03 : formulaire de déclaration préalable](https://permizy.com/cerfa-16702-declaration-prealable/): Le cerfa 16702*03 est le formulaire de déclaration préalable en vigueur. Rubriques, pièces à joindre, dépôt et fin de travaux (DAACT 13408) : le guide.
+- [Panneaux solaires au sol, ombrière : quelle autorisation ?](https://permizy.com/declaration-prealable-ombriere-panneaux-au-sol/): Panneaux au sol ou ombrière : aucune formalité sous 3 kWc et 1,80 m, déclaration préalable jusqu'à 3 MWc, permis au-delà. Seuils et secteurs protégés.
+- [Permis de construire maison : pièces, délais, architecte](https://permizy.com/permis-de-construire-maison/): Permis de construire d'une maison ou d'une extension : quand il est obligatoire, cerfa 13406, pièces PCMI, délai de 2 mois, architecte au-delà de 150 m².
+- [Refus de déclaration préalable : que faire ?](https://permizy.com/refus-declaration-prealable/): Opposition de la mairie à votre déclaration préalable : recours gracieux en 1 mois, recours au tribunal en 2 mois, cas de l'ABF, ou nouveau dossier corrigé.
+
+## Pages
+
+- [Accueil](https://permizy.com/)
+- [Tous les guides](https://permizy.com/guides/)
+- [À propos](https://permizy.com/a-propos/)
+- [Tarifs](https://permizy.com/tarifs/)
