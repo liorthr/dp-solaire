@@ -2,6 +2,13 @@
 
 Chaque session : date, actions, pages, tests, déploiement, mesures, hypothèses, prochaines actions. Le plus récent en haut.
 
+## 24/11/2026 : option « pack raccordement Enedis + Consuel » (39 € TTC)
+- Stripe (mode test) : produit « Pack raccordement Enedis + Consuel » 39 € ; liens de paiement : DP solaire 49 € avec l'option (article optionnel « Ajouter »), agricole 239 € avec l'option, pack seul 39 € (achat après coup). Variables `NEXT_PUBLIC_STRIPE_LINK_DP_PV`, `NEXT_PUBLIC_STRIPE_LINK_AGRI` (nouveau lien), `NEXT_PUBLIC_STRIPE_LINK_RAC`.
+- Base : colonne `payments.options` (migration 0005). Webhook : montant → formule et options (49, 88, 149, 239, 278, 39 €), lecture du montant en euros d'origine en cas de conversion de devise ; test qui vérifie la cohérence des prix affichés et du webhook.
+- Application : génération du pack réservée aux acheteurs de l'option (calculs et contrôles gratuits) ; offre à 39 € dans l'étape Raccordement ; mention de l'option dans l'encart de paiement (y compris avant que le dossier soit prêt) ; page Tarifs et llms.txt.
+- Tests en ligne : particulier avec option (88 € enregistrés, pack généré) ✅ ; professionnel achetant le pack seul (39 €) ✅ ; agricole (option annoncée, 239 €) ✅ ; guide et pages publiques ✅. Comptes de test, photos et événements d'audience supprimés.
+- À suivre : taux de prise de l'option (événements `pay_click` libellés `rac`, `paid` libellés `dossier-rac` / `rac`).
+
 ## 24/11/2026 : mise en ligne de la session 2 et tests du parcours client en production
 - **Déploiement** de la session 2 (commit 11dbb79), puis du correctif e0d53ab ; crawl : 25 pages en 200, 0 orpheline.
 - **Tests de bout en bout sur permizy.com** (`e2e/live.spec.ts`, ignoré par défaut ; `LIVE_PASSWORD=… E2E_BASE_URL=https://permizy.com npx playwright test e2e/live.spec.ts`) :
