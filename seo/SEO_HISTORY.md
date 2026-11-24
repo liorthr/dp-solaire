@@ -2,6 +2,20 @@
 
 Chaque session : date, actions, pages, tests, déploiement, mesures, hypothèses, prochaines actions. Le plus récent en haut.
 
+## 24/11/2026 : mise en ligne de la session 2 et tests du parcours client en production
+- **Déploiement** de la session 2 (commit 11dbb79), puis du correctif e0d53ab ; crawl : 25 pages en 200, 0 orpheline.
+- **Tests de bout en bout sur permizy.com** (`e2e/live.spec.ts`, ignoré par défaut ; `LIVE_PASSWORD=… E2E_BASE_URL=https://permizy.com npx playwright test e2e/live.spec.ts`) :
+  1. Particulier : accueil → verdict → inscription → dossier → photomontage → cerfa complété → paiement Stripe (carte de test) → PDF + ZIP → email mairie (.eml) → « J'ai déposé » → suivi → reconnexion sur un autre appareil : ✅ ordinateur et mobile.
+  2. Professionnel : inscription → dossier client solaire → pack raccordement/Consuel → paywall 49 € : ✅
+  3. Agricole : carte de l'accueil → inscription pro → EARL → paywall 239 € : ✅
+  4. Guide SEO : encart adresse → vérification → verdict : ✅ ordinateur et mobile.
+  5. 11 pages publiques : 200, H1, aucune erreur JavaScript : ✅ ordinateur et mobile.
+- **Bug corrigé** : sur mobile, l'indicateur « Sauvegardé en ligne » était masqué ; il est désormais visible (version courte « ✓ Sauvegardé »).
+- Vérifié : paiements enregistrés par le webhook (49 € DP), dossiers et photos synchronisés ; un dossier fermé avant la fin de la synchronisation est bien envoyé à la connexion suivante.
+- Mesure d'audience : tous les événements de l'entonnoir ont été reçus (inscriptions, dossiers, clics paiement, paiements) ; remarque : `verify_start` n'est émis que si les travaux sont choisis dans `/verifier/` (pas depuis l'accueil ou un guide, qui fournissent déjà les travaux).
+- Nettoyage : 8 comptes de test, leurs dossiers, paiements et 26 photos supprimés ; événements d'audience des tests supprimés (fenêtre du 24/11 à partir de 10 h 05 UTC environ).
+- Reste : 1 photo orpheline (compte de test supprimé le 16/11) à retirer avec un accès administrateur au stockage.
+
 ## Session 2 : 23-24/11/2026
 **Audit différentiel** : 23 pages en 200, 0 orpheline, 0 lien cassé ; seul title > 65 car. : `/verifier/` (67, accepté). Audience (Supabase, 20 au 23/11) : 34 pages vues, quasi toutes en accès direct (tests et vérifications internes probables), 1 venue de tiktok.com, 0 événement de conversion : volume trop faible pour conclure. Search Console : export non reçu.
 
@@ -13,7 +27,7 @@ Chaque session : date, actions, pages, tests, déploiement, mesures, hypothèses
 - B10 : infographies verticales pour mobile (`*-mobile.svg`, servies par `<picture>` sous 640 px).
 
 **Tests** : 119 unitaires, 21 E2E + 4 nouveaux (`e2e/seo.spec.ts`), tsc, eslint.
-**Déploiement** : NON effectué, connexion Hostinger refusée (réauthentification nécessaire). Build de production prêt (commit 11dbb79).
+**Déploiement** : effectué le 24/11/2026 (voir entrée ci-dessus).
 
 **Prochaine session** : déployer puis vérifier en ligne (crawl + Lighthouse : surveiller le poids du JavaScript ajouté par l'autocomplétion sur les guides) ; B06 checklist PDF ; B07 exemples visuels DP1/DP2/DP4/DP6 ; vidéo « Pompe à chaleur / climatisation » ; lecture de l'audience.
 
