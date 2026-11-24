@@ -6,7 +6,15 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const stripe = new Stripe("sk_unused_for_signature_check", { httpClient: Stripe.createFetchHttpClient() });
 const crypto = Stripe.createSubtleCryptoProvider();
-const KINDS: Record<number, string> = { 4900: "DP", 14900: "PC", 23900: "AGRI" };
+// montant TTC (centimes) → formule et options. Quantités fixes (1), pas de code promo : le montant identifie l'achat.
+const KINDS: Record<number, { kind: string; options: string[] }> = {
+  4900: { kind: "DP", options: [] },
+  8800: { kind: "DP", options: ["RAC"] },
+  14900: { kind: "PC", options: [] },
+  23900: { kind: "AGRI", options: [] },
+  27800: { kind: "AGRI", options: ["RAC"] },
+  3900: { kind: "RAC", options: ["RAC"] },
+};
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Méthode non autorisée", { status: 405 });
@@ -27,7 +35,7 @@ Deno.serve(async (req) => {
   if (!/^[0-9a-f-]{36}$/.test(owner ?? "") || !project) return new Response("référence absente", { status: 200 });
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
   const { error } = await db.from("payments").upsert(
-    { owner, project_local_id: project, kind: KINDS[s.amount_total ?? 0] ?? "?", amount: s.amount_total ?? 0, currency: s.currency ?? "eur", livemode: event.livemode, stripe_session: s.id },
+    { owner, project_local_id: project, kind: KINDS[s.amount_total ?? 0]?.kind ?? "?", options: KINDS[s.amount_total ?? 0]?.options ?? [], amount: s.amount_total ?? 0, currency: s.currency ?? "eur", livemode: event.livemode, stripe_session: s.id },
     { onConflict: "stripe_session" },
   );
   if (error) return new Response(error.message, { status: 500 });

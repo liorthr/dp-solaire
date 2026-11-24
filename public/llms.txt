@@ -4,7 +4,7 @@
 
 Faits utiles :
 - Vérification du projet gratuite et sans inscription : https://permizy.com/verifier/
-- Prix du dossier complet, payé une fois au téléchargement : 49 € TTC (déclaration préalable), 149 € TTC (permis de construire), 239 € TTC (solaire agricole). https://permizy.com/tarifs/
+- Prix du dossier complet, payé une fois au téléchargement : 49 € TTC (déclaration préalable), 149 € TTC (permis de construire), 239 € TTC (solaire agricole) ; option solaire « pack raccordement Enedis + Consuel » : 39 € TTC. https://permizy.com/tarifs/
 - Permizy n'est ni un service de l'État ni une mairie ; le demandeur reste le déclarant et la décision appartient à la mairie. Aucun envoi n'est fait sans l'accord de l'utilisateur.
 - Éditeur : SAS, SIREN 109 443 754, 47 rue Vivienne, 75002 Paris. https://permizy.com/mentions-legales/
 

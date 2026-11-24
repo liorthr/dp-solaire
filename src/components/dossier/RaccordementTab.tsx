@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useState } from "react";
-import { Download, ExternalLink, FileArchive, Loader2, Zap } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Download, ExternalLink, FileArchive, Loader2, Lock, Zap } from "lucide-react";
+import { OPTION_PRICES, paymentRequired, paymentStatus, payOption } from "@/lib/cloud/payments";
 import type { ElecInfo, InstructionEvent } from "@/lib/types";
 import { Badge, Button, Card, Field, Input, Select, severityLabel, severityTone } from "@/components/ui";
 import { SignaturePad } from "@/components/SignaturePad";
@@ -37,6 +38,16 @@ export function RaccordementTab({ b }: { b: ProjectBundle }) {
   const [files, setFiles] = useState<{ files: RacFile[]; zip: Blob; warnings: string[] } | null>(null);
   const [sig, setSig] = useState<string | null>(null);
   const [stepDate, setStepDate] = useState(new Date().toISOString().slice(0, 10));
+  // pack raccordement : option payante sur les comptes en ligne (gratuit en démonstration locale)
+  const mustPay = paymentRequired();
+  const [rac, setRac] = useState<boolean | null>(mustPay ? null : true);
+  const [payErr, setPayErr] = useState("");
+  useEffect(() => {
+    if (!mustPay) return;
+    paymentStatus(p.id)
+      .then((s) => setRac(s.options.includes("RAC")))
+      .catch(() => setRac(false));
+  }, [mustPay, p.id]);
 
   const set = (patch: Partial<ElecInfo>) => save({ ...p, elec: { ...e, ...patch } }, "edition_raccordement");
   const num = (v: string) => (v === "" ? undefined : Number(v.replace(",", ".")));
@@ -210,9 +221,29 @@ export function RaccordementTab({ b }: { b: ProjectBundle }) {
 
       <Card title="Générer le pack Raccordement & Consuel">
         <p className="mb-2 text-sm text-stone-600">Schéma unifilaire, dossier technique Consuel pré-rempli{r.extraForms.includes("SC 143") ? " et SC 143" : ""}, note de calcul, récapitulatif de la demande Enedis, mandat et plan de situation.</p>
+        {rac === false ? (
+          <div className="rounded-3xl border-2 border-brand-600 bg-mint p-5" data-testid="rac-offer">
+            <p className="flex items-center gap-2 text-lg font-extrabold">
+              <Lock className="h-5 w-5" /> Pack raccordement Enedis + Consuel : {OPTION_PRICES.RAC} € TTC
+            </p>
+            <ul className="mt-2 space-y-1 text-sm">
+              <li>✓ Schéma unifilaire et note de calcul</li>
+              <li>✓ Dossier technique Consuel pré-rempli{r.extraForms.includes("SC 143") ? " (+ SC 143)" : ""}</li>
+              <li>✓ Récapitulatif à saisir pour la demande Enedis, mandat du titulaire du compteur</li>
+            </ul>
+            <p className="mt-2 text-xs text-muted">Utile si vous installez vous-même ou si votre installateur ne s&apos;occupe pas de ces démarches. Les calculs et contrôles ci-dessus restent gratuits.</p>
+            <Button size="lg" className="mt-3" onClick={() => payOption(p, "RAC").catch((e) => setPayErr(e instanceof Error ? e.message : String(e)))} data-testid="pay-rac">
+              Ajouter le pack ({OPTION_PRICES.RAC} €)
+            </Button>
+            {payErr && <p className="mt-2 text-sm text-red-800">{payErr}</p>}
+          </div>
+        ) : rac === null ? (
+          <p className="text-sm text-muted">Vérification de votre pack…</p>
+        ) : (
         <Button size="lg" variant="secondary" onClick={generate} disabled={Boolean(busy)} data-testid="generate-rac">
           {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Zap className="h-5 w-5" />} {busy ? `${busy}…` : "Générer le pack"}
         </Button>
+        )}
         {files && (
           <div className="mt-3 space-y-2" data-testid="rac-downloads">
             <Button onClick={() => download(files.zip, `${p.reference}_Raccordement_Consuel.zip`)} data-testid="download-rac-zip">

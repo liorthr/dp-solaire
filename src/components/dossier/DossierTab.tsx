@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Download, FileArchive, FileText, Loader2, Lock } from "lucide-react";
-import { isPaid, payDossier, paymentRequired, PRICE_LABELS, PRICES, priceKindOf } from "@/lib/cloud/payments";
+import { isPaid, OPTION_PRICES, offersRacOption, payDossier, paymentRequired, PRICE_LABELS, PRICES, priceKindOf } from "@/lib/cloud/payments";
 import { Badge, Button, Card, Disclaimer, Progress } from "@/components/ui";
 import { SignaturePad } from "@/components/SignaturePad";
 import { buildDossier, type BuildResult } from "@/lib/dossier/build";
@@ -115,6 +115,11 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
               <Button size="lg" className="mt-4 w-full sm:w-auto" onClick={() => payDossier(p, kind).catch((e) => setErr(e instanceof Error ? e.message : String(e)))} data-testid="pay">
                 Payer {PRICES[kind]} € et télécharger
               </Button>
+              {offersRacOption(p, kind) && (
+                <p className="mt-3 rounded-xl bg-white p-3 text-sm" data-testid="rac-upsell">
+                  ⚡ Sur la page de paiement, vous pourrez ajouter le <b>pack raccordement Enedis + Consuel</b> (+{OPTION_PRICES.RAC} €) : schéma unifilaire, dossier Consuel pré-rempli et récapitulatif de la demande Enedis.
+                </p>
+              )}
               <p className="mt-2 text-xs text-muted">Carte bancaire, Apple Pay ou Google Pay : paiement sécurisé par Stripe. Les aperçus des plans restent gratuits dans l&apos;onglet Plans.</p>
             </div>
           ) : paid === null ? (

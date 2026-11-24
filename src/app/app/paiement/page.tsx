@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Card } from "@/components/ui";
-import { isPaid, PENDING_KEY } from "@/lib/cloud/payments";
+import { paymentStatus, PENDING_KEY } from "@/lib/cloud/payments";
 import { track } from "@/lib/analytics";
 
 function Waiting() {
@@ -15,7 +15,7 @@ function Waiting() {
   const [projectId, setProjectId] = useState<string>();
   useEffect(() => {
     let alive = true;
-    const pending = JSON.parse(localStorage.getItem(PENDING_KEY) ?? "null") as { projectId: string } | null;
+    const pending = JSON.parse(localStorage.getItem(PENDING_KEY) ?? "null") as { projectId: string; kind?: string } | null;
     if (!pending) {
       setState("late");
       return;
@@ -23,11 +23,14 @@ function Waiting() {
     setProjectId(pending.projectId);
     (async () => {
       for (let i = 0; i < 20 && alive; i++) {
-        if (await isPaid(pending.projectId).catch(() => false)) {
+        const st = await paymentStatus(pending.projectId).catch(() => ({ paid: false, options: [] as string[] }));
+        // achat du pack seul : on attend l'option ; sinon le dossier (avec ou sans option)
+        const done = pending.kind === "RAC" ? st.options.includes("RAC") : st.paid;
+        if (done) {
           localStorage.removeItem(PENDING_KEY);
-          track("paid");
+          track("paid", pending.kind === "RAC" ? "rac" : st.options.includes("RAC") ? "dossier-rac" : "dossier");
           setState("ok");
-          router.replace(`/app/dossier/?id=${pending.projectId}&tab=dossier`);
+          router.replace(`/app/dossier/?id=${pending.projectId}&tab=${pending.kind === "RAC" ? "raccordement" : "dossier"}`);
           return;
         }
         await new Promise((r) => setTimeout(r, 2000));
