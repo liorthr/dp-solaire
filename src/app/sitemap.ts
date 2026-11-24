@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { GUIDES } from "@/data/seo/guides";
 import { videoForGuide } from "@/data/seo/videos";
+import { CITIES, LOCAL_FETCHED_AT } from "@/data/seo/local";
 
 export const dynamic = "force-static";
 const BASE = "https://permizy.com";
@@ -22,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         ...(v ? { videos: [{ title: v.title, description: v.description, thumbnail_loc: `${BASE}/videos/${v.slug}/poster.jpg`, content_loc: `${BASE}/videos/${v.slug}/video.mp4`, duration: v.durationSec, publication_date: v.uploadDate, family_friendly: "yes" as const }] } : {}),
       };
     }),
+    ...CITIES.map((c) => ({ url: `${BASE}/declaration-prealable/${c.slug}/`, lastModified: LOCAL_FETCHED_AT, changeFrequency: "monthly" as const, priority: 0.7 })),
     { url: `${BASE}/a-propos/`, lastModified: today, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/mentions-legales/`, lastModified: today, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE}/cgu/`, lastModified: today, changeFrequency: "yearly", priority: 0.2 },

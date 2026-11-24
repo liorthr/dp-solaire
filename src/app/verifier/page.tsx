@@ -16,6 +16,7 @@ import { currentSession, isHomeowner } from "@/lib/store/db";
 import { isCloudSession } from "@/lib/cloud/supabase";
 import { cn } from "@/components/ui";
 import { track } from "@/lib/analytics";
+import { MaisonNeuveLead } from "@/components/leads/MaisonNeuveLead";
 
 
 interface Question {
@@ -294,13 +295,14 @@ function Verifier() {
     return (
       <Phone back={() => setStage("questions")}>
         <h1 className="text-3xl font-extrabold leading-tight">Maison neuve : le permis de construire</h1>
-        <Bubble icon="🏠">Pour construire une maison neuve, il faut un permis de construire (cerfa 13406*17). Permizy ne prépare pas encore ce dossier : voici l&apos;essentiel pour avancer.</Bubble>
+        <Bubble icon="🏠">Pour construire une maison neuve, il faut un permis de construire (cerfa 13406*17). Permizy ne prépare pas ce dossier lui-même : nous pouvons vous mettre en relation avec un architecte partenaire.</Bubble>
         <ul className="mt-5 space-y-2 text-base" data-testid="pc-neuf">
           <li className="rounded-2xl bg-white p-4">Délai d&apos;instruction : <b>2 mois</b> pour une maison individuelle, 3 mois en secteur protégé.</li>
           <li className="rounded-2xl bg-white p-4">Architecte <b>obligatoire</b> si la surface de plancher dépasse 150 m².</li>
           <li className="rounded-2xl bg-white p-4">Dépôt en ligne possible ; sur papier, 4 dossiers complets.</li>
         </ul>
         <p className="mt-3 text-xs text-muted">Source : service-public.fr, fiche F1986.</p>
+        <MaisonNeuveLead postcode={address?.postcode} city={address?.city} />
         <div className="mt-auto space-y-3 pt-8">
           <Link href="/permis-de-construire-maison/" className="block w-full rounded-full bg-ink py-4 text-center text-lg font-bold text-white">Lire le guide du permis de construire</Link>
           <button onClick={() => { setAnswers({ ...answers, pcProject: "extension" }); setQi(1); setStage("questions"); }} className="block w-full rounded-full border-2 border-ink py-4 text-center text-lg font-bold">

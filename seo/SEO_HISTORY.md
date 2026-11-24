@@ -2,6 +2,19 @@
 
 Chaque session : date, actions, pages, tests, déploiement, mesures, hypothèses, prochaines actions. Le plus récent en haut.
 
+## Session 4 : 24/11/2026 (lead maison neuve, prix, articles, local, maillage)
+**Demande** : lead « maison neuve » revendable à un architecte, métadonnées « à partir de 49 € », nouveaux articles, SEO local, maillage interne + liens Facebook.
+
+**Actions**
+- Lead maison neuve : formulaire dans `/verifier/` (choix « maison neuve » du parcours permis) et carte « Maison neuve, mise en relation » sur l'accueil. Case de consentement obligatoire indiquant la transmission à un architecte partenaire ; texte du consentement stocké avec la demande. Table `leads` (migration 0006, insertion seule, aucune lecture publique), événement `lead`. Section « Mise en relation avec un architecte partenaire » dans les mentions légales (base légale, destinataires, possible rémunération, 12 mois, retrait). Requêtes d'exploitation dans `seo/analytics-queries.sql`. Test en ligne réussi (lead fictif reçu puis supprimé).
+- Prix dans les métadonnées : title par défaut « … dès 49 € », descriptions de l'accueil, de l'OG, de /guides/, /verifier/, /a-propos/ et de 12 guides (dès 49 € pour les DP, 149 € pour les permis, « à partir de 49 € » quand c'est mixte).
+- 5 nouveaux guides sourcés service-public : piscine (F31404), abri de jardin (F662), pergola/carport (F36773), clôture (F3131), DAACT (F1997). Les cartes « Bientôt » de l'accueil renvoient vers ces guides. llms.txt régénéré (22 guides).
+- SEO local : 10 pages `/declaration-prealable/<ville>/` (Paris, Marseille, Lyon, Toulouse, Nice, Nantes, Montpellier, Strasbourg, Bordeaux, Lille). Données officielles datées : mairie (Annuaire de l'administration), PLU ou PLUi en vigueur avec lien vers le Géoportail de l'Urbanisme, présence d'un PSMV ; dépôt via le BASU pour Paris. Script `scripts/local-data.py` pour rafraîchir. Aucune agence ni aucun avis inventés.
+- Maillage : 4 grappes thématiques (`CLUSTERS`), fil d'Ariane avec le pilier, bloc « Dans le même thème » sur chaque guide, page Guides groupée par thème et par ville, pied de page par thème, liens des villes depuis le pilier DP. Liens Facebook : emplacement prêt (`SOCIAL` dans `src/lib/seo/site.ts`, sameAs), **URL non fournie, donc non publiée**.
+
+**Tests** : tsc, eslint, 124 unitaires, 32 E2E (build sans cloud). **Déploiement** : en ligne et vérifié ; crawl 41 pages 200, 0 orpheline.
+**Prochaine session** : URL Facebook, données Search Console, vidéo PAC (B16), checklist PDF (B06).
+
 ## Session 3 : 24/11/2026
 **Données** : premières volumétries mesurées (Google Keyword Planner, France, fournies par l'utilisateur) : « permis de construire » 10 k – 100 k/mois ; « demande de permis de construire », « cerfa permis de construire », « déclaration de travaux (mairie) », « demande de travaux », « autorisation de travaux », « déclaration préalable de travaux » 1 k – 10 k ; « permis de construire en ligne » et variantes 100 – 1 k. Enregistrées dans `seo/SEO_KEYWORDS.csv`. Audience 20-24/11 : 37 pages vues, 0 depuis un moteur de recherche. Lighthouse guides : 97-100.
 

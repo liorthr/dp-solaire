@@ -24,3 +24,14 @@ describe("llms.txt", () => {
     for (const g of GUIDES) expect(txt, g.slug).toContain(`https://permizy.com/${g.slug}/`);
   });
 });
+
+describe("grappes thématiques", () => {
+  it("chaque guide appartient à exactement une grappe, dont le pilier existe", async () => {
+    const { CLUSTERS, GUIDES } = await import("./guides");
+    for (const g of GUIDES) expect(CLUSTERS.filter((c) => c.slugs.includes(g.slug)).map((c) => c.id), g.slug).toHaveLength(1);
+    for (const c of CLUSTERS) {
+      expect(c.slugs).toContain(c.pillar);
+      for (const s of c.slugs) expect(GUIDES.some((g) => g.slug === s), s).toBe(true);
+    }
+  });
+});

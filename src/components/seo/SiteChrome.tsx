@@ -1,7 +1,8 @@
 // En-tête et pied de page des pages publiques (accueil, guides, tarifs) : maillage interne vers tous les guides.
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { GUIDES } from "@/data/seo/guides";
+import { CLUSTERS, guideBySlug } from "@/data/seo/guides";
+import { SOCIAL } from "@/lib/seo/site";
 
 export function SiteHeader() {
   return (
@@ -34,13 +35,33 @@ export function SiteFooter() {
           <Logo size="sm" />
           <p className="mt-3 max-w-xs text-muted">Déclaration préalable et permis de construire en ligne : règles de votre commune, plans, cerfa rempli et envoi à la mairie.</p>
         </div>
-        <nav aria-label="Guides" className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
-          {GUIDES.map((g) => (
-            <Link key={g.slug} href={`/${g.slug}/`} className="text-muted hover:text-ink hover:underline">
-              {g.h1.replace(/ : .*$/, "")}
-            </Link>
+        <nav aria-label="Guides" className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+          {CLUSTERS.map((c) => (
+            <div key={c.id}>
+              <p className="font-bold text-ink">{c.label}</p>
+              <ul className="mt-2 space-y-1.5">
+                {c.slugs.map((x) => {
+                  const g = guideBySlug(x);
+                  return g ? (
+                    <li key={x}>
+                      <Link href={`/${x}/`} className="text-muted hover:text-ink hover:underline">{g.h1.replace(/ : .*$/, "")}</Link>
+                    </li>
+                  ) : null;
+                })}
+              </ul>
+            </div>
           ))}
-          <Link href="/tarifs/" className="text-muted hover:text-ink hover:underline">Tarifs</Link>
+          <div>
+            <p className="font-bold text-ink">Permizy</p>
+            <ul className="mt-2 space-y-1.5">
+              <li><Link href="/verifier/" prefetch={false} className="text-muted hover:text-ink hover:underline">Vérification gratuite</Link></li>
+              <li><Link href="/tarifs/" className="text-muted hover:text-ink hover:underline">Tarifs : dès 49 €</Link></li>
+              <li><Link href="/guides/" className="text-muted hover:text-ink hover:underline">Tous les guides</Link></li>
+              {SOCIAL.map((x) => (
+                <li key={x.url}><a href={x.url} rel="me noopener" target="_blank" className="text-muted hover:text-ink hover:underline">{x.label}</a></li>
+              ))}
+            </ul>
+          </div>
         </nav>
       </div>
       <div className="mx-auto flex max-w-7xl flex-wrap gap-x-4 gap-y-1 px-5 pb-8 text-xs text-muted sm:px-10">

@@ -45,6 +45,14 @@ test("demande de permis : maison neuve → information honnête et guide", async
   await page.getByTestId("quick-next").click();
   await page.getByTestId("quick-answer-pcProject").filter({ hasText: "maison neuve" }).click();
   await expect(page.getByTestId("pc-neuf")).toContainText("150 m²");
+  // demande de mise en relation : partenaire annoncé, consentement obligatoire, code postal prérempli
+  const form = page.getByTestId("lead-form");
+  await expect(form).toContainText("transmises à un architecte partenaire");
+  await expect(form.getByLabel("Code postal du terrain")).toHaveValue(/^\d{5}$/);
+  await page.getByTestId("lead-name").fill("Camille Exemple");
+  await page.getByTestId("lead-email").fill("camille@example.org");
+  await page.getByTestId("lead-submit").click();
+  await expect(form.getByRole("alert")).toContainText("Cochez la case");
   await page.getByRole("button", { name: "C'est plutôt un agrandissement" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Qu'allez-vous construire ?");
 });

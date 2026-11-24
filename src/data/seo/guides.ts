@@ -56,7 +56,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "declaration-prealable-travaux",
     title: "Déclaration préalable de travaux : demande en mairie",
-    description: "Quels travaux sont concernés, cerfa 16702, pièces DP1 à DP8, dépôt en mairie, délai d'un mois, affichage : tout sur la déclaration préalable de travaux.",
+    description: "Travaux concernés, cerfa 16702, pièces DP1 à DP8, dépôt en mairie, délai d'un mois : tout sur la déclaration préalable. Dossier complet en ligne dès 49 €.",
     h1: "Déclaration préalable de travaux : le guide complet",
     lead: "La déclaration préalable est l'autorisation d'urbanisme demandée à la mairie pour des travaux de faible importance, en particulier ceux qui modifient l'aspect extérieur d'une maison. Voici quand elle est obligatoire, comment la remplir, la déposer et ce qui se passe ensuite.",
     works: "pv",
@@ -198,7 +198,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "declaration-prealable-pompe-a-chaleur",
     title: "Pompe à chaleur, climatisation : déclaration préalable ?",
-    description: "Pompe à chaleur en façade ou en toiture : déclaration préalable obligatoire. Règles, bruit, voisinage et dossier complet prêt à déposer en mairie.",
+    description: "Pompe à chaleur en façade ou en toiture : déclaration préalable obligatoire. Règles, bruit, voisinage : dossier complet prêt à déposer, dès 49 €.",
     h1: "Déclaration préalable pour une pompe à chaleur",
     lead: "L'unité extérieure d'une pompe à chaleur ou d'une climatisation change souvent l'aspect de la maison. Selon son emplacement, une déclaration préalable est nécessaire : Permizy vous le dit et prépare le dossier.",
     works: "pac",
@@ -243,7 +243,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "declaration-prealable-isolation-exterieure",
     title: "Isolation par l'extérieur : déclaration préalable",
-    description: "Isolation thermique par l'extérieur (ITE) : déclaration préalable obligatoire. Surplomb, voisin, couleurs, ABF : votre dossier complet en ligne.",
+    description: "Isolation thermique par l'extérieur (ITE) : déclaration préalable obligatoire. Surplomb, voisin, couleurs, ABF : votre dossier complet en ligne dès 49 €.",
     h1: "Déclaration préalable pour une isolation par l'extérieur",
     lead: "L'isolation thermique par l'extérieur change l'épaisseur et la finition des façades : c'est une déclaration préalable. Permizy vérifie les points sensibles (surplomb, voisin, secteur protégé) et dessine les plans.",
     works: "ite",
@@ -279,7 +279,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "declaration-prealable-fenetres-portes-volets",
     title: "Changer fenêtres, portes, volets : déclaration préalable ?",
-    description: "Fenêtres, portes, volets : à l'identique, aucune formalité ; changement de matériau ou de couleur, déclaration préalable. Règles de vue et dossier en ligne.",
+    description: "Fenêtres, portes, volets : à l'identique, aucune formalité ; nouveau matériau ou couleur, déclaration préalable. Règles et dossier en ligne dès 49 €.",
     h1: "Fenêtres, portes et volets : faut-il une déclaration préalable ?",
     lead: "Remplacer des menuiseries à l'identique ne demande aucune formalité. Dès que le matériau, la couleur ou la forme change, ou qu'une ouverture est créée, une déclaration préalable est nécessaire.",
     works: "menuiserie",
@@ -309,7 +309,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "declaration-prealable-fenetre-de-toit",
     title: "Fenêtre de toit (Velux) : déclaration préalable",
-    description: "Créer ou changer une fenêtre de toit : déclaration préalable. Distances de vue, combles, ABF : plans de toiture et dossier complet en ligne.",
+    description: "Créer ou changer une fenêtre de toit : déclaration préalable. Distances de vue, combles, ABF : plans de toiture et dossier complet en ligne dès 49 €.",
     h1: "Déclaration préalable pour une fenêtre de toit",
     lead: "Créer une fenêtre de toit ou la remplacer par un autre modèle modifie la toiture : une déclaration préalable est nécessaire. Permizy place les fenêtres sur votre pan de toit et vérifie les distances de vue.",
     works: "velux",
@@ -336,7 +336,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "permis-de-construire-extension-garage-veranda",
     title: "Extension, garage, véranda : DP ou permis de construire ?",
-    description: "Agrandissement, garage ou véranda : 20 m², 40 m², 150 m², les seuils de la déclaration préalable et du permis. Plans et cerfa 13406 remplis en ligne.",
+    description: "Agrandissement, garage, véranda : seuils de 20, 40 et 150 m² entre déclaration préalable et permis. Dossier en ligne à partir de 49 €, permis 149 €.",
     h1: "Extension, garage, véranda : déclaration préalable ou permis de construire ?",
     lead: "Tout dépend de la surface créée, de la zone du PLU et de la surface totale après travaux. Permizy lit le zonage de votre commune, vous dit quelle autorisation demander et prépare le dossier, permis compris.",
     works: "extension",
@@ -479,7 +479,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "delai-instruction-declaration-prealable",
     title: "Délai de réponse d'une déclaration préalable",
-    description: "1 mois, 2 mois en secteur protégé, accord tacite, dossier incomplet, affichage, recours : tout sur le délai d'une déclaration préalable de travaux.",
+    description: "1 mois, 2 mois en secteur protégé, accord tacite, dossier incomplet, affichage, recours : le délai d'une déclaration préalable. Dossier dès 49 €.",
     h1: "Combien de temps pour obtenir une déclaration préalable ?",
     lead: "La mairie a en principe 1 mois pour répondre à une déclaration préalable complète. Voici les exceptions, ce qui se passe sans réponse et les étapes après l'accord.",
     works: "pv",
@@ -524,7 +524,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "pieces-declaration-prealable-dp1-dp8",
     title: "Pièces d'une déclaration préalable : DP1 à DP11",
-    description: "Plan de situation DP1, plan de masse DP2, façades DP4, photomontage DP6, photos DP7 et DP8, notice DP11 : quelles pièces joindre et en combien d'exemplaires.",
+    description: "Plan de situation DP1, plan de masse DP2, façades DP4, photomontage DP6, photos DP7-DP8 : les pièces à joindre. Dossier complet prêt dès 49 €.",
     h1: "Les pièces d'une déclaration préalable, de DP1 à DP11",
     lead: "Le dossier de déclaration préalable se compose du cerfa et de pièces numérotées DP1, DP2… Toutes ne sont pas exigées à chaque fois : voici à quoi sert chacune et quand la fournir.",
     works: "pv",
@@ -575,7 +575,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "cerfa-16702-declaration-prealable",
     title: "Cerfa 16702*03 : formulaire de déclaration préalable",
-    description: "Le cerfa 16702*03 est le formulaire de déclaration préalable en vigueur. Rubriques, pièces à joindre, dépôt et fin de travaux (DAACT 13408) : le guide.",
+    description: "Le cerfa 16702*03 est le formulaire de déclaration préalable en vigueur : rubriques, pièces, dépôt et fin de travaux. Cerfa rempli en ligne dès 49 €.",
     h1: "Cerfa 16702*03 : le formulaire de déclaration préalable",
     lead: "Pour une déclaration préalable de travaux, le formulaire en vigueur est le cerfa n° 16702*03. Beaucoup de sites citent encore d'anciennes versions : voici l'essentiel pour ne pas se tromper.",
     works: "pv",
@@ -666,7 +666,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "permis-de-construire-maison",
     title: "Permis de construire : demande, cerfa, délai, en ligne",
-    description: "Demande de permis de construire pour une maison ou une extension : quand il est obligatoire, cerfa 13406, pièces, dépôt en ligne, délai de 2 mois, architecte.",
+    description: "Demande de permis de construire : quand il est obligatoire, cerfa 13406, pièces, dépôt en ligne, délai de 2 mois, architecte. Dossier d'extension : 149 €.",
     h1: "Permis de construire : comment faire la demande",
     lead: "Le permis de construire est l'autorisation exigée pour les projets plus importants qu'une déclaration préalable : grande extension, garage ou véranda au-delà des seuils, construction neuve. Voici quand il faut le demander, ce que contient le dossier et combien de temps attendre.",
     works: "extension",
@@ -737,7 +737,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "refus-declaration-prealable",
     title: "Refus de déclaration préalable : que faire ?",
-    description: "Opposition de la mairie à votre déclaration préalable : recours gracieux en 1 mois, recours au tribunal en 2 mois, cas de l'ABF, ou nouveau dossier corrigé.",
+    description: "Opposition de la mairie à votre déclaration préalable : recours gracieux en 1 mois, tribunal en 2 mois, ABF, ou nouveau dossier corrigé dès 49 €.",
     h1: "Refus de déclaration préalable : que faire ?",
     lead: "Quand la mairie refuse une déclaration préalable, elle prend un arrêté d'opposition qui indique les motifs et les voies de recours. Vous pouvez contester la décision, ou corriger le projet et déposer un nouveau dossier.",
     works: "pv",
@@ -791,7 +791,7 @@ export const GUIDES: Guide[] = [
   {
     slug: "cerfa-permis-de-construire",
     title: "Cerfa permis de construire : 13406 ou 13409 ?",
-    description: "Quel cerfa pour un permis de construire : 13406*17 pour une maison et ses annexes, 13409*17 pour les autres constructions. Rubriques, pièces PCMI et dépôt.",
+    description: "Quel cerfa pour un permis de construire : 13406*17 pour une maison et ses annexes, 13409*17 sinon. Rubriques, pièces PCMI, dossier rempli en ligne 149 €.",
     h1: "Cerfa du permis de construire : lequel choisir et comment le remplir",
     lead: "La demande de permis de construire se fait sur un formulaire cerfa officiel. Il en existe deux principaux : le 13406 pour une maison individuelle et ses annexes, le 13409 pour les autres constructions. Voici comment choisir et ce qu'il faut joindre.",
     works: "extension",
@@ -851,6 +851,286 @@ export const GUIDES: Guide[] = [
     related: ["permis-de-construire-maison", "permis-de-construire-extension-garage-veranda", "cerfa-16702-declaration-prealable", "tarifs"],
     updated: "2026-11-24",
   },
+  {
+    slug: "declaration-prealable-piscine",
+    title: "Piscine : déclaration préalable ou permis de construire ?",
+    description: "Piscine enterrée ou hors sol : aucune formalité jusqu'à 10 m², déclaration préalable jusqu'à 100 m², permis au-delà ou avec un abri de plus de 1,80 m.",
+    h1: "Piscine : faut-il une déclaration préalable ou un permis ?",
+    lead: "L'autorisation à demander pour une piscine dépend de la surface du bassin, de la hauteur de sa couverture, de la durée d'installation pour une piscine hors sol et du secteur où se trouve le terrain. Voici les seuils officiels.",
+    works: "extension",
+    cta: { label: "Vérifier les règles de mon adresse", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Piscine enterrée : les seuils",
+        table: {
+          head: ["Bassin", "Couverture", "Cas général", "Secteur protégé"],
+          rows: [
+            ["Jusqu'à 10 m²", "Sans ou avec couverture", "Aucune formalité", "Déclaration préalable"],
+            ["De 10 à 100 m²", "Aucune ou jusqu'à 1,80 m de haut", "Déclaration préalable", "Déclaration préalable"],
+            ["De 10 à 100 m²", "Plus de 1,80 m de haut", "Permis de construire", "Permis de construire"],
+            ["Plus de 100 m²", "Toute", "Permis de construire", "Permis de construire"],
+          ],
+        },
+        note: ["Source : service-public F31404 (vérifié le 31 janvier 2025). Secteur protégé : site patrimonial remarquable, abords d'un monument historique, site classé ou en instance de classement."],
+      },
+      {
+        h2: "Piscine hors sol",
+        list: [
+          "Installée moins de 3 mois par an (15 jours en secteur protégé) : aucune autorisation d'urbanisme.",
+          "Installée plus longtemps : mêmes seuils qu'une piscine enterrée (jusqu'à 10 m² sans formalité hors secteur protégé, déclaration préalable jusqu'à 100 m², permis au-delà ou avec un abri de plus de 1,80 m).",
+        ],
+        note: ["Source : service-public F31404."],
+      },
+      {
+        h2: "Ce qu'il faut aussi prévoir",
+        list: [
+          "Le PLU de la commune peut imposer des règles d'implantation ou d'aspect, même sans autorisation : consultez le service urbanisme de la mairie.",
+          "La piscine doit être équipée de dispositifs de sécurité contre la noyade (service-public F31404).",
+          "Si une autorisation est nécessaire, la taxe d'aménagement s'applique ; la piscine doit aussi être déclarée aux impôts dans les 90 jours suivant la fin des travaux.",
+          "Formulaire : cerfa 16702 pour la déclaration préalable, cerfa 13406 pour le permis d'une piscine annexe d'une maison.",
+        ],
+      },
+      DP_DELAIS,
+    ],
+    faq: [
+      { q: "Faut-il une autorisation pour une piscine de 10 m² ?", a: "Non, hors secteur protégé : un bassin jusqu'à 10 m² est dispensé de formalité, mais le PLU reste applicable. En secteur protégé, une déclaration préalable est nécessaire (service-public F31404)." },
+      { q: "Une piscine de 30 m² demande-t-elle un permis ?", a: "Non : de 10 à 100 m² de bassin, une déclaration préalable suffit, sauf si la couverture dépasse 1,80 m de haut, auquel cas il faut un permis de construire." },
+      { q: "Et une piscine hors sol gonflable ?", a: "Aucune autorisation si elle reste installée moins de 3 mois par an (15 jours en secteur protégé). Au-delà, les seuils de surface s'appliquent." },
+    ],
+    sources: [
+      { label: "Service-public : installation ou construction d'une piscine privative (F31404)", url: SP("F31404") },
+      { label: "Service-public : taxe d'aménagement (F23263)", url: SP("F23263") },
+    ],
+    related: ["declaration-prealable-travaux", "abri-de-jardin-declaration-prealable", "travaux-abords-monument-historique-abf", "delai-instruction-declaration-prealable"],
+    updated: "2026-11-24",
+  },
+  {
+    slug: "abri-de-jardin-declaration-prealable",
+    title: "Abri de jardin : déclaration préalable ou permis ?",
+    description: "Abri de jardin : sans formalité jusqu'à 5 m², déclaration préalable jusqu'à 20 m², permis au-delà. Secteur protégé, abri accolé, distance de 3 mètres.",
+    h1: "Abri de jardin : quelle autorisation demander à la mairie ?",
+    lead: "Pour un abri de jardin, tout dépend de sa surface (surface de plancher ou emprise au sol), du fait qu'il soit indépendant ou accolé à la maison et du secteur. Voici les règles publiées par service-public.",
+    works: "extension",
+    cta: { label: "Vérifier les règles de mon adresse", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Abri indépendant de la maison",
+        table: {
+          head: ["Surface (plancher ou emprise au sol)", "Cas général", "Secteur protégé"],
+          rows: [
+            ["Jusqu'à 5 m²", "Aucune formalité", "Déclaration préalable"],
+            ["De 5 à 20 m²", "Déclaration préalable", "Déclaration préalable"],
+            ["Plus de 20 m²", "Permis de construire", "Permis de construire"],
+          ],
+        },
+        note: ["Source : service-public F662 (vérifié le 21 mars 2025)."],
+      },
+      {
+        h2: "Abri accolé à la maison",
+        list: [
+          "Accolé sans communiquer avec la maison, même petit : déclaration préalable, car il modifie l'aspect extérieur du bâtiment.",
+          "Accolé et communicant, comme une extension : en zone urbaine d'un PLU, déclaration préalable jusqu'à 40 m², permis au-delà ; ailleurs, déclaration préalable jusqu'à 20 m².",
+        ],
+        note: ["Source : service-public F662. Pour une extension, voir aussi notre guide extension, garage, véranda."],
+      },
+      {
+        h2: "Où l'installer ?",
+        p: ["Si le PLU ne prévoit pas de distance particulière, l'abri se construit soit en limite de propriété, soit à 3 mètres minimum de celle-ci (service-public F662). Le PLU, un règlement de lotissement ou de copropriété peuvent fixer d'autres règles : vérifiez-les avant de commander."],
+      },
+      DP_DELAIS,
+    ],
+    faq: [
+      { q: "Faut-il une déclaration préalable pour un abri de jardin de 10 m² ?", a: "Oui : de 5 à 20 m² de surface de plancher ou d'emprise au sol, une déclaration préalable est nécessaire (service-public F662)." },
+      { q: "Un abri de jardin de moins de 5 m² est-il libre ?", a: "Hors secteur protégé et s'il est indépendant de la maison, il est dispensé de formalité. En secteur protégé ou accolé à la maison, il faut une déclaration préalable." },
+    ],
+    sources: [
+      { label: "Service-public : autorisation pour un abri de jardin (F662)", url: SP("F662") },
+      { label: "Service-public : surface de plancher et emprise au sol (F2868)", url: SP("F2868") },
+    ],
+    related: ["pergola-carport-declaration-prealable", "permis-de-construire-extension-garage-veranda", "declaration-prealable-travaux", "declaration-prealable-piscine"],
+    updated: "2026-11-24",
+  },
+  {
+    slug: "pergola-carport-declaration-prealable",
+    title: "Pergola, carport : déclaration préalable ou permis ?",
+    description: "Pergola, carport ou abri à bois : sans formalité jusqu'à 5 m², déclaration préalable jusqu'à 20 m² (40 m² accolé en zone urbaine), permis au-delà.",
+    h1: "Pergola, carport, abri à bois : quelle autorisation ?",
+    lead: "Le PLU de votre commune peut traiter une pergola ou un carport comme une construction nouvelle ou comme une extension de la maison. Les seuils ne sont pas les mêmes : renseignez-vous auprès du service urbanisme, puis appliquez le bon tableau.",
+    works: "extension",
+    cta: { label: "Vérifier les règles de mon adresse", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Construction nouvelle (indépendante)",
+        table: {
+          head: ["Emprise au sol", "Cas général", "Secteur protégé"],
+          rows: [
+            ["Jusqu'à 5 m²", "Aucune formalité (déclaration préalable si accolée sans communiquer)", "Déclaration préalable"],
+            ["De 5 à 20 m²", "Déclaration préalable", "Déclaration préalable"],
+            ["Plus de 20 m²", "Permis de construire", "Permis de construire"],
+          ],
+        },
+        note: ["Source : service-public F36773 (vérifié le 11 avril 2025)."],
+      },
+      {
+        h2: "Extension de la maison",
+        table: {
+          head: ["Situation", "Déclaration préalable", "Permis de construire"],
+          rows: [
+            ["Zone urbaine d'un PLU", "Jusqu'à 40 m² d'emprise au sol", "Plus de 40 m²"],
+            ["Hors zone urbaine", "Jusqu'à 20 m²", "Plus de 20 m²"],
+          ],
+        },
+        note: ["Source : service-public F36773. Une pergola ou un carport accolé modifie l'aspect extérieur de la maison."],
+      },
+      {
+        h2: "Implantation",
+        p: ["Sans règle particulière du PLU, la construction s'implante en limite de propriété ou à 3 mètres minimum de celle-ci (service-public F36773). À Paris, le dossier se dépose uniquement en ligne auprès du Bureau accueil et service à l'usager (BASU)."],
+      },
+      DP_DELAIS,
+    ],
+    faq: [
+      { q: "Faut-il une autorisation pour un carport de 15 m² ?", a: "Oui, une déclaration préalable : de 5 à 20 m² d'emprise au sol en construction nouvelle (service-public F36773)." },
+      { q: "Une pergola accolée de 30 m² demande-t-elle un permis ?", a: "En zone urbaine d'un PLU, non : une extension jusqu'à 40 m² relève de la déclaration préalable. Hors zone urbaine, au-delà de 20 m², il faut un permis de construire." },
+    ],
+    sources: [
+      { label: "Service-public : pergola, carport ou abri à bois (F36773)", url: SP("F36773") },
+      { label: "Service-public : agrandissement extérieur (F36777)", url: SP("F36777") },
+    ],
+    related: ["abri-de-jardin-declaration-prealable", "permis-de-construire-extension-garage-veranda", "declaration-prealable-travaux"],
+    updated: "2026-11-24",
+  },
+  {
+    slug: "cloture-declaration-prealable",
+    title: "Clôture et mur de clôture : faut-il une déclaration ?",
+    description: "Clôture ou mur de clôture : en principe sans formalité, mais déclaration préalable en secteur protégé, si la commune l'exige ou pour un mur de 2 m et plus.",
+    h1: "Clôture et mur de clôture : quand déclarer à la mairie ?",
+    lead: "Tout propriétaire peut clôturer son terrain. En principe, aucune formalité d'urbanisme n'est demandée, sauf dans certains secteurs ou si la commune a soumis les clôtures à déclaration. Le PLU et les usages locaux s'appliquent dans tous les cas.",
+    works: "extension",
+    cta: { label: "Vérifier les règles de mon adresse", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Quand faut-il une déclaration préalable ?",
+        list: [
+          "Terrain en secteur protégé (abords d'un monument historique, site patrimonial remarquable, site classé).",
+          "Terrain dans un secteur délimité par le PLU (par exemple zone naturelle ou forestière, ou espace de libre circulation des animaux sauvages).",
+          "Commune ou partie de commune où le conseil municipal a soumis les clôtures à déclaration.",
+          "Mur de clôture de 2 mètres de haut ou plus.",
+        ],
+        note: ["Source : service-public F3131 (vérifié le 5 décembre 2025). Pour connaître ces secteurs, interrogez le service urbanisme de la mairie (à Paris, le BASU)."],
+      },
+      {
+        h2: "Haies et clôtures végétales",
+        list: [
+          "Plantation de 2 mètres de haut au plus : au moins 0,5 mètre de la limite séparative.",
+          "Plantation de plus de 2 mètres : au moins 2 mètres de la limite séparative.",
+          "Les distances se mesurent depuis le milieu du tronc ; une haie peut être plantée sur la limite avec l'accord du voisin (elle devient mitoyenne).",
+        ],
+        note: ["Source : service-public F3131, sauf règlement ou usages locaux différents."],
+      },
+      {
+        h2: "Avant de poser la clôture",
+        list: [
+          "Faites borner le terrain pour connaître les limites exactes de la propriété.",
+          "Respectez le cahier des charges du lotissement ou le règlement de copropriété, s'il en existe un.",
+          "En bord de cours d'eau domanial ou du domaine public maritime, des servitudes de passage imposent des distances (9,75 m pour un chemin de halage, 3 m sur le littoral).",
+        ],
+      },
+    ],
+    faq: [
+      { q: "Faut-il une autorisation pour poser une clôture ?", a: "En principe non. Une déclaration préalable est exigée en secteur protégé, dans certains secteurs du PLU, dans les communes qui l'ont décidé, et pour un mur de clôture de 2 m ou plus (service-public F3131)." },
+      { q: "À quelle distance planter une haie ?", a: "0,5 m de la limite pour une haie de 2 m au plus, 2 m de la limite pour une haie plus haute, sauf règles ou usages locaux différents." },
+    ],
+    sources: [
+      { label: "Service-public : règles pour construire ou installer une clôture (F3131)", url: SP("F3131") },
+    ],
+    related: ["declaration-prealable-travaux", "travaux-abords-monument-historique-abf", "abri-de-jardin-declaration-prealable"],
+    updated: "2026-11-24",
+  },
+  {
+    slug: "daact-declaration-achevement-travaux",
+    title: "DAACT : déclarer la fin des travaux à la mairie",
+    description: "Après une déclaration préalable ou un permis, déposez la DAACT (cerfa 13408) : attestations à joindre, délai de contrôle de 3 ou 5 mois, non-contestation.",
+    h1: "DAACT : déclarer l'achèvement et la conformité des travaux",
+    lead: "Une fois les travaux autorisés terminés, vous devez informer la mairie par une déclaration attestant l'achèvement et la conformité des travaux (DAACT). Elle ouvre le délai pendant lequel la mairie peut contrôler la construction.",
+    works: "extension",
+    cta: { label: "Préparer ma déclaration préalable", href: "/verifier/" },
+    sections: [
+      {
+        h2: "Qui doit déposer une DAACT ?",
+        p: ["Tout titulaire d'une déclaration préalable, d'un permis de construire ou d'un permis d'aménager, à la fin des travaux. Pour des travaux par tranches prévues dans l'autorisation, une DAACT est déposée à la fin de chaque tranche (service-public F1997)."],
+      },
+      {
+        h2: "Le formulaire et les attestations",
+        list: [
+          "Formulaire : cerfa 13408, rempli par le titulaire ou par l'architecte s'il a dirigé les travaux.",
+          "Attestation RE2020 ou RT2012 pour une construction ou une extension de bâtiment ; aucune pour une rénovation énergétique d'un bâtiment existant.",
+          "Selon le projet : attestation d'accessibilité, attestation acoustique, attestation parasismique ou paracyclonique, attestation liée au retrait-gonflement des argiles en zone exposée.",
+        ],
+        note: ["Source : service-public F1997 (vérifié le 7 juillet 2026). Les zones à risque se vérifient sur Géorisques."],
+      },
+      {
+        h2: "Le délai de contrôle",
+        table: {
+          head: ["Situation", "Délai pour contester la conformité"],
+          rows: [
+            ["Cas général", "3 mois après réception de la DAACT"],
+            ["Monument historique inscrit ou site patrimonial remarquable", "5 mois"],
+            ["Secteur couvert par un plan de prévention des risques", "5 mois"],
+          ],
+        },
+        note: ["Sans réponse de la mairie dans ce délai, les travaux sont considérés comme achevés et conformes. Une attestation de non-contestation peut être demandée à la mairie (à Paris, au BASU, délivrée sous 15 jours)."],
+      },
+      {
+        h2: "En cas de non-conformité",
+        p: ["La mairie peut mettre le titulaire en demeure, par lettre recommandée, de réaliser les travaux nécessaires ou de déposer un permis modificatif. Si la régularisation est impossible, elle peut imposer la démolition (service-public F1997)."],
+      },
+    ],
+    faq: [
+      { q: "Faut-il une DAACT après une déclaration préalable ?", a: "Oui : la DAACT est due à la fin des travaux autorisés par une déclaration préalable, un permis de construire ou un permis d'aménager (service-public F1997)." },
+      { q: "Combien de temps la mairie a-t-elle pour contester ?", a: "3 mois après réception de la DAACT dans le cas général, 5 mois pour un monument historique inscrit, un site patrimonial remarquable ou un secteur couvert par un plan de prévention des risques." },
+    ],
+    sources: [
+      { label: "Service-public : DAACT (F1997)", url: SP("F1997") },
+      { label: "Service-public : durée de validité d'une autorisation (F2082)", url: SP("F2082") },
+    ],
+    related: ["declaration-prealable-travaux", "delai-instruction-declaration-prealable", "cerfa-16702-declaration-prealable", "permis-de-construire-maison"],
+    updated: "2026-11-24",
+  },
 ];
 
 export const guideBySlug = (slug: string) => GUIDES.find((g) => g.slug === slug);
+
+/** grappes thématiques : un guide pilier et ses guides frères (fil d'Ariane, navigation, page Guides) */
+export interface GuideCluster {
+  id: string;
+  label: string;
+  pillar: string;
+  slugs: string[];
+}
+export const CLUSTERS: GuideCluster[] = [
+  {
+    id: "declaration-prealable",
+    label: "Déclaration préalable",
+    pillar: "declaration-prealable-travaux",
+    slugs: ["declaration-prealable-travaux", "pieces-declaration-prealable-dp1-dp8", "cerfa-16702-declaration-prealable", "delai-instruction-declaration-prealable", "refus-declaration-prealable", "travaux-abords-monument-historique-abf", "daact-declaration-achevement-travaux"],
+  },
+  {
+    id: "solaire",
+    label: "Panneaux solaires",
+    pillar: "declaration-prealable-panneaux-solaires",
+    slugs: ["declaration-prealable-panneaux-solaires", "declaration-prealable-ombriere-panneaux-au-sol", "panneaux-solaires-agricoles-hangar", "raccordement-enedis-consuel-panneaux-solaires"],
+  },
+  {
+    id: "renovation",
+    label: "Rénovation et façades",
+    pillar: "declaration-prealable-pompe-a-chaleur",
+    slugs: ["declaration-prealable-pompe-a-chaleur", "declaration-prealable-isolation-exterieure", "declaration-prealable-fenetres-portes-volets", "declaration-prealable-fenetre-de-toit"],
+  },
+  {
+    id: "construire",
+    label: "Agrandir et construire",
+    pillar: "permis-de-construire-maison",
+    slugs: ["permis-de-construire-maison", "cerfa-permis-de-construire", "permis-de-construire-extension-garage-veranda", "abri-de-jardin-declaration-prealable", "pergola-carport-declaration-prealable", "declaration-prealable-piscine", "cloture-declaration-prealable"],
+  },
+];
+export const clusterOf = (slug: string) => CLUSTERS.find((c) => c.slugs.includes(slug));

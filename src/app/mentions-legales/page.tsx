@@ -42,7 +42,12 @@ export default function MentionsLegales() {
         </section>
         <section>
           <h2 className="text-xl font-bold">Données personnelles</h2>
-          <p className="mt-2">Les données d&apos;un compte (identité, adresse du projet, photos, pièces) servent uniquement à préparer et suivre les dossiers. Elles ne sont ni vendues ni transmises à des tiers, hors prestataires techniques ci-dessus. Vous pouvez exporter vos données depuis « Mon compte » et demander leur suppression par courrier au siège social.</p>
+          <p className="mt-2">Les données d&apos;un compte (identité, adresse du projet, photos, pièces) servent uniquement à préparer et suivre les dossiers. Elles ne sont ni vendues ni transmises à des tiers, hors prestataires techniques ci-dessus et hors demande de mise en relation que vous faites vous-même (section suivante). Vous pouvez exporter vos données depuis « Mon compte » et demander leur suppression par courrier au siège social.</p>
+        </section>
+        <section id="mise-en-relation">
+          <h2 className="text-xl font-bold">Mise en relation avec un architecte partenaire</h2>
+          <p className="mt-2">Pour un projet de maison neuve, vous pouvez demander à être mis en relation avec un architecte partenaire. Les informations du formulaire (nom, email, téléphone, commune, caractéristiques du projet, message) sont alors transmises à ce partenaire, le cas échéant contre rémunération de Permizy, afin qu&apos;il vous recontacte au sujet de votre projet. Base légale : votre consentement, donné en cochant la case du formulaire ; rien n&apos;est envoyé sans ce clic.</p>
+          <p className="mt-2">Destinataires : Permizy et l&apos;architecte partenaire retenu, qui devient responsable de l&apos;usage qu&apos;il fait de vos données. Durée de conservation chez Permizy : 12 mois au plus après la demande. Vous pouvez retirer votre accord, accéder à vos données ou demander leur suppression à tout moment par courrier au siège social ; vous pouvez aussi saisir la CNIL.</p>
         </section>
         <section>
           <h2 className="text-xl font-bold">Mesure d&apos;audience sans cookie</h2>

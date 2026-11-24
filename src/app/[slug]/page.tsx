@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, ExternalLink } from "lucide-react";
-import { GUIDES, guideBySlug } from "@/data/seo/guides";
+import { GUIDES, guideBySlug, clusterOf } from "@/data/seo/guides";
 import { abs, breadcrumbLd, faqLd, serviceLd } from "@/lib/seo/site";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SiteFooter, SiteHeader } from "@/components/seo/SiteChrome";
@@ -11,6 +11,7 @@ import { WorksIcon } from "@/components/home/WorksIcon";
 import { GuideVideo } from "@/components/seo/GuideVideo";
 import { GuideQuickCheck } from "@/components/seo/GuideQuickCheck";
 import { videoForGuide } from "@/data/seo/videos";
+import { CITIES } from "@/data/seo/local";
 
 export const dynamicParams = false;
 export const generateStaticParams = () => GUIDES.map((g) => ({ slug: g.slug }));
@@ -35,6 +36,9 @@ const fr = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { day: "nu
 export default async function GuidePage({ params }: Props) {
   const g = guideBySlug((await params).slug);
   if (!g) notFound();
+  const cluster = clusterOf(g.slug);
+  const pillar = cluster && cluster.pillar !== g.slug ? guideBySlug(cluster.pillar) : undefined;
+  const siblings = (cluster?.slugs ?? []).filter((x) => x !== g.slug).map((x) => guideBySlug(x)).filter(Boolean) as { slug: string; h1: string; title: string }[];
   const related = g.related.map((s) => (s === "tarifs" ? { slug: "tarifs", h1: "Nos tarifs : 49 €, 149 €, 239 €" } : guideBySlug(s))).filter(Boolean) as { slug: string; h1: string }[];
   const article = {
     "@context": "https://schema.org",
@@ -49,11 +53,17 @@ export default async function GuidePage({ params }: Props) {
   };
   return (
     <div className="min-h-screen bg-cream text-ink">
-      <JsonLd data={[article, faqLd(g.faq), breadcrumbLd([{ name: "Accueil", path: "/" }, { name: "Guides", path: "/guides/" }, { name: g.h1, path: `/${g.slug}/` }]), ...(g.price ? [serviceLd] : [])]} />
+      <JsonLd data={[article, faqLd(g.faq), breadcrumbLd([{ name: "Accueil", path: "/" }, { name: "Guides", path: "/guides/" }, ...(pillar ? [{ name: pillar.h1, path: `/${pillar.slug}/` }] : []), { name: g.h1, path: `/${g.slug}/` }]), ...(g.price ? [serviceLd] : [])]} />
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-5 pb-16 sm:px-10">
         <nav aria-label="Fil d'Ariane" className="text-sm text-muted">
           <Link href="/" className="hover:underline">Accueil</Link> › <Link href="/guides/" className="hover:underline">Guides</Link>
+          {pillar && (
+            <>
+              {" › "}
+              <Link href={`/${pillar.slug}/`} className="hover:underline">{cluster?.label}</Link>
+            </>
+          )}
         </nav>
         <article>
           <header className="mt-4">
@@ -152,6 +162,30 @@ export default async function GuidePage({ params }: Props) {
             </ul>
             <p className="mt-3 text-xs text-muted">Ces informations générales ne remplacent pas le règlement d&apos;urbanisme de votre commune, que Permizy consulte pour votre adresse. La décision appartient à la mairie.</p>
           </section>
+
+          {siblings.length > 0 && (
+            <nav className="mt-10 rounded-3xl bg-white p-5" aria-label={`Guides : ${cluster?.label}`} data-testid="cluster-nav">
+              <h2 className="text-lg font-bold">Dans le même thème : {cluster?.label.toLowerCase()}</h2>
+              <ul className="mt-2 space-y-1.5 text-sm">
+                {siblings.map((r) => (
+                  <li key={r.slug}>
+                    <Link href={`/${r.slug}/`} className="text-brand-700 underline-offset-2 hover:underline">{r.title}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+
+          {g.slug === "declaration-prealable-travaux" && (
+            <nav className="mt-10 text-sm" aria-label="Déclaration préalable par ville" data-testid="pillar-cities">
+              <h2 className="text-lg font-bold">Déclaration préalable dans votre ville</h2>
+              <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                {CITIES.map((c) => (
+                  <Link key={c.slug} href={`/declaration-prealable/${c.slug}/`} className="text-brand-700 underline">{c.name}</Link>
+                ))}
+              </p>
+            </nav>
+          )}
 
           {related.length > 0 && (
             <section className="mt-10">

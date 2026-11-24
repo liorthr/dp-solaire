@@ -15,10 +15,12 @@ Score = (Impact SEO + Impact conversion + Confiance) − (Effort + Risque) ; cha
 | B09 | Mettre à jour les CGU (particulier, paiement, Stripe, Supabase) | 2 | 2 | 4 | 2 | 2 | 4 | validation juridique |
 | B10 | Version mobile verticale des infographies | 1 | 1 | 4 | 1 | 1 | 4 | ✅ 23/11 (en ligne 24/11) |
 | B11 | Pipeline vidéo (FFmpeg + TTS) et première vidéo « DP1 à DP8 » | 3 | 2 | 3 | 4 | 2 | 2 | ✅ fait 20/11 ; prochaines vidéos : PAC/climatisation, DP ou permis |
-| B12 | Pages locales utiles (téléservices et PLU des grandes villes), au cas par cas | 3 | 2 | 2 | 3 | 3 | 1 | S9, uniquement si valeur vérifiable |
+| B12 | Pages locales utiles (téléservices et PLU des grandes villes), au cas par cas | 3 | 2 | 2 | 3 | 3 | 1 | ✅ 24/11 : 10 villes (Annuaire + Géoportail de l'Urbanisme) ; étendre à d'autres villes au besoin |
 | B14 | Créer une boîte email contact@permizy.com (gratuite chez Hostinger si incluse à l'offre) et l'afficher | 2 | 3 | 5 | 1 | 1 | 8 | à faire avec l'utilisateur |
 | B15 | Déclinaisons réseaux sociaux de la vidéo DP1-DP8 (vertical.mp4 prêt pour Shorts / Reels / TikTok) | 2 | 2 | 3 | 1 | 1 | 5 | fichiers prêts, publication manuelle |
 | B16 | Vidéo « Pompe à chaleur / climatisation : faut-il une autorisation ? » (avant l'été) | 3 | 3 | 4 | 2 | 1 | 7 | à faire |
+| B17 | Ajouter l'URL de la page Facebook (SOCIAL + sameAs + pied de page) | 1 | 1 | 3 | 1 | 1 | 3 | bloqué : URL à fournir |
+| B18 | Vente des leads maison neuve : choisir le ou les architectes partenaires, contrat (rémunération, RGPD), procédure de transmission | 1 | 5 | 4 | 2 | 2 | 6 | à faire avec l'utilisateur |
 | B13 | Fichier `llms.txt` (description factuelle du service pour les assistants IA) | 2 | 1 | 2 | 1 | 1 | 3 | ✅ 23/11 (en ligne 24/11) |
 
 ## Fait

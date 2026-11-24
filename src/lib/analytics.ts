@@ -4,7 +4,7 @@
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
 
-export type AnalyticsEvent = "pageview" | "verify_start" | "verify_verdict" | "verify_prepare" | "signup" | "project_created" | "pay_click" | "paid" | "guide_cta";
+export type AnalyticsEvent = "pageview" | "verify_start" | "verify_verdict" | "verify_prepare" | "signup" | "project_created" | "pay_click" | "paid" | "guide_cta" | "lead";
 
 const clean = (s: string, max: number) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, max);
 

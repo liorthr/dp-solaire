@@ -8,7 +8,7 @@ import { SiteFooter, SiteHeader } from "@/components/seo/SiteChrome";
 
 export const metadata: Metadata = {
   title: "À propos de Permizy",
-  description: "Permizy aide particuliers et professionnels à préparer leurs dossiers de déclaration préalable et de permis de construire, à partir des sources officielles.",
+  description: "Permizy aide particuliers et professionnels à préparer déclarations préalables et permis de construire, depuis les sources officielles, dès 49 €.",
   alternates: { canonical: "/a-propos/" },
 };
 

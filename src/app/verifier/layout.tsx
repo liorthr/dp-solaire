@@ -4,7 +4,7 @@ import { GUIDES } from "@/data/seo/guides";
 
 export const metadata: Metadata = {
   title: { absolute: "Faut-il une déclaration préalable ? Vérification gratuite | Permizy" },
-  description: "Votre adresse et vos travaux : en une minute, sachez s'il faut une déclaration préalable ou un permis de construire, avec les règles de votre commune.",
+  description: "Votre adresse et vos travaux : en une minute, sachez s'il faut une déclaration préalable ou un permis de construire. Gratuit ; dossier dès 49 €.",
   alternates: { canonical: "/verifier/" },
 };
 

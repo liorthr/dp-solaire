@@ -26,3 +26,4 @@ Règle : uniquement des chiffres mesurés, avec date et source. « non disponibl
 |---|---|---|---|---|---|
 | 20/11/2026 | 20 | 18 | 0 | 0 | 6 (corrigé dans la session) |
 | 23/11/2026 | 23 | 21 | 0 | 0 | 1 (/verifier/, 67 car., accepté) |
+| 24/11/2026 | 41 | 39 | 0 | 0 | 1 (/verifier/, accepté ; 3 pages ville corrigées) |

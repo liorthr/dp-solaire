@@ -11,6 +11,11 @@ export const OFFERS = [
   { name: "Dossier solaire agricole", price: PRICES.AGRI },
 ];
 
+/** pages officielles de Permizy sur les réseaux sociaux : ne renseigner que des URL réelles fournies par l'éditeur */
+export const SOCIAL: { label: string; url: string }[] = [
+  // { label: "Facebook", url: "https://www.facebook.com/…" },
+];
+
 export const organizationLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -21,6 +26,7 @@ export const organizationLd = {
   vatID: "FR48109443754",
   foundingDate: "2026-09-02",
   address: { "@type": "PostalAddress", streetAddress: "47 rue Vivienne", postalCode: "75002", addressLocality: "Paris", addressCountry: "FR" },
+  ...(SOCIAL.length ? { sameAs: SOCIAL.map((x) => x.url) } : {}),
 };
 
 export const websiteLd = {

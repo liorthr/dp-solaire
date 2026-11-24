@@ -28,10 +28,9 @@ const HOME_FAQ = [
 ];
 
 const SOON = [
-  { title: "Piscine", desc: "Bassin, abri, plage" },
-  { title: "Abri, carport, pergola", desc: "Surface et hauteur" },
-  { title: "Clôture, portail", desc: "Selon votre commune" },
-  { title: "Maison neuve", desc: "Permis de construire, avec votre architecte", green: true },
+  { title: "Piscine", desc: "Les règles : notre guide", href: "/declaration-prealable-piscine/" },
+  { title: "Abri, carport, pergola", desc: "Les seuils : notre guide", href: "/pergola-carport-declaration-prealable/" },
+  { title: "Clôture, mur", desc: "Selon votre commune : notre guide", href: "/cloture-declaration-prealable/" },
 ];
 
 function HouseArt() {
@@ -137,14 +136,21 @@ export default function Landing() {
                   </span>
                 </Link>
               ))}
+              <Link href="/verifier/?w=extension&intent=pc" prefetch={false} data-track="home-maison-neuve" data-testid="home-maison-neuve" className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
+                <span className="self-start rounded-md bg-mint px-2 py-1 text-[11px] font-extrabold uppercase tracking-wider text-brand-600">Mise en relation</span>
+                <span>
+                  <b className="block text-lg leading-tight">Maison neuve</b>
+                  <span className="text-sm text-muted">Permis de construire avec un architecte partenaire</span>
+                </span>
+              </Link>
               {SOON.map((w) => (
-                <div key={w.title} className="flex min-h-44 flex-col justify-between rounded-3xl border border-dashed border-line p-5">
-                  <span className={`self-start rounded-md px-2 py-1 text-[11px] font-extrabold uppercase tracking-wider ${w.green ? "bg-mint text-brand-600" : "bg-sun-soft text-[#8a5200]"}`}>Bientôt</span>
+                <Link key={w.title} href={w.href} className="flex min-h-44 flex-col justify-between rounded-3xl border border-dashed border-line p-5 transition hover:border-brand-600">
+                  <span className="self-start rounded-md bg-sun-soft px-2 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#8a5200]">Dossier bientôt</span>
                   <span>
                     <b className="block text-lg leading-tight">{w.title}</b>
                     <span className="text-sm text-muted">{w.desc}</span>
                   </span>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

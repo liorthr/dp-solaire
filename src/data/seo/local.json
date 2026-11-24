@@ -1,0 +1,264 @@
+{
+  "fetchedAt": "2026-11-24",
+  "cities": [
+    {
+      "slug": "paris",
+      "name": "Paris",
+      "insee": "75056",
+      "mairie": {
+        "name": "Mairie - Paris - Hôtel-de-Ville",
+        "id": "34506f20-cf20-4c08-a9de-e56e680aa5ec",
+        "address": "29 rue de Rivoli, 75004 Paris",
+        "lat": 48.857019,
+        "lon": 2.352848,
+        "phone": "39 75",
+        "website": "https://www.paris.fr/",
+        "source": "https://lannuaire.service-public.gouv.fr/ile-de-france/paris/34506f20-cf20-4c08-a9de-e56e680aa5ec"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [
+          "PSMV_75056_A",
+          "PSMV_75056_B"
+        ],
+        "partition": "DU_75056",
+        "type": "PLU",
+        "title": "PARIS",
+        "id": "ab895285a1be6ca045127a6bb628cfaa",
+        "publication": "2026-06-23",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/ab895285a1be6ca045127a6bb628cfaa"
+      }
+    },
+    {
+      "slug": "marseille",
+      "name": "Marseille",
+      "insee": "13055",
+      "mairie": {
+        "name": "Mairie - Marseille",
+        "id": "c725dd63-a4a4-4b10-b87e-6295f95e123c",
+        "address": "Quai du Port, 13233 Marseille Cedex 20",
+        "lat": 43.2975977,
+        "lon": 5.3694272,
+        "phone": "30 13",
+        "website": "https://www.marseille.fr/",
+        "source": "https://lannuaire.service-public.gouv.fr/provence-alpes-cote-d-azur/bouches-du-rhone/c725dd63-a4a4-4b10-b87e-6295f95e123c"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [],
+        "partition": "DU_200054807_A",
+        "type": "PLUi",
+        "title": "PLUI AIX-MARSEILLE-PROVENCE",
+        "id": "3d0841039550457a0a87bb57879cdab4",
+        "publication": "2026-08-03",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/3d0841039550457a0a87bb57879cdab4"
+      }
+    },
+    {
+      "slug": "lyon",
+      "name": "Lyon",
+      "insee": "69123",
+      "mairie": {
+        "name": "Mairie - Lyon - Mairie centrale",
+        "id": "e9574875-e653-40e2-bba1-1f4fd55ddcd0",
+        "address": "Place de la Comédie, 69001 Lyon",
+        "lat": 45.7676905,
+        "lon": 4.8353706,
+        "phone": "04 72 10 30 30",
+        "website": "https://www.lyon.fr/",
+        "source": "https://lannuaire.service-public.gouv.fr/auvergne-rhone-alpes/rhone/e9574875-e653-40e2-bba1-1f4fd55ddcd0"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [],
+        "partition": "DU_200046977",
+        "type": "PLUi",
+        "title": "PLUI GRAND LYON LA METROPOLE",
+        "id": "d5cbf3109419689d1261ee3a03183224",
+        "publication": "2026-11-19",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/d5cbf3109419689d1261ee3a03183224"
+      }
+    },
+    {
+      "slug": "toulouse",
+      "name": "Toulouse",
+      "insee": "31555",
+      "mairie": {
+        "name": "Mairie - Toulouse",
+        "id": "f58cc559-cc0e-46c2-9b52-1af8c0d479e4",
+        "address": "1 place du Capitole, 31040 Toulouse Cedex 6",
+        "lat": 43.6040488,
+        "lon": 1.4430474,
+        "phone": "05 61 22 22 22",
+        "website": "https://metropole.toulouse.fr/",
+        "source": "https://lannuaire.service-public.gouv.fr/occitanie/haute-garonne/f58cc559-cc0e-46c2-9b52-1af8c0d479e4"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [
+          "PSMV_31555"
+        ],
+        "partition": "DU_243100518",
+        "type": "PLUi",
+        "title": "PLUI TOULOUSE METROPOLE",
+        "id": "e80befa51d0bc24c945e137f11dccfa7",
+        "publication": "2026-06-26",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/e80befa51d0bc24c945e137f11dccfa7"
+      }
+    },
+    {
+      "slug": "nice",
+      "name": "Nice",
+      "insee": "06088",
+      "mairie": {
+        "name": "Mairie - Nice",
+        "id": "53bcfa2d-22c7-4d3b-9365-1cb02ebb4a88",
+        "address": "5 rue de l'Hôtel-de-Ville, 06364 Nice",
+        "lat": 43.6961135864,
+        "lon": 7.27178192139,
+        "phone": "39 06",
+        "website": "https://www.nice.fr/fr/",
+        "source": "https://lannuaire.service-public.gouv.fr/provence-alpes-cote-d-azur/alpes-maritimes/53bcfa2d-22c7-4d3b-9365-1cb02ebb4a88"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [],
+        "partition": "DU_200030195",
+        "type": "PLUi",
+        "title": "PLUI METROPOLE NICE COTE D'AZUR",
+        "id": "9182e7f5d0c8c23c96dbf6d54afffaae",
+        "publication": "2026-09-24",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/9182e7f5d0c8c23c96dbf6d54afffaae"
+      }
+    },
+    {
+      "slug": "nantes",
+      "name": "Nantes",
+      "insee": "44109",
+      "mairie": {
+        "name": "Mairie - Nantes",
+        "id": "f7505b85-2cf2-4eb4-aeef-ccc21b1d99fd",
+        "address": "29 rue de Strasbourg, 44000 Nantes",
+        "lat": 47.2186317,
+        "lon": -1.5537651,
+        "phone": "02 40 41 90 00",
+        "website": "https://metropole.nantes.fr/",
+        "source": "https://lannuaire.service-public.gouv.fr/pays-de-la-loire/loire-atlantique/f7505b85-2cf2-4eb4-aeef-ccc21b1d99fd"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [],
+        "partition": "DU_244400404",
+        "type": "PLUi",
+        "title": "PLUI NANTES METROPOLE",
+        "id": "bbd773cd80bd547bd6f54cd06952eea1",
+        "publication": "2026-06-02",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/bbd773cd80bd547bd6f54cd06952eea1"
+      }
+    },
+    {
+      "slug": "montpellier",
+      "name": "Montpellier",
+      "insee": "34172",
+      "mairie": {
+        "name": "Mairie - Montpellier",
+        "id": "c9cbf271-dd63-4fd8-b1ea-c9beeae2de30",
+        "address": "1 place Georges-Frèche, 34000 Montpellier",
+        "lat": 43.5994487,
+        "lon": 3.896091,
+        "phone": "04 67 34 70 00",
+        "website": "https://www.montpellier.fr",
+        "source": "https://lannuaire.service-public.gouv.fr/occitanie/herault/c9cbf271-dd63-4fd8-b1ea-c9beeae2de30"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [],
+        "partition": "DU_243400017",
+        "type": "PLUi",
+        "title": "PLUI MONTPELLIER MEDITERRANEE METROPOLE",
+        "id": "61844df9ca09e5e15ae475c0ce872d19",
+        "publication": "2026-06-17",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/61844df9ca09e5e15ae475c0ce872d19"
+      }
+    },
+    {
+      "slug": "strasbourg",
+      "name": "Strasbourg",
+      "insee": "67482",
+      "mairie": {
+        "name": "Mairie - Strasbourg",
+        "id": "47e9c578-a04c-4bb3-a027-476a2b7fec97",
+        "address": "1 parc de l'Étoile, 67070 Strasbourg",
+        "lat": 48.5735804,
+        "lon": 7.75321,
+        "phone": "03 68 98 50 00",
+        "website": "https://www.strasbourg.eu/",
+        "source": "https://lannuaire.service-public.gouv.fr/grand-est/bas-rhin/47e9c578-a04c-4bb3-a027-476a2b7fec97"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [
+          "PSMV_67482"
+        ],
+        "partition": "DU_246700488",
+        "type": "PLUi",
+        "title": "PLUI EUROMETROPOLE DE STRASBOURG",
+        "id": "2d870e7b48a79705969dc2395dbb663d",
+        "publication": "2026-11-04",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/2d870e7b48a79705969dc2395dbb663d"
+      }
+    },
+    {
+      "slug": "bordeaux",
+      "name": "Bordeaux",
+      "insee": "33063",
+      "mairie": {
+        "name": "Mairie - Bordeaux",
+        "id": "ff97c4f1-b888-463b-8ca5-7b9f1b45e893",
+        "address": "Place Pey-Berland, 33000 Bordeaux",
+        "lat": 44.83802,
+        "lon": -0.579635,
+        "phone": "05 56 10 20 30",
+        "website": "https://www.bordeaux.fr",
+        "source": "https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/gironde/ff97c4f1-b888-463b-8ca5-7b9f1b45e893"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [],
+        "partition": "DU_243300316",
+        "type": "PLUi",
+        "title": "PLUI BORDEAUX METROPOLE",
+        "id": "0b6c6621184959caf3fa5b684f929657",
+        "publication": "2026-05-12",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/0b6c6621184959caf3fa5b684f929657"
+      }
+    },
+    {
+      "slug": "lille",
+      "name": "Lille",
+      "insee": "59350",
+      "mairie": {
+        "name": "Mairie - Lille",
+        "id": "9c49eb9b-dbfc-4674-acd4-6618b297ee2e",
+        "address": "Place Augustin-Laurent, 59000 Lille",
+        "lat": 50.630888,
+        "lon": 3.07086,
+        "phone": "03 20 49 50 00",
+        "website": "https://www.lille.fr/",
+        "source": "https://lannuaire.service-public.gouv.fr/hauts-de-france/nord/9c49eb9b-dbfc-4674-acd4-6618b297ee2e"
+      },
+      "plu": {
+        "rnu": false,
+        "psmv": [
+          "PSMV_59350"
+        ],
+        "partition": "DU_200093201",
+        "type": "PLUi",
+        "title": "PLUI METROPOLE EUROPEENNE DE LILLE",
+        "id": "a8af4fdf6122bab3268eab8e154e3161",
+        "publication": "2026-11-05",
+        "url": "https://www.geoportail-urbanisme.gouv.fr/document/by-id/a8af4fdf6122bab3268eab8e154e3161"
+      }
+    }
+  ]
+}

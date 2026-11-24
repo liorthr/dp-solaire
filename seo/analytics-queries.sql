@@ -23,3 +23,9 @@ group by 1 order by 2 desc;
 
 -- 5. Mobile / ordinateur
 select device, count(*) from analytics_events where event = 'pageview' and at > now() - interval '28 days' group by 1;
+
+-- Demandes de mise en relation (maison neuve → architecte partenaire), à lire avec la clé de service uniquement
+select created_at, full_name, email, phone, postcode, city, surface_m2, land, timing, status
+from public.leads order by created_at desc;
+-- Après transmission au partenaire : update public.leads set status = 'transmis' where id = <id>;
+-- Purge à 12 mois : delete from public.leads where created_at < now() - interval '12 months';
