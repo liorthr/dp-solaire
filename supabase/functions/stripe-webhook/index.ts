@@ -33,9 +33,13 @@ Deno.serve(async (req) => {
   const ref = s.client_reference_id ?? "";
   const [owner, project] = ref.split("__");
   if (!/^[0-9a-f-]{36}$/.test(owner ?? "") || !project) return new Response("référence absente", { status: 200 });
+  // conversion de devise par Stripe (carte étrangère) : on identifie l'achat sur le montant en euros d'origine
+  const conv = (s as unknown as { currency_conversion?: { amount_total?: number; source_currency?: string } }).currency_conversion;
+  const eurTotal = conv?.amount_total ?? s.amount_total ?? 0;
+  const match = KINDS[eurTotal];
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
   const { error } = await db.from("payments").upsert(
-    { owner, project_local_id: project, kind: KINDS[s.amount_total ?? 0]?.kind ?? "?", options: KINDS[s.amount_total ?? 0]?.options ?? [], amount: s.amount_total ?? 0, currency: s.currency ?? "eur", livemode: event.livemode, stripe_session: s.id },
+    { owner, project_local_id: project, kind: match?.kind ?? "?", options: match?.options ?? [], amount: eurTotal, currency: conv?.source_currency ?? s.currency ?? "eur", livemode: event.livemode, stripe_session: s.id },
     { onConflict: "stripe_session" },
   );
   if (error) return new Response(error.message, { status: 500 });

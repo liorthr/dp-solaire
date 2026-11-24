@@ -97,6 +97,11 @@ export function DossierTab({ b }: { b: ProjectBundle }) {
               <p className="mt-1 text-sm">
                 Corrigez {ev.blocking.length && cerfaMissing.length ? "les points en rouge et complétez le cerfa ci-dessus" : ev.blocking.length ? "les points en rouge ci-dessus (souvent les photos ou le photomontage)" : "le cerfa ci-dessus"} : vous paierez ensuite <b>{PRICES[kind]} €</b> TTC une seule fois, pour un dossier complet et prêt à déposer.
               </p>
+              {offersRacOption(p, kind) && (
+                <p className="mt-2 text-sm text-muted" data-testid="rac-upsell">
+                  ⚡ Option solaire : pack raccordement Enedis + Consuel (+{OPTION_PRICES.RAC} €), à ajouter sur la page de paiement.
+                </p>
+              )}
             </div>
           ) : paid === false ? (
             <div className="rounded-3xl border-2 border-brand-600 bg-mint p-5" data-testid="paywall">

@@ -43,9 +43,12 @@ async function photos(page: Page) {
   await expect(page.getByText(/Qualité correcte/).first()).toBeVisible({ timeout: 30_000 });
 }
 
-async function payWithTestCard(page: Page) {
-  await page.getByTestId("pay").click();
+async function payWithTestCard(page: Page, opts: { button?: string; withRac?: boolean; returnTab?: string } = {}) {
+  await page.getByTestId(opts.button ?? "pay").click();
   await page.waitForURL(/stripe\.com/, { timeout: 60_000 });
+  await page.locator("#cardNumber").waitFor({ timeout: 60_000 });
+  // option proposée par Stripe : « Ajouter » le pack raccordement
+  if (opts.withRac) await page.getByRole("button", { name: "Ajouter", exact: true }).click();
   await page.locator("#cardNumber").fill("4242424242424242");
   await page.locator("#cardExpiry").fill("12 / 34");
   await page.locator("#cardCvc").fill("123");
@@ -56,7 +59,7 @@ async function payWithTestCard(page: Page) {
   const link = page.locator("#enableStripePass");
   if (await link.isChecked().catch(() => false)) await link.uncheck({ force: true });
   await page.locator(".SubmitButton, button[type=submit]").first().click();
-  await page.waitForURL(/\/app\/dossier\/.*tab=dossier/, { timeout: 120_000 });
+  await page.waitForURL(new RegExp(`/app/dossier/.*tab=${opts.returnTab ?? "dossier"}`), { timeout: 120_000 });
 }
 
 test("1. particulier : accueil → verdict → inscription → dossier → paiement → téléchargement → dépôt → suivi → autre appareil", async ({ page, browser }) => {
@@ -93,7 +96,8 @@ test("1. particulier : accueil → verdict → inscription → dossier → paiem
   await page.fill("#cg-birthPlace", "Amiens");
   await page.getByTestId("cerfa-save").click();
   await expect(page.getByTestId("paywall")).toContainText("49");
-  await payWithTestCard(page);
+  await expect(page.getByTestId("rac-upsell")).toContainText("39");
+  await payWithTestCard(page, { withRac: true });
   await page.getByTestId("generate").click();
   await expect(page.getByTestId("downloads")).toBeVisible({ timeout: 180_000 });
   const [pdf] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-pdf").click()]);
@@ -110,6 +114,11 @@ test("1. particulier : accueil → verdict → inscription → dossier → paiem
   await page.getByTestId("homeowner-deposited").click();
   await expect(page.getByTestId("key-dates")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("sync-state")).toContainText("Sauvegardé", { timeout: 60_000 });
+  // pack raccordement acheté avec le dossier : génération débloquée
+  await page.getByTestId("step-raccordement").click();
+  await expect(page.getByTestId("generate-rac")).toBeVisible({ timeout: 30_000 });
+  await page.getByTestId("generate-rac").click();
+  await expect(page.getByTestId("rac-downloads")).toBeVisible({ timeout: 120_000 });
   // autre appareil : connexion, le dossier déposé est là
   const other = await browser.newPage();
   await other.goto(`${BASE}/connexion/`);
@@ -149,6 +158,11 @@ test("2. professionnel : inscription → dossier client solaire → raccordement
   await page.getByTestId("pdl").fill("12345678901234");
   await page.getByTestId("pdl").blur();
   await expect(page.getByTestId("grid-domain")).toContainText("jusqu'à 36 kVA");
+  // pack non acheté : offre à 39 €, puis achat du pack seul et génération
+  await expect(page.getByTestId("rac-offer")).toContainText("39");
+  await expect(page.getByTestId("sync-state")).toContainText("Sauvegardé", { timeout: 60_000 });
+  await payWithTestCard(page, { button: "pay-rac", returnTab: "raccordement" });
+  await page.getByRole("tab", { name: "Raccordement & Consuel" }).click();
   await page.getByTestId("generate-rac").click();
   await expect(page.getByTestId("rac-downloads")).toBeVisible({ timeout: 120_000 });
   await page.getByRole("tab", { name: "Dossier" }).click();
@@ -185,6 +199,7 @@ test("3. agricole : carte de l'accueil → inscription pro → EARL → prix 239
   await expect(page.getByTestId("grid-domain")).toBeVisible();
   await page.getByRole("tab", { name: "Dossier" }).click();
   await expect(page.getByTestId("paywall")).toContainText("239");
+  await expect(page.getByTestId("rac-upsell")).toBeVisible();
   await expect(page.getByTestId("sync-state")).toContainText("Sauvegardé", { timeout: 60_000 });
   expect(errors, errors.join("\n")).toEqual([]);
 });
