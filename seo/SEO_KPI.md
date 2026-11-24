@@ -11,6 +11,7 @@ Règle : uniquement des chiffres mesurés, avec date et source. « non disponibl
 | Période | Vérifications lancées | Dossiers créés | Paiements | Source |
 |---|---|---|---|---|
 | 20/11/2026 | mesure en place (début de collecte) | — | — | Supabase `analytics_events`, requêtes `seo/analytics-queries.sql` |
+| 20 au 23/11/2026 | 0 (34 pages vues, accès direct sauf 1 tiktok.com) | 0 | 0 | Supabase `analytics_events` |
 
 ## Lighthouse (mobile, site en ligne)
 | Date | Page | Perf. | Access. | Bonnes pratiques | SEO | LCP | TBT | CLS |
@@ -24,3 +25,4 @@ Règle : uniquement des chiffres mesurés, avec date et source. « non disponibl
 | Date | Pages 200 | Indexables | Orphelines | Liens cassés | Titles > 65 car. |
 |---|---|---|---|---|---|
 | 20/11/2026 | 20 | 18 | 0 | 0 | 6 (corrigé dans la session) |
+| 23/11/2026 | 23 | 21 | 0 | 0 | 1 (/verifier/, 67 car., accepté) |

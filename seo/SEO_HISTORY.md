@@ -2,6 +2,21 @@
 
 Chaque session : date, actions, pages, tests, déploiement, mesures, hypothèses, prochaines actions. Le plus récent en haut.
 
+## Session 2 : 23-24/11/2026
+**Audit différentiel** : 23 pages en 200, 0 orpheline, 0 lien cassé ; seul title > 65 car. : `/verifier/` (67, accepté). Audience (Supabase, 20 au 23/11) : 34 pages vues, quasi toutes en accès direct (tests et vérifications internes probables), 1 venue de tiktok.com, 0 événement de conversion : volume trop faible pour conclure. Search Console : export non reçu.
+
+**Actions**
+- B03 : encart « Et chez vous, que dit la règle ? » dans les guides (`src/components/seo/GuideQuickCheck.tsx`) : adresse (BAN) → `/verifier/?w=…` avec l'adresse reprise (saute l'étape adresse) ; choix des travaux sur les guides génériques ; événement `guide_cta`. Le guide agricole garde son parcours professionnel.
+- B04 : pilier `/permis-de-construire-maison/` (seuils, cerfa 13406/13409, pièces PCMI, architecte 150 m² / 800 m² agricole, délai 2 mois / 3 mois, exemplaires, taxe d'aménagement) ; maillage depuis l'extension et le pilier DP.
+- B05 : guide `/refus-declaration-prealable/` relu sur service-public F17578 (vérifiée le 22/10/2026) : décisions possibles, retrait 3 mois, recours gracieux 1 mois, hiérarchique (commune sans PLU), contentieux 2 mois, Rapo auprès du préfet de région si avis défavorable de l'ABF, Télérecours citoyens.
+- B13 : `public/llms.txt` (description factuelle, tarifs, liste des 16 guides) + test qui échoue si un guide y manque.
+- B10 : infographies verticales pour mobile (`*-mobile.svg`, servies par `<picture>` sous 640 px).
+
+**Tests** : 119 unitaires, 21 E2E + 4 nouveaux (`e2e/seo.spec.ts`), tsc, eslint.
+**Déploiement** : NON effectué, connexion Hostinger refusée (réauthentification nécessaire). Build de production prêt (commit 11dbb79).
+
+**Prochaine session** : déployer puis vérifier en ligne (crawl + Lighthouse : surveiller le poids du JavaScript ajouté par l'autocomplétion sur les guides) ; B06 checklist PDF ; B07 exemples visuels DP1/DP2/DP4/DP6 ; vidéo « Pompe à chaleur / climatisation » ; lecture de l'audience.
+
 ## Session 1 bis : 20/11/2026 (déblocages)
 **Décisions de l'utilisateur** : export Search Console fourni par l'utilisateur ; outil d'audience gratuit au choix ; identité de l'éditeur communiquée ; voix off naturelle et gratuite.
 
