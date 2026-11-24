@@ -73,8 +73,22 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
               {unread > 0 && <span className="absolute right-1 top-1 h-4 min-w-4 rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">{unread}</span>}
             </Link>
             {isCloudSession(session) && (
-              <span className={cn("hidden rounded-full px-2 py-0.5 text-xs font-medium sm:inline", sync === "ok" ? "bg-mint text-brand-700" : sync === "pending" ? "bg-sun-soft text-[#8a5a00]" : "bg-red-50 text-red-800")} aria-live="polite" data-testid="sync-state">
-                {sync === "ok" ? "✓ Sauvegardé en ligne" : sync === "pending" ? "Sauvegarde…" : sync === "offline" ? "Hors ligne : sauvegarde en attente" : "Sauvegarde en attente (nouvel essai)"}
+              <span className={cn("whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs", sync === "ok" ? "bg-mint text-brand-700" : sync === "pending" ? "bg-sun-soft text-[#8a5a00]" : "bg-red-50 text-red-800")} aria-live="polite" data-testid="sync-state">
+                {sync === "ok" ? (
+                  <>
+                    ✓ Sauvegardé<span className="hidden sm:inline"> en ligne</span>
+                  </>
+                ) : sync === "pending" ? (
+                  "Sauvegarde…"
+                ) : sync === "offline" ? (
+                  <>
+                    Hors ligne<span className="hidden sm:inline"> : sauvegarde en attente</span>
+                  </>
+                ) : (
+                  <>
+                    En attente<span className="hidden sm:inline"> (nouvel essai)</span>
+                  </>
+                )}
               </span>
             )}
             <span className="hidden text-sm sm:inline">{session.user.fullName}</span>
