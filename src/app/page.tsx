@@ -77,10 +77,10 @@ export default function Landing() {
       <SiteHeader />
 
       <main>
-        <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-6 sm:px-10 lg:grid-cols-[1.15fr_.85fr]">
+        <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-6 sm:px-10 lg:grid-cols-[1.2fr_.8fr] lg:gap-14">
           <div className="min-w-0">
             <h1 className="inline-flex items-center gap-2 rounded-full bg-mint px-3.5 py-2 text-xs font-bold text-brand-600 sm:text-sm"><span aria-hidden>●</span> Déclaration préalable et permis de construire en ligne</h1>
-            <p className="mt-5 text-[42px] font-extrabold leading-[1.02] sm:text-6xl lg:text-[68px] xl:text-[76px]">
+            <p className="mt-5 text-[42px] font-extrabold leading-[1.04] sm:text-6xl lg:text-[54px] xl:text-[62px]">
               Vos travaux.
               <br />
               Le <span className="highlight text-brand-600">oui</span> de la mairie.
@@ -119,6 +119,13 @@ export default function Landing() {
                 <span>
                   <b className="mt-4 block text-lg leading-tight">Solaire agricole</b>
                   <span className="text-sm text-muted">Hangar, stabulation : DP, raccordement fortes puissances</span>
+                </span>
+              </Link>
+              <Link href="/verifier/?w=extension&intent=pc" prefetch={false} data-testid="home-permis" className="flex min-h-44 flex-col justify-between rounded-3xl border border-line bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
+                <WorksIcon works="extension" className="h-14 w-14" />
+                <span>
+                  <b className="mt-4 block text-lg leading-tight">Demande de permis de construire</b>
+                  <span className="text-sm text-muted">Extension, garage, véranda : cerfa 13406 et plans</span>
                 </span>
               </Link>
               {AVAILABLE.map((w) => (

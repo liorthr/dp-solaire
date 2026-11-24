@@ -226,3 +226,49 @@ test("5. pages publiques : statut, titre, aucune erreur JavaScript", async ({ pa
   }
   expect(errors, errors.join("\n")).toEqual([]);
 });
+
+test("6. demande de permis de construire : accueil → type de projet → verdict → inscription → dossier → paiement 149 € → pièces PCMI", async ({ page }) => {
+  test.setTimeout(420_000);
+  const errors = watchErrors(page);
+  await page.goto(`${BASE}/`);
+  await page.selectOption("[data-testid=home-works]", "permis");
+  await page.fill("#address", ADDRESS);
+  await page.locator("#address-list button").first().click({ timeout: 30_000 });
+  await page.getByTestId("home-check").click();
+  await page.waitForURL(/intent=pc/);
+  await page.getByTestId("quick-answer-pcProject").filter({ hasText: "Agrandir ma maison" }).click();
+  await page.getByTestId("quick-answer-extKind").first().click();
+  await page.getByTestId("quick-number-extAreaM2").fill("45");
+  await page.getByTestId("quick-number-ok-extAreaM2").click();
+  await page.getByTestId("quick-number-extExistingM2").fill("95");
+  await page.getByTestId("quick-number-ok-extExistingM2").click();
+  await page.getByTestId("quick-answer-visible").first().click();
+  await page.getByTestId("quick-answer-copropriete").first().click();
+  await expect(page.getByTestId("verdict")).toContainText("permis de construire", { timeout: 90_000 });
+  await page.getByTestId("quick-prepare").click();
+  await page.waitForURL(/\/connexion\/.*next=draft/);
+  await signup(page, "permis", false);
+  await page.waitForURL(/\/app\/nouveau\/\?draft=1/, { timeout: 60_000 });
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await photos(page);
+  await page.getByTestId("create-project").click();
+  await page.waitForURL(/\/app\/dossier\//, { timeout: 180_000 });
+  await page.getByTestId("step-photos").click();
+  await expect(page.getByTestId("insertion-editor")).toBeVisible({ timeout: 60_000 });
+  await page.getByTestId("save-insertion").click();
+  await page.getByTestId("step-dossier").click();
+  await expect(page.getByTestId("cerfa-completion")).toBeVisible({ timeout: 30_000 });
+  await page.fill("#cg-birthDate", "1985-03-14");
+  await page.fill("#cg-birthPlace", "Amiens");
+  await page.getByTestId("cerfa-save").click();
+  await expect(page.getByTestId("paywall")).toContainText("149");
+  await expect(page.getByTestId("rac-upsell")).toHaveCount(0); // pas d'option solaire pour un agrandissement
+  await payWithTestCard(page);
+  await page.getByTestId("generate").click();
+  await expect(page.getByTestId("downloads")).toBeVisible({ timeout: 180_000 });
+  const [zipDl] = await Promise.all([page.waitForEvent("download"), page.getByTestId("download-zip").click()]);
+  const names = Object.keys((await JSZip.loadAsync(readFileSync((await zipDl.path())!))).files).map((n) => n.split("/").pop());
+  for (const f of ["PCMI1_plan_de_situation.pdf", "PCMI2_plan_de_masse.pdf", "PCMI5_plan_des_facades_et_toitures.pdf", "Cerfa_13406-17_demande_permis_de_construire.pdf"]) expect(names).toContain(f);
+  expect(errors, errors.join("\n")).toEqual([]);
+});

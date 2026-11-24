@@ -1,5 +1,4 @@
 mot_cle,intention,pertinence_1_5,potentiel_conversion_1_5,concurrence_estimee,saisonnalite_estimee,page_cible,statut,volume,source_volume
-déclaration préalable de travaux,informationnelle,5,3,forte (service-public, médias travaux),stable,/declaration-prealable-travaux/,page créée 20/11/2026,non mesuré,estimation
 déclaration préalable en ligne,transactionnelle,5,5,moyenne,stable,/,optimisée,non mesuré,estimation
 prix déclaration préalable,commerciale,5,5,moyenne,stable,/tarifs/,existante,non mesuré,estimation
 faire une déclaration préalable soi-même,informationnelle,4,4,moyenne,stable,/declaration-prealable-travaux/,section dédiée,non mesuré,estimation
@@ -15,10 +14,25 @@ autorisation velux,informationnelle,4,3,faible,stable,/declaration-prealable-fen
 extension maison 20 m² 40 m²,informationnelle,5,4,forte,printemps,/permis-de-construire-extension-garage-veranda/,infographie ajoutée,non mesuré,estimation
 permis de construire garage,informationnelle,4,4,forte,printemps,/permis-de-construire-extension-garage-veranda/,existante,non mesuré,estimation
 architecte obligatoire extension maison,informationnelle,4,3,moyenne,stable,à créer (pilier permis),backlog B04,non mesuré,estimation
-permis de construire en ligne,transactionnelle,5,5,moyenne,stable,à créer (pilier permis),backlog B04,non mesuré,estimation
 délai réponse mairie déclaration préalable,informationnelle,4,2,moyenne,stable,/delai-instruction-declaration-prealable/,existante,non mesuré,estimation
 refus déclaration préalable que faire,informationnelle,4,2,faible,stable,à créer,backlog B05,non mesuré,estimation
 panneaux solaires hangar agricole autorisation,transactionnelle,4,5,faible,stable,/panneaux-solaires-agricoles-hangar/,existante,non mesuré,estimation
 raccordement enedis consuel panneaux solaires,informationnelle,4,3,moyenne,stable,/raccordement-enedis-consuel-panneaux-solaires/,existante,non mesuré,estimation
 panneaux solaires au sol autorisation,informationnelle,4,3,faible,printemps,/declaration-prealable-ombriere-panneaux-au-sol/,existante,non mesuré,estimation
 travaux monument historique abf,informationnelle,4,3,moyenne,stable,/travaux-abords-monument-historique-abf/,existante,non mesuré,estimation
+permis de construire,informationnelle,5,4,faible (Keyword Planner),stable,/permis-de-construire-maison/,title retravaillé 24/11/2026,10 k – 100 k,Google Keyword Planner FR 24/11/2026
+demande de permis de construire,transactionnelle,5,5,faible (Keyword Planner),stable,/permis-de-construire-maison/ + parcours /verifier/?intent=pc,parcours créé 24/11/2026,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+cerfa permis de construire,navigationnelle,5,4,faible (Keyword Planner),stable,/cerfa-permis-de-construire/,page créée 24/11/2026,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+permis de construire en ligne,transactionnelle,5,5,moyenne (Keyword Planner),stable,/permis-de-construire-maison/ (section dépôt en ligne),section ajoutée,100 – 1 k,Google Keyword Planner FR 24/11/2026
+demande de permis de construire en ligne,transactionnelle,5,5,faible (Keyword Planner),stable,/permis-de-construire-maison/,section ajoutée,100 – 1 k,Google Keyword Planner FR 24/11/2026
+dépôt permis de construire en ligne,transactionnelle,4,4,faible (Keyword Planner),stable,/permis-de-construire-maison/,section ajoutée,100 – 1 k,Google Keyword Planner FR 24/11/2026
+déposer un permis de construire,transactionnelle,4,4,faible (Keyword Planner),stable,/permis-de-construire-maison/,existante,100 – 1 k,Google Keyword Planner FR 24/11/2026
+dossier permis de construire,transactionnelle,4,5,moyenne (Keyword Planner),stable,/permis-de-construire-maison/,existante,100 – 1 k,Google Keyword Planner FR 24/11/2026
+permis de construire maison individuelle,informationnelle,5,4,faible (Keyword Planner),stable,/permis-de-construire-maison/,existante,100 – 1 k,Google Keyword Planner FR 24/11/2026
+déclaration de travaux mairie,informationnelle,5,4,faible (Keyword Planner),en hausse (+900 % sur 3 mois et sur 1 an),/declaration-prealable-travaux/,synonymes ajoutés 24/11/2026,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+déclaration de travaux,informationnelle,5,4,faible (Keyword Planner),stable (-90 % sur 1 an),/declaration-prealable-travaux/,synonymes ajoutés,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+demande de travaux,informationnelle,4,3,faible (Keyword Planner),en hausse (+900 % sur 3 mois),/declaration-prealable-travaux/,synonymes ajoutés,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+demande de travaux mairie,informationnelle,4,4,faible (Keyword Planner),en baisse (-90 % sur 3 mois),/declaration-prealable-travaux/,synonymes ajoutés,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+demande préalable de travaux,informationnelle,4,4,faible (Keyword Planner),stable,/declaration-prealable-travaux/,existante,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+autorisation de travaux,informationnelle,4,3,faible (Keyword Planner),stable (-90 % sur 1 an),/declaration-prealable-travaux/,synonymes ajoutés,1 k – 10 k,Google Keyword Planner FR 24/11/2026
+déclaration préalable de travaux,informationnelle,5,4,faible (Keyword Planner),stable (-90 % sur 1 an),/declaration-prealable-travaux/,existante,1 k – 10 k,Google Keyword Planner FR 24/11/2026

@@ -27,8 +27,21 @@ interface Question {
   number?: { unit: string; min: number; max: number; placeholder: string };
 }
 
-function questionsFor(works: WorksType): Question[] {
+const AGRI_SIGNUP = `/connexion/?mode=signup&pro=1&next=${encodeURIComponent("/app/nouveau/?works=pv_agri")}`;
+
+function questionsFor(works: WorksType, intentPc = false): Question[] {
   const qs: Question[] = [];
+  if (intentPc)
+    qs.push({
+      id: "pcProject",
+      title: "Quel est votre projet ?",
+      hint: "Le permis de construire concerne les projets plus importants qu'une déclaration préalable. On vérifie lequel s'applique chez vous.",
+      options: [
+        { label: "Agrandir ma maison", sub: "extension, garage ou véranda accolés", value: "extension" },
+        { label: "Construire une maison neuve", sub: "sur un terrain", value: "maison_neuve" },
+        { label: "Un bâtiment agricole", sub: "hangar, avec ou sans panneaux solaires", value: "agricole" },
+      ],
+    });
   if (works === "extension") {
     qs.push({
       id: "extKind",
@@ -162,10 +175,11 @@ function Verifier() {
     const w = sp.get("w");
     return WORKS.some((x) => x.id === w) ? (w as WorksType) : undefined;
   });
+  const [intentPc, setIntentPc] = useState(() => sp.get("intent") === "pc");
   const [address, setAddress] = useState<AddressResult>();
   const [answers, setAnswers] = useState<QuickAnswers>({});
   const [qi, setQi] = useState(0);
-  const [stage, setStage] = useState<"works" | "address" | "questions" | "analyse" | "verdict">("works");
+  const [stage, setStage] = useState<"works" | "address" | "questions" | "analyse" | "verdict" | "pc_neuf">("works");
   const [progress, setProgress] = useState<Partial<Record<StepId, string>>>({});
   const [verdict, setVerdict] = useState<QuickVerdict>();
   const [enr, setEnr] = useState<EnrichmentResult>();
@@ -176,9 +190,10 @@ function Verifier() {
     try {
       const raw = sessionStorage.getItem(QUICK_KEY);
       if (raw) {
-        const q = JSON.parse(raw) as { works?: WorksType; address?: AddressResult };
+        const q = JSON.parse(raw) as { works?: WorksType; address?: AddressResult; intent?: "pc" };
         sessionStorage.removeItem(QUICK_KEY);
         if (q.works) setWorks(q.works);
+        if (q.intent === "pc") setIntentPc(true);
         if (q.address) setAddress(q.address);
         setStage(q.address ? "questions" : q.works ? "address" : "works");
         return;
@@ -190,7 +205,7 @@ function Verifier() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const qs = useMemo(() => (works ? questionsFor(works) : []), [works]);
+  const qs = useMemo(() => (works ? questionsFor(works, intentPc && works === "extension") : []), [works, intentPc]);
   const total = 2 + qs.length;
 
   const analyse = async (a: QuickAnswers) => {
@@ -211,7 +226,7 @@ function Verifier() {
 
   const prepare = () => {
     track("verify_prepare", works);
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ works, address, answers, site: enr && "site" in enr ? (enr as { site: unknown }).site : undefined }));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ works, intent: intentPc ? "pc" : undefined, address, answers, site: enr && "site" in enr ? (enr as { site: unknown }).site : undefined }));
     // la simulation est le parcours particulier : une session de démo « installateur » restée ouverte ne doit pas l'emporter
     const s = currentSession();
     router.push(s && (isHomeowner(s) || isCloudSession(s)) ? "/app/nouveau/?draft=1" : "/connexion/?mode=signup&next=draft");
@@ -254,6 +269,9 @@ function Verifier() {
     const pick = (v: string | boolean | number | undefined) => {
       const a = { ...answers, [q.id]: v };
       setAnswers(a);
+      // parcours permis : maison neuve (pas encore couverte) ou bâtiment agricole (parcours professionnel)
+      if (q.id === "pcProject" && v === "maison_neuve") return setStage("pc_neuf");
+      if (q.id === "pcProject" && v === "agricole") return router.push(AGRI_SIGNUP);
       if (qi + 1 < qs.length) setQi(qi + 1);
       else analyse(a);
     };
@@ -271,6 +289,26 @@ function Verifier() {
       </Phone>
     );
   }
+
+  if (stage === "pc_neuf")
+    return (
+      <Phone back={() => setStage("questions")}>
+        <h1 className="text-3xl font-extrabold leading-tight">Maison neuve : le permis de construire</h1>
+        <Bubble icon="🏠">Pour construire une maison neuve, il faut un permis de construire (cerfa 13406*17). Permizy ne prépare pas encore ce dossier : voici l&apos;essentiel pour avancer.</Bubble>
+        <ul className="mt-5 space-y-2 text-base" data-testid="pc-neuf">
+          <li className="rounded-2xl bg-white p-4">Délai d&apos;instruction : <b>2 mois</b> pour une maison individuelle, 3 mois en secteur protégé.</li>
+          <li className="rounded-2xl bg-white p-4">Architecte <b>obligatoire</b> si la surface de plancher dépasse 150 m².</li>
+          <li className="rounded-2xl bg-white p-4">Dépôt en ligne possible ; sur papier, 4 dossiers complets.</li>
+        </ul>
+        <p className="mt-3 text-xs text-muted">Source : service-public.fr, fiche F1986.</p>
+        <div className="mt-auto space-y-3 pt-8">
+          <Link href="/permis-de-construire-maison/" className="block w-full rounded-full bg-ink py-4 text-center text-lg font-bold text-white">Lire le guide du permis de construire</Link>
+          <button onClick={() => { setAnswers({ ...answers, pcProject: "extension" }); setQi(1); setStage("questions"); }} className="block w-full rounded-full border-2 border-ink py-4 text-center text-lg font-bold">
+            C&apos;est plutôt un agrandissement
+          </button>
+        </div>
+      </Phone>
+    );
 
   if (stage === "analyse")
     return (

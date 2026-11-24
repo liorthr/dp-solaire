@@ -115,7 +115,7 @@ export default async function GuidePage({ params }: Props) {
 
           {g.cta.href.startsWith("/verifier/") ? (
             <section className="mt-12">
-              <GuideQuickCheck works={g.cta.href.includes("?w=") ? g.works : undefined} guide={g.slug} />
+              <GuideQuickCheck works={g.cta.href.includes("?w=") ? g.works : undefined} guide={g.slug} intent={g.cta.href.includes("intent=pc") ? "pc" : undefined} />
             </section>
           ) : (
             <section className="mt-12 rounded-3xl bg-ink p-6 text-white sm:p-8">

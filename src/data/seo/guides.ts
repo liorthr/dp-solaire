@@ -55,7 +55,7 @@ const DP_APRES: GuideSection = {
 export const GUIDES: Guide[] = [
   {
     slug: "declaration-prealable-travaux",
-    title: "Déclaration préalable de travaux : le guide complet",
+    title: "Déclaration préalable de travaux : demande en mairie",
     description: "Quels travaux sont concernés, cerfa 16702, pièces DP1 à DP8, dépôt en mairie, délai d'un mois, affichage : tout sur la déclaration préalable de travaux.",
     h1: "Déclaration préalable de travaux : le guide complet",
     lead: "La déclaration préalable est l'autorisation d'urbanisme demandée à la mairie pour des travaux de faible importance, en particulier ceux qui modifient l'aspect extérieur d'une maison. Voici quand elle est obligatoire, comment la remplir, la déposer et ce qui se passe ensuite.",
@@ -63,6 +63,10 @@ export const GUIDES: Guide[] = [
     price: { label: "Dossier de déclaration préalable", amount: 49 },
     cta: { label: "Vérifier gratuitement mon projet", href: "/verifier/" },
     sections: [
+      {
+        h2: "Déclaration de travaux, demande de travaux, autorisation de travaux : de quoi parle-t-on ?",
+        p: ["Dans le langage courant, on parle de « déclaration de travaux », de « demande de travaux en mairie » ou d'« autorisation de travaux ». Pour une maison, il s'agit en pratique de l'une des deux autorisations d'urbanisme : la déclaration préalable (cerfa 16702*03) pour les travaux de faible importance, ou le permis de construire (cerfa 13406*17) pour les projets plus importants. Les deux se déposent à la mairie de la commune du terrain, en ligne ou sur papier."],
+      },
       {
         h2: "Pour quels travaux ?",
         p: ["Les travaux qui modifient l'aspect extérieur d'un bâtiment existant relèvent de la déclaration préalable (article R*421-17 a du code de l'urbanisme), de même que certaines petites constructions et extensions. Les cas les plus fréquents :"],
@@ -116,6 +120,7 @@ export const GUIDES: Guide[] = [
       },
     ],
     faq: [
+      { q: "Qu'est-ce qu'une déclaration de travaux en mairie ?", a: "C'est le nom courant de la déclaration préalable de travaux : l'autorisation d'urbanisme demandée à la mairie, sur le cerfa 16702*03, pour les travaux de faible importance. Les projets plus importants relèvent du permis de construire." },
       { q: "Qu'est-ce qu'une déclaration préalable de travaux ?", a: "C'est l'autorisation d'urbanisme à demander à la mairie avant des travaux de faible importance, notamment ceux qui modifient l'aspect extérieur d'une maison (article R*421-17 du code de l'urbanisme)." },
       { q: "Combien de temps pour obtenir une déclaration préalable ?", a: "1 mois à compter du dépôt du dossier complet, 2 mois en général en secteur protégé. Sans réponse, la non-opposition est tacite (service-public, F17578)." },
       { q: "Peut-on faire une déclaration préalable soi-même ?", a: "Oui : le dépôt en mairie est gratuit et le déclarant peut remplir lui-même le cerfa 16702*03 et préparer les pièces." },
@@ -660,13 +665,13 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "permis-de-construire-maison",
-    title: "Permis de construire maison : pièces, délais, architecte",
-    description: "Permis de construire d'une maison ou d'une extension : quand il est obligatoire, cerfa 13406, pièces PCMI, délai de 2 mois, architecte au-delà de 150 m².",
-    h1: "Permis de construire pour une maison : le guide",
+    title: "Permis de construire : demande, cerfa, délai, en ligne",
+    description: "Demande de permis de construire pour une maison ou une extension : quand il est obligatoire, cerfa 13406, pièces, dépôt en ligne, délai de 2 mois, architecte.",
+    h1: "Permis de construire : comment faire la demande",
     lead: "Le permis de construire est l'autorisation exigée pour les projets plus importants qu'une déclaration préalable : grande extension, garage ou véranda au-delà des seuils, construction neuve. Voici quand il faut le demander, ce que contient le dossier et combien de temps attendre.",
     works: "extension",
     price: { label: "Dossier de permis de construire", amount: 149 },
-    cta: { label: "Vérifier mon projet d'agrandissement", href: "/verifier/?w=extension" },
+    cta: { label: "Préparer ma demande de permis", href: "/verifier/?w=extension&intent=pc" },
     sections: [
       {
         h2: "Quand faut-il un permis de construire ?",
@@ -685,7 +690,7 @@ export const GUIDES: Guide[] = [
       {
         h2: "Le formulaire et les pièces",
         list: [
-          "Cerfa 13406*17 pour une maison individuelle et ses annexes (extension, garage, véranda) ; cerfa 13409 pour les autres constructions.",
+          "Cerfa 13406*17 pour une maison individuelle et ses annexes (extension, garage, véranda) ; cerfa 13409*17 pour les autres constructions (service-public R11637 et R20835).",
           "PCMI1 plan de situation, PCMI2 plan de masse, PCMI3 plan en coupe, PCMI4 notice, PCMI5 plans des façades et toitures, PCMI6 document graphique d'insertion, PCMI7 et PCMI8 photographies proche et lointaine.",
           "Attestation de prise en compte de la réglementation environnementale (PCMI14-1) lorsqu'elle est exigée : elle est établie par un professionnel.",
         ],
@@ -695,11 +700,22 @@ export const GUIDES: Guide[] = [
         p: ["Oui si la surface de plancher dépasse 150 m² après travaux (service-public F1986). En dessous, le particulier qui construit pour lui-même peut établir son dossier sans architecte. Pour un bâtiment agricole, le seuil est de 800 m² de surface de plancher."],
       },
       {
+        h2: "Déposer son permis de construire en ligne",
+        list: [
+          "La demande peut être envoyée par internet, sur le téléservice de la commune ou via le service national d'assistance aux demandes d'autorisation d'urbanisme (AD'AU).",
+          "L'accusé de réception électronique vaut récépissé : il indique le numéro d'enregistrement du dossier et la date à partir de laquelle les travaux pourront commencer.",
+          "Une société (personne morale) doit obligatoirement déposer par internet si le projet se situe dans une commune de plus de 3 500 habitants.",
+        ],
+        note: ["Source : service-public F1986 (vérifiée le 13/02/2026)."],
+      },
+      {
         h2: "Dépôt et délai",
         list: [
-          "Délai d'instruction : 2 mois pour une maison individuelle, 3 mois en secteur protégé (service-public F1986).",
+          "Délai d'instruction : 2 mois pour une maison individuelle (3 mois pour les autres projets) ; en secteur protégé, 3 mois pour une maison individuelle (service-public F1986).",
+          "Dossier incomplet : la mairie réclame les pièces manquantes dans le mois ; vous avez 3 mois pour les fournir, et le délai ne démarre qu'une fois le dossier complet.",
           "Dépôt papier : 4 dossiers complets, plus 5 exemplaires supplémentaires des plans de situation, de masse et en coupe ; un exemplaire de plus en site patrimonial remarquable ou aux abords d'un monument historique (cerfa 13406, cadre 8).",
           "Dans les 90 jours suivant l'achèvement : déclaration des éléments nécessaires au calcul de la taxe d'aménagement (cerfa 13406, cadre 8).",
+          "Avant les travaux : déclaration d'ouverture de chantier ; le permis est valable 3 ans ; à la fin, déclaration attestant l'achèvement et la conformité des travaux (DAACT).",
         ],
       },
       {
@@ -709,12 +725,13 @@ export const GUIDES: Guide[] = [
     ],
     faq: [
       { q: "Quand faut-il un permis de construire pour une extension ?", a: "En zone urbaine d'un PLU, au-delà de 40 m² créés, ou au-delà de 20 m² si la surface totale dépasse alors 150 m² ; ailleurs, au-delà de 20 m² (service-public, F36777)." },
-      { q: "Quel est le délai d'un permis de construire de maison individuelle ?", a: "2 mois, porté à 3 mois en secteur protégé (service-public, F1986)." },
+      { q: "Quel est le délai d'un permis de construire de maison individuelle ?", a: "2 mois à compter du dépôt du dossier complet, 3 mois en secteur protégé (service-public, F1986)." },
+      { q: "Peut-on faire sa demande de permis de construire en ligne ?", a: "Oui : la demande peut être envoyée par internet ; l'accusé de réception électronique vaut récépissé. C'est obligatoire pour une société dans les communes de plus de 3 500 habitants (service-public, F1986)." },
       { q: "Faut-il un architecte pour un permis de construire ?", a: "Oui si la surface de plancher dépasse 150 m² après travaux ; 800 m² pour un bâtiment agricole (service-public, F1986)." },
       { q: "Combien coûte le dossier avec Permizy ?", a: "149 € TTC pour un permis de construire, payés une fois au téléchargement du dossier complet." },
     ],
     sources: [{ label: "Service-public : permis de construire (F1986)", url: SP("F1986") }, { label: "Service-public : agrandissement (F36777)", url: SP("F36777") }, { label: "Notice officielle du cerfa 16702 (n° 51434)", url: NOTICE }],
-    related: ["permis-de-construire-extension-garage-veranda", "declaration-prealable-travaux", "panneaux-solaires-agricoles-hangar", "tarifs"],
+    related: ["cerfa-permis-de-construire", "permis-de-construire-extension-garage-veranda", "declaration-prealable-travaux", "panneaux-solaires-agricoles-hangar", "tarifs"],
     updated: "2026-11-23",
   },
   {
@@ -770,6 +787,69 @@ export const GUIDES: Guide[] = [
     sources: [{ label: "Service-public : déclaration préalable, décision et recours (F17578)", url: SP("F17578") }],
     related: ["declaration-prealable-travaux", "delai-instruction-declaration-prealable", "travaux-abords-monument-historique-abf", "pieces-declaration-prealable-dp1-dp8"],
     updated: "2026-11-23",
+  },
+  {
+    slug: "cerfa-permis-de-construire",
+    title: "Cerfa permis de construire : 13406 ou 13409 ?",
+    description: "Quel cerfa pour un permis de construire : 13406*17 pour une maison et ses annexes, 13409*17 pour les autres constructions. Rubriques, pièces PCMI et dépôt.",
+    h1: "Cerfa du permis de construire : lequel choisir et comment le remplir",
+    lead: "La demande de permis de construire se fait sur un formulaire cerfa officiel. Il en existe deux principaux : le 13406 pour une maison individuelle et ses annexes, le 13409 pour les autres constructions. Voici comment choisir et ce qu'il faut joindre.",
+    works: "extension",
+    price: { label: "Dossier de permis de construire", amount: 149 },
+    cta: { label: "Préparer ma demande de permis", href: "/verifier/?w=extension&intent=pc" },
+    sections: [
+      {
+        h2: "Quel formulaire choisir ?",
+        table: {
+          head: ["Projet", "Formulaire"],
+          rows: [
+            ["Maison individuelle et/ou ses annexes (extension, garage, véranda, abri), avec ou sans démolition", "Cerfa 13406*17"],
+            ["Autres constructions (bâtiment agricole, local d'activité, immeuble…), avec ou sans démolition", "Cerfa 13409*17"],
+            ["Petits travaux sous les seuils du permis", "Déclaration préalable, cerfa 16702*03"],
+          ],
+        },
+        note: ["Sources : service-public R11637 et R20835 (vérifiées le 12/11/2026), R2028."],
+      },
+      {
+        h2: "Les rubriques du cerfa 13406",
+        list: [
+          "Identité du demandeur : particulier (nom, prénom, date et lieu de naissance) ou personne morale (dénomination, SIRET, représentant).",
+          "Coordonnées et adresse du terrain, avec les références cadastrales.",
+          "Le projet : nature des travaux, surfaces de plancher existante et créée, emprise au sol.",
+          "Recours à l'architecte, ou déclaration sur l'honneur si la surface de plancher reste sous 150 m² après travaux.",
+          "Engagement et signature, puis bordereau des pièces jointes.",
+        ],
+      },
+      {
+        h2: "Les pièces à joindre (PCMI)",
+        list: [
+          "PCMI1 plan de situation, PCMI2 plan de masse, PCMI3 plan en coupe, PCMI4 notice décrivant le terrain et le projet.",
+          "PCMI5 plans des façades et des toitures, PCMI6 document graphique d'insertion, PCMI7 et PCMI8 photographies proche et lointaine.",
+          "Attestation de prise en compte de la réglementation environnementale lorsqu'elle est exigée, établie par un professionnel.",
+        ],
+      },
+      {
+        h2: "Déposer et suivre la demande",
+        list: [
+          "En ligne (téléservice de la commune ou AD'AU) ou en mairie : 4 dossiers complets sur papier, plus 5 exemplaires supplémentaires des plans de situation, de masse et en coupe.",
+          "Délai d'instruction : 2 mois pour une maison individuelle, 3 mois en secteur protégé.",
+          "Après l'accord : déclaration d'ouverture de chantier, puis déclaration attestant l'achèvement et la conformité des travaux (cerfa 13408*14).",
+        ],
+        note: ["Sources : service-public F1986 (vérifiée le 13/02/2026) et R1978."],
+      },
+      {
+        h2: "Le cerfa rempli pour vous",
+        p: ["Pour un agrandissement, un garage ou une véranda, Permizy remplit le cerfa 13406*17 champ par champ à partir de votre adresse (parcelles du cadastre, surfaces, zonage du PLU) et génère les pièces PCMI1 à PCMI8. Avant le téléchargement, il vous demande ce qui manque pour que le formulaire ne parte pas incomplet."],
+      },
+    ],
+    faq: [
+      { q: "Quel cerfa pour un permis de construire de maison individuelle ?", a: "Le cerfa 13406*17, « Demande de permis de construire pour une maison individuelle et/ou ses annexes » (service-public, R11637)." },
+      { q: "Quel cerfa pour un hangar ou un bâtiment qui n'est pas une maison ?", a: "Le cerfa 13409*17, « Demande de permis de construire comprenant ou non des démolitions » (service-public, R20835)." },
+      { q: "Combien d'exemplaires du dossier de permis de construire ?", a: "Sur papier : 4 dossiers complets, plus 5 exemplaires supplémentaires des plans de situation, de masse et en coupe. En ligne, un seul envoi (service-public, F1986)." },
+    ],
+    sources: [{ label: "Service-public : cerfa 13406 (R11637)", url: SP("R11637") }, { label: "Service-public : cerfa 13409 (R20835)", url: SP("R20835") }, { label: "Service-public : permis de construire (F1986)", url: SP("F1986") }, { label: "Service-public : DAACT (R1978)", url: SP("R1978") }],
+    related: ["permis-de-construire-maison", "permis-de-construire-extension-garage-veranda", "cerfa-16702-declaration-prealable", "tarifs"],
+    updated: "2026-11-24",
   },
 ];
 

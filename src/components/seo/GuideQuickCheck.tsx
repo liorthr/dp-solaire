@@ -8,14 +8,14 @@ import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { QUICK_KEY, VERBS } from "@/components/home/SentenceBuilder";
 import { track } from "@/lib/analytics";
 
-export function GuideQuickCheck({ works: fixed, guide }: { works?: WorksType; guide: string }) {
+export function GuideQuickCheck({ works: fixed, guide, intent }: { works?: WorksType; guide: string; intent?: "pc" }) {
   const router = useRouter();
   const [works, setWorks] = useState<WorksType>(fixed ?? "pv");
   const [address, setAddress] = useState<AddressResult>();
   const go = () => {
     track("guide_cta", guide.slice(0, 40));
-    if (address) sessionStorage.setItem(QUICK_KEY, JSON.stringify({ works, address }));
-    router.push(`/verifier/?w=${works}`);
+    if (address) sessionStorage.setItem(QUICK_KEY, JSON.stringify({ works, address, intent }));
+    router.push(`/verifier/?w=${works}${intent ? `&intent=${intent}` : ""}`);
   };
   return (
     <div className="rounded-3xl bg-ink p-6 text-white sm:p-8" data-testid="guide-quick-check">
@@ -33,7 +33,7 @@ export function GuideQuickCheck({ works: fixed, guide }: { works?: WorksType; gu
         </label>
       )}
       <p className="mt-2 text-white/80">
-        {fixed ? `Vous voulez ${VERBS[works]} : saisissez` : "Saisissez"} votre adresse. Permizy lit le cadastre, le plan local d&apos;urbanisme et les périmètres protégés, puis vous dit gratuitement quelle autorisation demander.
+        {intent === "pc" ? "Vous préparez une demande de permis de construire : saisissez" : fixed ? `Vous voulez ${VERBS[works]} : saisissez` : "Saisissez"} votre adresse. Permizy lit le cadastre, le plan local d&apos;urbanisme et les périmètres protégés, puis vous dit gratuitement quelle autorisation demander.
       </p>
       <div className="mt-4 rounded-2xl bg-white p-3 text-ink">
         <AddressAutocomplete value={address} onSelect={setAddress} />

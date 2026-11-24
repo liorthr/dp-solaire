@@ -2,6 +2,19 @@
 
 Chaque session : date, actions, pages, tests, déploiement, mesures, hypothèses, prochaines actions. Le plus récent en haut.
 
+## Session 3 : 24/11/2026
+**Données** : premières volumétries mesurées (Google Keyword Planner, France, fournies par l'utilisateur) : « permis de construire » 10 k – 100 k/mois ; « demande de permis de construire », « cerfa permis de construire », « déclaration de travaux (mairie) », « demande de travaux », « autorisation de travaux », « déclaration préalable de travaux » 1 k – 10 k ; « permis de construire en ligne » et variantes 100 – 1 k. Enregistrées dans `seo/SEO_KEYWORDS.csv`. Audience 20-24/11 : 37 pages vues, 0 depuis un moteur de recherche. Lighthouse guides : 97-100.
+
+**Actions**
+- Pilier permis (`/permis-de-construire-maison/`) recentré sur « permis de construire » (title, H1, description), section « Déposer son permis de construire en ligne », délais et dossier incomplet, DOC, validité, DAACT ; sources F1986 (13/02/2026), R11637 et R20835 (12/11/2026).
+- Nouveau guide `/cerfa-permis-de-construire/` (13406*17 / 13409*17, rubriques, pièces PCMI, dépôt).
+- Pilier DP : vocabulaire courant (« déclaration de travaux », « demande de travaux », « autorisation de travaux ») dans le title, une section et la FAQ.
+- Parcours « Demande de permis de construire » : option dans « Je veux » de l'accueil, carte dans « Vos travaux », question « Quel est votre projet ? » (agrandissement → parcours complet ; maison neuve → information sourcée et guide ; bâtiment agricole → inscription professionnelle) ; les guides du permis ouvrent ce parcours.
+- Accueil ordinateur : la liste « Je veux » ne dépasse plus de sa carte (vérifié à 1440, 1024 et 390 px) ; accroche ramenée sur 3 lignes, formulaire visible sans défiler.
+- `scripts/gen-llms.py` régénère `public/llms.txt` (17 guides).
+
+**Tests** : 120 unitaires ; 32 E2E dont 7 nouveaux (`e2e/permis.spec.ts`) ; test en ligne n° 6 (parcours permis payé 149 €) ajouté.
+
 ## 24/11/2026 : option « pack raccordement Enedis + Consuel » (39 € TTC)
 - Stripe (mode test) : produit « Pack raccordement Enedis + Consuel » 39 € ; liens de paiement : DP solaire 49 € avec l'option (article optionnel « Ajouter »), agricole 239 € avec l'option, pack seul 39 € (achat après coup). Variables `NEXT_PUBLIC_STRIPE_LINK_DP_PV`, `NEXT_PUBLIC_STRIPE_LINK_AGRI` (nouveau lien), `NEXT_PUBLIC_STRIPE_LINK_RAC`.
 - Base : colonne `payments.options` (migration 0005). Webhook : montant → formule et options (49, 88, 149, 239, 278, 39 €), lecture du montant en euros d'origine en cas de conversion de devise ; test qui vérifie la cohérence des prix affichés et du webhook.

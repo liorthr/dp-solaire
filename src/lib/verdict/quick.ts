@@ -10,6 +10,8 @@ import { deadlineMonths, evaluateProject, requiredPieces, rulesetFor } from "@/l
 export const DRAFT_KEY = "permizy:draft";
 export interface QuickDraft {
   works: WorksType;
+  /** arrivé par « demande de permis de construire » */
+  intent?: "pc";
   /** parcours « Solaire agricole » */
   agri?: boolean;
   address: AddressResult;
@@ -18,6 +20,8 @@ export interface QuickDraft {
 
 /** réponses du parcours (une ou deux questions selon le type de travaux) */
 export interface QuickAnswers {
+  /** parcours « demande de permis de construire » : nature du projet */
+  pcProject?: "extension" | "maison_neuve" | "agricole";
   pacPlacement?: "facade" | "toiture" | "sol_dalle" | "sol_sans_dalle";
   identical?: boolean;
   visible?: boolean;

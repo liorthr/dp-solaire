@@ -23,7 +23,7 @@ Quand l'utilisateur écrit « Améliore le SEO de mon site » (ou une formulatio
 7. Finir par le **RAPPORT SEO PERMIZY — [DATE]** (format dans `seo/SEO_MASTER_PLAN.md`), sans jamais inventer de chiffres (« non disponible » si pas de données).
 
 ## Repères du code
-- Guides SEO : `src/data/seo/guides.ts` (données) → `src/app/[slug]/page.tsx` (rendu, JSON-LD) ; test de garde `src/data/seo/guides.test.ts`.
+- Guides SEO : `src/data/seo/guides.ts` (données ; après ajout d'un guide : `python3 -I scripts/gen-llms.py`) → `src/app/[slug]/page.tsx` (rendu, JSON-LD) ; test de garde `src/data/seo/guides.test.ts`.
 - Pages publiques : `src/app/page.tsx` (accueil), `src/app/guides/`, `src/app/tarifs/`, `src/app/verifier/` (vérification gratuite), `src/components/seo/` (en-tête/pied, JSON-LD), `src/lib/seo/site.ts`.
 - `src/app/sitemap.ts`, `src/app/robots.ts`, `public/.htaccess` (redirections www/HTTPS, cache).
 - Infographies originales : `public/guides/*.svg` (toujours marquées « schéma explicatif, non officiel »).

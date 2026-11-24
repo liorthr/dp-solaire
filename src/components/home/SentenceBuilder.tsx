@@ -15,24 +15,28 @@ export const VERBS: Record<WorksType, string> = {
 };
 export const QUICK_KEY = "permizy:quick";
 
+/** entrée « demande de permis de construire » : parcours agrandissement, avec la question du type de projet */
+const PERMIS = "permis";
+
 export function SentenceBuilder() {
   const router = useRouter();
-  const [works, setWorks] = useState<WorksType>("pv");
+  const [works, setWorks] = useState<WorksType | typeof PERMIS>("pv");
   const [address, setAddress] = useState<AddressResult>();
   const go = () => {
-    sessionStorage.setItem(QUICK_KEY, JSON.stringify({ works, address }));
-    router.push(`/verifier/?w=${works}`);
+    const pc = works === PERMIS;
+    sessionStorage.setItem(QUICK_KEY, JSON.stringify({ works: pc ? "extension" : works, address, intent: pc ? "pc" : undefined }));
+    router.push(pc ? "/verifier/?w=extension&intent=pc" : `/verifier/?w=${works}`);
   };
   return (
     <div className="rounded-[26px] border border-line bg-white p-5 shadow-[0_20px_50px_rgba(19,35,28,.10)] sm:p-7">
-      <div className="text-xl font-semibold leading-relaxed sm:text-[27px] sm:leading-[1.9]">
-        <label htmlFor="works-verb">Je veux </label>
-        <span className="relative block w-full sm:inline-block sm:w-auto">
+      <div className="text-xl font-semibold leading-relaxed sm:text-2xl sm:leading-[1.8]">
+        <label htmlFor="works-verb" className="block">Je veux</label>
+        <span className="relative mt-1 block w-full min-w-0">
           <select
             id="works-verb"
             value={works}
-            onChange={(e) => setWorks(e.target.value as WorksType)}
-            className="w-full max-w-full cursor-pointer appearance-none truncate sm:w-auto rounded-2xl border-2 border-dashed border-brand-600 bg-mint py-0.5 pl-4 pr-10 text-brand-600"
+            onChange={(e) => setWorks(e.target.value as WorksType | typeof PERMIS)}
+            className="block w-full min-w-0 max-w-full cursor-pointer appearance-none truncate rounded-2xl border-2 border-dashed border-brand-600 bg-mint py-1 pl-4 pr-10 text-brand-600"
             data-testid="home-works"
           >
             {Object.entries(VERBS).map(([k, v]) => (
@@ -40,10 +44,11 @@ export function SentenceBuilder() {
                 {v}
               </option>
             ))}
+            <option value={PERMIS}>faire une demande de permis de construire</option>
           </select>
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-600">▾</span>
         </span>
-        <span> chez moi, au&nbsp;:</span>
+        <span className="mt-1 block">chez moi, au&nbsp;:</span>
       </div>
       <div className="mt-3 text-base">
         <AddressAutocomplete value={address} onSelect={setAddress} />
